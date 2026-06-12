@@ -15,6 +15,7 @@ Intermediate/
 Saved/
 Build/
 Scripts/ue-root.local.ps1
+Scripts/legacy/ue-root.local.ps1
 Scripts/unity-root.local.ps1
 .vs/
 *.VC.db
@@ -35,3 +36,9 @@ Client/[Uu]ser[Ss]ettings/
 Client/MemoryCaptures/
 Client/Recordings/
 Client/.vs/
+.obsidian/
+
+# Local compile / test logs
+*.log
+Client/compile-check.log
+unity-compile-verify*.log

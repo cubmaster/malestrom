@@ -2,7 +2,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-Import-Module (Join-Path $PSScriptRoot 'IronExiles.Dev.psm1') -Force
+Import-Module (Join-Path (Split-Path $PSScriptRoot -Parent) 'IronExiles.Dev.psm1') -Force
 
 $ueRoot = Get-UERoot
 $buildBat = Get-BuildBat -UERoot $ueRoot

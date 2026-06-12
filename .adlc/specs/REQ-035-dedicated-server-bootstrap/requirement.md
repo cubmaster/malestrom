@@ -4,25 +4,26 @@ title: "Dedicated Server Bootstrap & Client Connection"
 status: draft
 deployable: true
 created: 2026-06-11
-updated: 2026-06-11
+updated: 2026-06-12
 component: "game/networking/Session"
 domain: "networking"
-stack: ["unreal", "cpp"]
+stack: ["unity", "csharp", "netcode", "unity-transport"]
 concerns: ["reliability", "testability", "security"]
-tags: ["dedicated-server", "multiplayer", "tier-b"]
+tags: ["dedicated-server", "multiplayer", "tier-b", "netcode-for-gameobjects"]
+repo: malestrom
 ---
 
 ## Description
 
-Enable headless dedicated server builds and connect two game clients to the same sector instance. Players spawn as ship pawns at designated start points. No movement replication yet — only session join and pawn possession proof.
+Enable **headless Unity dedicated server** builds and connect **two game clients** to the same `EmptySector` instance using **Netcode for GameObjects (NGO)**. The server spawns one networked player ship per connection at designated spawn points. Ships may remain static for this increment — **no movement replication** yet.
 
-**Why:** Validates the MMO server model early: dedicated authority process + thin clients. Catches packaging, port, and session issues before combat replication.
+**Why:** Validates the MMO server model early: dedicated authority process + thin clients. Surfaces packaging, port, transport, and spawn ownership issues before REQ-036 movement replication and combat.
 
-**Depends on:** REQ-033, REQ-032
+**Depends on:** REQ-033 (Unity 6DOF flight), REQ-034 (HUD/camera shell). **Does not** depend on REQ-032 (superseded UE foundation).
 
-**Runnable Demo:** Launch dedicated server executable → connect Client A and Client B via console `open IP:PORT` or packaged launcher script → both see two ships in world.
+**Runnable Demo:** Start dedicated server → connect Client A and Client B via documented local IP/port (or Multiplayer Play Mode helper) → both see two placeholder ships in the sector.
 
-Reference: `docs/05-architecture.md` Dedicated Game Servers, Networking Architecture.
+Reference: `docs/05-architecture.md` Dedicated Game Servers, Networking Architecture; ADR-034 (Unity + NGO).
 
 ## System Model
 
@@ -30,61 +31,87 @@ Reference: `docs/05-architecture.md` Dedicated Game Servers, Networking Architec
 
 | Entity | Field | Type | Constraints |
 |--------|-------|------|-------------|
-| GameSession | server_name | string | configurable |
-| GameSession | max_players | int | default 10 for prototype |
-| PlayerStart | team | int | optional, unused in prototype |
-| DedicatedServer | listen_port | int | default 7777 |
+| NetworkSession | listen_address | string | default `0.0.0.0` on server |
+| NetworkSession | listen_port | ushort | default `7777` (configurable) |
+| NetworkSession | max_players | int | default 10 for prototype |
+| PlayerSpawnPoint | spawn_index | int | unique per slot in scene |
+| PlayerSpawnPoint | transform | Vector3/Quaternion | world pose |
+| NetworkedPlayerShip | owner_client_id | ulong | NGO owner id |
+| NetworkedPlayerShip | is_local_player | bool | true for owning client only |
 
 ### Events
 
 | Event | Trigger | Payload |
 |-------|---------|---------|
-| player_joined | Client PostLogin | `{ player_id, connection_id }` |
-| player_spawned | Pawn possessed | `{ player_id, spawn_transform }` |
+| client_connected | NGO `OnClientConnected` | `{ client_id }` |
+| client_disconnected | NGO `OnClientDisconnected` | `{ client_id }` |
+| player_ship_spawned | Server spawn complete | `{ client_id, spawn_index, position }` |
 
 ### Permissions
 
 | Action | Roles Allowed |
 |--------|---------------|
-| join_session | any connected client |
-| spawn_pawn | server GameMode |
+| start_host | dev tooling only (not production path) |
+| start_dedicated_server | server build / launch script |
+| connect_as_client | any client with address + port |
+| spawn_player_ship | **server only** (informed by LESSON-002 — server-authoritative pattern) |
 
 ## Business Rules
 
-- [ ] BR-1: Server is authoritative for pawn spawn; clients cannot spawn arbitrary pawns.
-- [ ] BR-2: Dedicated server build target compiles for Windows and Linux.
-- [ ] BR-3: Minimum two simultaneous clients supported in test sector.
-- [ ] BR-4: Disconnecting client removes pawn cleanly without crashing server.
+- [ ] BR-1: Server is authoritative for player ship spawn; clients cannot spawn arbitrary networked ships.
+- [ ] BR-2: Dedicated server build target produces a runnable **headless** binary for **Windows** and **Linux**; **Linux headless build runs in CI on first delivery** (informed by ADR-034).
+- [ ] BR-3: Minimum **two simultaneous clients** supported in `EmptySector` without error.
+- [ ] BR-4: Disconnecting a client despawns or hides that player's ship without crashing the server or other clients.
+- [ ] BR-5: Local-player HUD/camera (REQ-034) attach only to the ship owned by that client; remote ships are visible but not possessed.
 
 ## Acceptance Criteria
 
-- [ ] `IronExilesServer` (or documented target) builds headless.
-- [ ] Two clients connect to same server instance without error.
-- [ ] Each client possesses its own ship pawn at a unique PlayerStart.
-- [ ] Automation or integration script: start server, connect 2 clients, assert player count == 2.
-- [ ] Documented launch script for local two-client test.
-- [ ] **Runnable Demo:** Server + 2 clients running; each player sees the other's placeholder ship (static OK).
+- [ ] `Client/` includes Netcode for GameObjects + Unity Transport packages pinned in `manifest.json`.
+- [ ] Documented dedicated-server build produces headless server executables for **Windows** and **Linux**.
+- [ ] **CI (self-hosted):** GitHub Actions workflow on a **self-hosted runner** (labels `self-hosted`, `unity`, `linux`) builds the **Linux headless dedicated server** and runs automated multiplayer verification (multi-instance Play Mode test or equivalent batchmode script).
+- [ ] Two clients connect to the same dedicated server instance without error.
+- [ ] Each client receives its own networked ship at a distinct spawn point; each sees the other player's ship (static pose OK).
+- [ ] Automated verification on **self-hosted CI**: asserts **connected client count == 2** and **spawned player ships == 2** after connect (Play Mode multi-instance or scripted integration test).
+- [ ] Documented repo scripts or README steps for local two-client + server test (e.g. `Run-UnityDedicatedServer.ps1` + two client launches — names finalized in architecture phase).
+- [ ] **Runnable Demo:** Server + 2 clients running in `EmptySector`; each player sees two ships and local HUD on own ship only.
 
 ## External Dependencies
 
-- REQ-032, REQ-033
-- Advanced Sessions or built-in UE Online Subsystem (Epic default for LAN)
+- REQ-033 (`IronExiles.Combat` movement/input — local control disabled or ignored on remote peers until REQ-036)
+- REQ-034 (`IronExiles.UI` HUD binds to local owned ship telemetry)
+- Unity packages: **Netcode for GameObjects**, **Unity Transport (UTP)**
+- Optional dev aid: Unity Multiplayer Play Mode / ParrelSync-style workflow (document if used)
 
 ## Assumptions
 
-- LAN/local IP testing only; auth token gate added in REQ-042.
-- Steam/EOS integration deferred.
+- LAN / `127.0.0.1` testing only; JWT/auth gate deferred to REQ-042 (informed by REQ-031 Tier B sequencing).
+- Self-hosted GitHub Actions runner with Unity **6000.0.32f1**, `UNITY_LICENSE` (or equivalent activation), and capacity for Linux headless server builds (informed by LESSON-003).
+- CI runs **Linux headless dedicated-server build immediately** in REQ-035 — not deferred to a follow-up REQ.
+- Relay/NAT punch-through and Unity Gaming Services relay deferred.
+- Placeholder cube ship visuals from REQ-033 are acceptable; no replication of flight input yet.
+- Single `EmptySector` scene hosts both spawn logic and session bootstrap for the prototype.
+
+## Resolved Decisions
+
+| Question | Decision |
+|----------|----------|
+| CI runner | **Self-hosted** GitHub Actions runner with Unity installed (`self-hosted`, `unity`, `linux` labels). Multi-instance Play Mode or batchmode integration test for 2-client verification. |
+| Linux headless in CI | **Yes, immediately** — Linux dedicated-server build is a first-pass acceptance gate, not documentation-only. |
 
 ## Open Questions
 
-- [ ] Use Online Subsystem Null for local dev only?
+- [ ] Default connection flow for local dev: raw IP:port UI vs. hardcoded dev connect button vs. command-line `-connectAddress`?
 
 ## Out of Scope
 
-- Movement replication (REQ-036)
-- Anti-cheat
-- World orchestrator / sector handoff
+- Movement / rotation replication (REQ-036)
+- Targeting, weapons, damage (REQ-037+)
+- Anti-cheat and server-side movement validation beyond spawn ownership
+- World orchestrator, sector handoff, matchmaking
+- Steam/EOS/Unity Gaming Services authentication
 
 ## Retrieved Context
 
-No prior context retrieved — no tagged documents matched this area.
+- LESSON-002 (lesson, score 1): Engine pivot — Unreal to Unity (ADR-034)
+- LESSON-003 (lesson, score 1): Unity bootstrap without editor / CI constraints
+- LESSON-004 (lesson, score 1): Unity flight re-platform patterns from REQ-033

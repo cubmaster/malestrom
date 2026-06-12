@@ -6,7 +6,10 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$LocalUERootFile = Join-Path $PSScriptRoot 'ue-root.local.ps1'
+$LocalUERootFile = Join-Path $PSScriptRoot 'legacy\ue-root.local.ps1'
+if (-not (Test-Path $LocalUERootFile)) {
+    $LocalUERootFile = Join-Path $PSScriptRoot 'ue-root.local.ps1'
+}
 if (Test-Path $LocalUERootFile) {
     . $LocalUERootFile
 }
@@ -25,32 +28,81 @@ function Get-IronExilesUnityProject {
     return Join-Path (Get-IronExilesProjectRoot) 'Client'
 }
 
-function Get-IronExilesUProject {
-    return Join-Path (Get-IronExilesProjectRoot) 'IronExiles.uproject'
+function Assert-IronExilesUnityProject {
+    param(
+        [string]$UnityProject = (Get-IronExilesUnityProject)
+    )
+
+    $versionFile = Join-Path $UnityProject 'ProjectSettings/ProjectVersion.txt'
+    if (-not (Test-Path $versionFile)) {
+        throw "Unity project not found at '$UnityProject' (missing ProjectSettings/ProjectVersion.txt)."
+    }
+
+    return (Resolve-Path $UnityProject).Path
+}
+
+function Get-UnityPinnedEditorVersion {
+    $versionFile = Join-Path (Get-IronExilesUnityProject) 'ProjectSettings/ProjectVersion.txt'
+    if (-not (Test-Path $versionFile)) {
+        return $null
+    }
+
+    foreach ($line in Get-Content $versionFile) {
+        if ($line -match '^m_EditorVersion:\s*(.+)$') {
+            return $Matches[1].Trim()
+        }
+    }
+
+    return $null
+}
+
+function Get-UnityHubPath {
+    $hub = Join-Path ${env:ProgramFiles} 'Unity Hub/Unity Hub.exe'
+    if (Test-Path $hub) {
+        return (Resolve-Path $hub).Path
+    }
+
+    return $null
 }
 
 function Get-UnityEditorFromHub {
+    param(
+        [string]$PreferredVersion = (Get-UnityPinnedEditorVersion)
+    )
+
     $hubRoot = Join-Path ${env:ProgramFiles} 'Unity\Hub\Editor'
     if (-not (Test-Path $hubRoot)) {
         return $null
     }
 
-    $preferred = Get-ChildItem $hubRoot -Directory |
+    if ($PreferredVersion) {
+        $exactEditor = Join-Path $hubRoot "$PreferredVersion/Editor/Unity.exe"
+        if (Test-Path $exactEditor) {
+            return (Resolve-Path $exactEditor).Path
+        }
+    }
+
+    $candidates = Get-ChildItem $hubRoot -Directory |
         Where-Object { $_.Name -like '6000.*' } |
-        Sort-Object Name -Descending |
-        Select-Object -First 1
+        Sort-Object {
+            if ($PreferredVersion -and $_.Name -eq $PreferredVersion) { 0 }
+            elseif ($_.Name -like '6000.0.*') { 1 }
+            else { 2 }
+        }, Name -Descending
 
-    if (-not $preferred) {
-        $preferred = Get-ChildItem $hubRoot -Directory | Sort-Object Name -Descending | Select-Object -First 1
+    foreach ($install in $candidates) {
+        $editor = Join-Path $install.FullName 'Editor/Unity.exe'
+        if (Test-Path $editor) {
+            return (Resolve-Path $editor).Path
+        }
     }
 
-    if (-not $preferred) {
-        return $null
-    }
-
-    $editor = Join-Path $preferred.FullName 'Editor\Unity.exe'
-    if (Test-Path $editor) {
-        return (Resolve-Path $editor).Path
+    $fallback = Get-ChildItem $hubRoot -Directory | Sort-Object Name -Descending | Select-Object -First 1
+    if ($fallback) {
+        $editor = Join-Path $fallback.FullName 'Editor/Unity.exe'
+        if (Test-Path $editor) {
+            return (Resolve-Path $editor).Path
+        }
     }
 
     return $null
@@ -58,7 +110,7 @@ function Get-UnityEditorFromHub {
 
 function Get-UnityEditorPath {
     if ($env:UNITY_ROOT) {
-        $candidate = Join-Path $env:UNITY_ROOT 'Editor\Unity.exe'
+        $candidate = Join-Path $env:UNITY_ROOT 'Editor/Unity.exe'
         if (Test-Path $candidate) {
             return (Resolve-Path $candidate).Path
         }
@@ -70,22 +122,33 @@ function Get-UnityEditorPath {
 
     $fromHub = Get-UnityEditorFromHub
     if ($fromHub) {
+        $pinned = Get-UnityPinnedEditorVersion
+        if ($pinned -and ($fromHub -notmatch [regex]::Escape($pinned))) {
+            Write-Warning "Using Unity editor at '$fromHub' but project pins '$pinned'. Install the pinned version via Unity Hub or set UNITY_ROOT in Scripts/unity-root.local.ps1."
+        }
         return $fromHub
     }
 
     $exampleFile = Join-Path $PSScriptRoot 'unity-root.local.ps1.example'
     $localFile = Join-Path $PSScriptRoot 'unity-root.local.ps1'
+    $pinned = Get-UnityPinnedEditorVersion
+    $pinnedLine = if ($pinned) { "  Install Unity $pinned via Unity Hub, or" } else { '  Install Unity 6000.0.32f1 (Unity 6 LTS) via Unity Hub, or' }
+
     throw @"
 Unity Editor was not found.
 
 Do one of the following:
-  1. Install Unity 6000.0.32f1 (Unity 6 LTS) via Unity Hub, or
+  1. $pinnedLine
   2. Copy '$exampleFile' to '$localFile' and set UNITY_ROOT to your Editor folder, or
   3. Set a user environment variable UNITY_ROOT to the Editor install folder
      (for example: C:\Program Files\Unity\Hub\Editor\6000.0.32f1)
 
-Then rerun: powershell -File Scripts/Run-UnityTests.ps1
+Then rerun: powershell -File Scripts/Launch-UnityEditor.ps1
 "@
+}
+
+function Get-IronExilesUProject {
+    return Join-Path (Get-IronExilesProjectRoot) 'IronExiles.uproject'
 }
 
 function Get-UERootFromEpicLauncher {
@@ -140,18 +203,23 @@ function Get-UERoot {
         }
     }
 
-    $exampleFile = Join-Path $PSScriptRoot 'ue-root.local.ps1.example'
-    $localFile = Join-Path $PSScriptRoot 'ue-root.local.ps1'
+    $exampleFile = Join-Path $PSScriptRoot 'legacy\ue-root.local.ps1.example'
+    if (-not (Test-Path $exampleFile)) {
+        $exampleFile = Join-Path $PSScriptRoot 'ue-root.local.ps1.example'
+    }
+    $localFile = Join-Path $PSScriptRoot 'legacy\ue-root.local.ps1'
+    if (-not (Test-Path $localFile)) {
+        $localFile = Join-Path $PSScriptRoot 'ue-root.local.ps1'
+    }
     throw @"
 Unreal Engine was not found.
 
-Do one of the following:
+Legacy UE5 scripts live under Scripts/legacy/. To use them:
   1. Install UE 5.5 from the Epic Games Launcher, or
   2. Copy '$exampleFile' to '$localFile' and set your engine path, or
   3. Set a user environment variable UE_ROOT to your engine folder
-     (for example: C:\Program Files\Epic Games\UE_5.5)
 
-Then rerun: powershell -File Scripts/Run-Game.ps1
+Then rerun: powershell -File Scripts/legacy/Launch-UEEditor.ps1
 "@
 }
 

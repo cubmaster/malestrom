@@ -34,6 +34,8 @@ From repo root:
 .\Scripts\Run-UnityTests.ps1
 ```
 
+Or use **Iron Exiles: Unity Edit Mode Tests** in Zed / VS Code tasks. Close the Unity Editor before batchmode tests.
+
 Or in Editor: **Window → General → Test Runner → Edit Mode** (`ShipMovementModelTests`, `FlightHudPresenterTests`, `ChaseCameraPlacementTests`).
 
 ## Layout

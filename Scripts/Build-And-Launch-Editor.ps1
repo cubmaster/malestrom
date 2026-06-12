@@ -1,17 +1,16 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Builds the editor target, then launches Unreal Editor.
+  Opens the Iron Exiles Unity project in the Editor (no compile step required).
 #>
 param(
-    [switch]$SkipBuild
+    [string]$ScenePath,
+    [switch]$UseHub,
+    [switch]$Wait
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-if (-not $SkipBuild) {
-    & (Join-Path $PSScriptRoot 'Build-Editor.ps1')
-}
-
-& (Join-Path $PSScriptRoot 'Launch-Editor.ps1')
+Write-Host 'Unity projects compile on open; launching Editor...'
+& (Join-Path $PSScriptRoot 'Launch-UnityEditor.ps1') @PSBoundParameters

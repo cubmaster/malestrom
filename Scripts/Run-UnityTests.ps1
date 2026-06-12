@@ -8,12 +8,8 @@ $ErrorActionPreference = "Stop"
 Import-Module (Join-Path $PSScriptRoot 'IronExiles.Dev.psm1') -Force
 
 $projectRoot = Get-IronExilesProjectRoot
-$unityProject = Join-Path $projectRoot $ProjectPath
+$unityProject = Assert-IronExilesUnityProject -UnityProject (Join-Path $projectRoot $ProjectPath)
 $resultsFile = Join-Path $projectRoot $ResultsPath
-
-if (-not (Test-Path (Join-Path $unityProject 'ProjectSettings/ProjectVersion.txt'))) {
-    throw "Unity project not found at '$unityProject'."
-}
 
 $unity = Get-UnityEditorPath
 $resultsDir = Split-Path $resultsFile -Parent

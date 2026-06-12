@@ -24,12 +24,18 @@ Optional: `Scripts/unity-root.local.ps1` (copy from example) to point batchmode 
 ## Quick start (Unity)
 
 1. **Clone** the repository.
-2. Open **`Client/`** in Unity Hub.
+2. Run `.\Scripts\Launch-UnityEditor.ps1` (or open **`Client/`** in Unity Hub).
 3. Open scene **`Assets/Scenes/Test/EmptySector.unity`**.
-4. Press **Play** — placeholder ship spawns; fly with keyboard + mouse (see `Client/README.md`).
+4. Press **Play** — ship spawns with chase camera and flight HUD (see `Client/README.md`).
 
 ```powershell
-# Optional: run Edit Mode tests from repo root
+# Open Unity Editor with Client/
+.\Scripts\Launch-UnityEditor.ps1
+
+# Open EmptySector for play-testing (press Play in the Editor)
+.\Scripts\Run-UnityGame.ps1
+
+# Run Edit Mode tests (batchmode — close Unity Editor first)
 .\Scripts\Run-UnityTests.ps1
 ```
 
@@ -40,7 +46,7 @@ Client/                     # Unity project (Iron Exiles) — REQ-051
 legacy/unreal/              # Planned home for deprecated UE tree
 IronExiles.uproject         # Legacy UE5 (root until moved)
 Source/IronExiles/          # Legacy C++ module
-Scripts/                    # Repo automation (UE legacy + future Unity CI)
+Scripts/                    # Repo automation (Unity dev scripts; UE legacy under Scripts/legacy/)
 docs/                       # Game design documents
 .adlc/                      # Spec-driven development artifacts
 deploy/                     # Docker/K8s scaffolding (backend — REQ-042+)
@@ -48,7 +54,15 @@ deploy/                     # Docker/K8s scaffolding (backend — REQ-042+)
 
 ## Zed
 
-Project tasks live in `.zed/tasks.json`. After Unity bootstrap, use **Iron Exiles: Open Unity Project** and related test tasks. Legacy Unreal tasks remain prefixed **Legacy UE5:** for the old scaffold.
+Project tasks live in `.zed/tasks.json`. In VS Code / Cursor, use **Run and Debug** (`.vscode/launch.json`) or **Tasks: Run Task** (`.vscode/tasks.json`).
+
+| Task | Script |
+|------|--------|
+| Open Unity Editor | `Scripts/Launch-UnityEditor.ps1` |
+| Play EmptySector | `Scripts/Run-UnityGame.ps1` |
+| Edit Mode tests | `Scripts/Run-UnityTests.ps1` |
+
+Legacy Unreal tasks are prefixed **Legacy UE5:** and live under `Scripts/legacy/`.
 
 ## CI
 
@@ -63,18 +77,18 @@ Incremental delivery is spec-driven. See `.adlc/specs/REQ-031-delivery-roadmap/`
 
 ## Legacy Unreal (optional)
 
-The UE5 scaffold at repo root was completed under REQ-032/033. It is **superseded** and frozen.
+The UE5 scaffold at repo root was completed under REQ-032/033. It is **superseded** and frozen. Scripts are under `Scripts/legacy/`.
 
-Prerequisites: Unreal **5.5.x**, Visual Studio 2022, `Scripts/ue-root.local.ps1` (copy from `Scripts/ue-root.local.ps1.example`).
+Prerequisites: Unreal **5.5.x**, Visual Studio 2022, `Scripts/legacy/ue-root.local.ps1` (copy from `Scripts/legacy/ue-root.local.ps1.example`).
 
 ```powershell
-Copy-Item Scripts/ue-root.local.ps1.example Scripts/ue-root.local.ps1
+Copy-Item Scripts/legacy/ue-root.local.ps1.example Scripts/legacy/ue-root.local.ps1
 # Edit UE_ROOT path, then:
-.\Scripts\Build-Editor.ps1
-.\Scripts\Launch-Editor.ps1
-.\Scripts\Initialize-Content.ps1
-.\Scripts\Run-FoundationTests.ps1
-.\Scripts\Run-FlightTests.ps1
+.\Scripts\legacy\Build-Editor.ps1
+.\Scripts\legacy\Launch-UEEditor.ps1
+.\Scripts\legacy\Initialize-Content.ps1
+.\Scripts\legacy\Run-FoundationTests.ps1
+.\Scripts\legacy\Run-FlightTests.ps1
 ```
 
 ## License

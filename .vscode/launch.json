@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Iron Exiles: Open Unity Editor",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Scripts/Launch-UnityEditor.ps1",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Iron Exiles: Play EmptySector",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Scripts/Run-UnityGame.ps1",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Iron Exiles: Unity Edit Mode Tests",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Scripts/Run-UnityTests.ps1",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

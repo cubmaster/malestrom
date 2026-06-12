@@ -1,11 +1,13 @@
 [
   {
-    "label": "Iron Exiles: Open Unity Project (Client/)",
+    "label": "Iron Exiles: Open Unity Editor",
     "command": "powershell",
     "args": [
       "-NoProfile",
-      "-Command",
-      "if (-not (Test-Path 'Client/ProjectSettings/ProjectVersion.txt')) { Write-Error 'Unity project missing at Client/'; exit 1 }; $hub = Join-Path ${env:ProgramFiles} 'Unity Hub/Unity Hub.exe'; if (Test-Path $hub) { Start-Process $hub -ArgumentList '-- --projectPath', (Resolve-Path 'Client').Path } else { Start-Process (Resolve-Path 'Client').Path }"
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "Scripts/Launch-UnityEditor.ps1"
     ],
     "use_new_terminal": true,
     "reveal": "always",
@@ -13,7 +15,22 @@
     "tags": ["iron-exiles-run"]
   },
   {
-    "label": "Iron Exiles: Unity Edit Mode Tests (batchmode)",
+    "label": "Iron Exiles: Play EmptySector (Unity)",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "Scripts/Run-UnityGame.ps1"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "allow_concurrent_runs": false,
+    "tags": ["iron-exiles-run"]
+  },
+  {
+    "label": "Iron Exiles: Unity Edit Mode Tests",
     "command": "powershell",
     "args": [
       "-NoProfile",
@@ -34,7 +51,7 @@
       "-ExecutionPolicy",
       "Bypass",
       "-File",
-      "Scripts/Launch-Editor.ps1"
+      "Scripts/legacy/Launch-UEEditor.ps1"
     ],
     "use_new_terminal": true,
     "reveal": "always",
@@ -49,7 +66,7 @@
       "-ExecutionPolicy",
       "Bypass",
       "-File",
-      "Scripts/Run-Game.ps1"
+      "Scripts/legacy/Run-UEGame.ps1"
     ],
     "use_new_terminal": true,
     "reveal": "always",
@@ -64,7 +81,7 @@
       "-ExecutionPolicy",
       "Bypass",
       "-File",
-      "Scripts/Build-And-Launch-Editor.ps1"
+      "Scripts/legacy/Build-And-Launch-UEEditor.ps1"
     ],
     "use_new_terminal": true,
     "reveal": "always",
@@ -79,7 +96,7 @@
       "-ExecutionPolicy",
       "Bypass",
       "-Command",
-      "& ./Scripts/Run-FoundationTests.ps1; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & ./Scripts/Run-FlightTests.ps1"
+      "& ./Scripts/legacy/Run-FoundationTests.ps1; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & ./Scripts/legacy/Run-FlightTests.ps1"
     ],
     "use_new_terminal": true,
     "reveal": "always",
