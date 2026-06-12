@@ -1,7 +1,7 @@
 ---
 id: REQ-032
 title: "UE5 Project Foundation & Dev Pipeline"
-status: approved
+status: complete
 deployable: true
 created: 2026-06-11
 updated: 2026-06-12

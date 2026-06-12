@@ -29,6 +29,12 @@ jobs:
           UE_ROOT: ${{ env.UE_ROOT }}
         run: ./Scripts/Build-Editor.ps1
 
+      - name: Initialize test content
+        shell: pwsh
+        env:
+          UE_ROOT: ${{ env.UE_ROOT }}
+        run: ./Scripts/Initialize-Content.ps1
+
       - name: Run foundation automation tests
         shell: pwsh
         env:
