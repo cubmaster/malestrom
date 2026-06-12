@@ -1,0 +1,31 @@
+{
+  "req": "REQ-032",
+  "branch": "feat/REQ-032-project-foundation",
+  "startedAt": "2026-06-12T00:00:00Z",
+  "completed": false,
+  "currentPhase": 4,
+  "completedPhases": [0, 1, 2, 3],
+  "phaseHistory": [
+    { "phase": 0, "name": "Create Worktree", "completedAt": "2026-06-12T00:00:00Z" },
+    { "phase": 1, "name": "Validate Spec", "completedAt": "2026-06-12T00:00:00Z" },
+    { "phase": 2, "name": "Architect", "completedAt": "2026-06-12T00:00:00Z" },
+    { "phase": 3, "name": "Validate Tasks", "completedAt": "2026-06-12T00:00:00Z" }
+  ],
+  "repos": {
+    "malestrom": {
+      "primary": true,
+      "path": "C:/Users/wmcclellan001/code/test/Malestrom",
+      "worktree": "C:/Users/wmcclellan001/code/test/Malestrom/.worktrees/REQ-032",
+      "branch": "feat/REQ-032-project-foundation",
+      "touched": true,
+      "prUrl": null,
+      "merged": false
+    }
+  },
+  "mergeOrder": ["malestrom"],
+  "phase4": {
+    "currentTask": "TASK-001",
+    "completedTasks": [],
+    "failedTasks": []
+  }
+}
