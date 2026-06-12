@@ -1,0 +1,36 @@
+# Builds IronExilesEditor on a self-hosted Windows runner with UE 5.5 installed.
+# Prerequisites: runner label `ue5`, env UE_ROOT pointing at the engine install.
+name: compile-editor
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Source/**'
+      - 'Config/**'
+      - 'IronExiles.uproject'
+      - 'Scripts/**'
+      - '.github/workflows/compile-editor.yml'
+
+jobs:
+  build-and-test:
+    runs-on: [self-hosted, windows, ue5]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Build editor target
+        shell: pwsh
+        env:
+          UE_ROOT: ${{ env.UE_ROOT }}
+        run: ./Scripts/Build-Editor.ps1
+
+      - name: Run foundation automation tests
+        shell: pwsh
+        env:
+          UE_ROOT: ${{ env.UE_ROOT }}
+        run: ./Scripts/Run-FoundationTests.ps1
