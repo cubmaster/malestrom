@@ -4,38 +4,36 @@
 
 ```
 Malestrom/
-├── IronExiles.uproject      # UE5 project entry (engine 5.5)
-├── Source/IronExiles/       # Primary C++ runtime module
-├── Source/IronExiles.Target.cs
-├── Source/IronExilesEditor.Target.cs
-├── Config/                  # DefaultEngine.ini, DefaultGame.ini
-├── Content/                 # Unreal assets (Maps/Test/EmptySector, etc.)
-├── Content/Python/          # Editor utility scripts (content bootstrap)
-├── Scripts/                 # Build-Editor.ps1, Run-FoundationTests.ps1, IronExiles.Dev.psm1
-├── deploy/                  # Docker/K8s scaffolding (backend services, REQ-042+)
-├── docs/                    # Game design documents (GDD, architecture)
-│   ├── 01-races.md … 09-realtime-combat.md
-└── .adlc/                   # ADLC spec-driven development artifacts
-    ├── context/
-    ├── specs/
-    ├── bugs/
-    └── knowledge/
+├── Client/                      # Unity project (IronExiles)
+│   ├── Assets/
+│   │   ├── _Project/            # Game code, scenes, prefabs, ScriptableObjects
+│   │   ├── Scenes/Test/         # EmptySector and test scenes
+│   │   └── Settings/            # URP/HDRP, Netcode, Input System
+│   ├── Packages/
+│   └── ProjectSettings/
+├── legacy/unreal/               # Deprecated UE5 scaffold (REQ-032/033), pending removal
+├── deploy/                      # Docker/K8s for backend services
+├── docs/                        # Game design documents
+├── Scripts/                     # Repo automation (backend, CI helpers — not Unity Editor)
+└── .adlc/                       # Spec-driven development artifacts
 ```
+
+Until the Unity project is bootstrapped, the UE5 tree may still live at repo root (`IronExiles.uproject`, `Source/`). New work must not extend it.
 
 ## Naming
 
-- **Design docs:** Numbered prefix for ordering (`01-races.md`, `05-architecture.md`)
-- **ADLC specs:** `REQ-{number}-{short-slug}.md` in `.adlc/specs/`
-- **ADLC bugs:** `BUG-{number}-{short-slug}.md` in `.adlc/bugs/`
-- **UE5 modules (planned):** PascalCase module names matching architecture doc (`CombatModule`, `ShipAIModule`, `GalaxyModule`)
-- **UE5 C++ types:** `F` prefix for structs, `U` prefix for UObject classes, `E` prefix for enums (UE convention)
+- **Design docs:** Numbered prefix (`01-races.md`, `05-architecture.md`)
+- **ADLC specs:** `REQ-{number}-{short-slug}/` under `.adlc/specs/`
+- **Unity assemblies:** PascalCase (`IronExiles.Combat`, `IronExiles.Galaxy`, …)
+- **C# types:** PascalCase types; interfaces `I` prefix; private fields `_camelCase`
+- **ScriptableObjects:** suffix `Data`, `Config`, or `Definition` (e.g. `ShipStatsDefinition`)
 - **Database tables:** snake_case plural (`characters`, `ship_loadouts`, `auction_listings`)
 
 ## Testing
 
-- **Unit tests:** UE5 Automation Tests for C++ gameplay systems
-- **Integration tests:** Dedicated server headless runs for replication and combat validation
-- **Load tests:** Monthly sector capacity testing (target: 100 players + 100 NPCs per sector)
+- **Unit / component tests:** Unity Test Framework (Edit Mode)
+- **Gameplay tests:** Play Mode tests + dedicated-server headless runs for replication/combat
+- **Backend tests:** xUnit/NUnit in microservice repos (containerized in CI)
 - **Performance targets:** 60 fps solo/station, 30+ fps fleet battles, <150ms latency playable
 
 ## Error Handling
@@ -47,13 +45,18 @@ Malestrom/
 
 ## Deployment
 
-- **Local:** Docker Compose at repo root (or `deploy/docker/`) brings up backend services and dependencies. Developers do not install PostgreSQL/Redis natively for routine work.
-- **Production:** Kubernetes manifests (or Helm) under `deploy/k8s/` (or equivalent). CI builds, tags, and pushes images; cluster deploys from those images.
-- **Per service:** Each backend microservice includes a `Dockerfile`, health/readiness endpoints, and Compose service entry. K8s Deployment + Service definitions added before a service is considered deployable.
-- **Game servers:** UE5 dedicated server builds may run on GameLift/EC2; container packaging is preferred for orchestrator/world-server stubs and backend services.
+- **Local:** Docker Compose for backend services and dependencies
+- **Production:** Kubernetes manifests under `deploy/k8s/`
+- **Game servers:** Unity dedicated server builds (Linux headless) on GameLift/EC2 or K8s Jobs/Deployments
+- **Client:** Player installs via launcher/patch CDN — not containerized
 
 ## Git Conventions
 
 - **Branch naming:** `feat/REQ-{number}-{slug}`, `fix/BUG-{number}-{slug}`, `docs/{topic}`
-- **Commit messages:** Imperative mood, reference REQ/BUG when applicable (e.g., `feat(combat): add beam weapon replication REQ-003`)
-- **PR process:** ADLC pipeline creates PRs via `/proceed`; require review before merge; destructive deploys require human confirmation
+- **Commit messages:** Imperative mood, reference REQ/BUG when applicable
+- **PR process:** ADLC pipeline via `/proceed`; review before merge
+
+## Zed / IDE
+
+- Unity Editor is the primary game run target once `Client/` exists
+- Zed tasks should invoke `Scripts/` helpers or documented `unity` batchmode commands — not legacy Unreal Editor scripts

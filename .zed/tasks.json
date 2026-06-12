@@ -1,0 +1,88 @@
+[
+  {
+    "label": "Iron Exiles: Open Unity Project (Client/)",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-Command",
+      "if (-not (Test-Path 'Client/ProjectSettings/ProjectVersion.txt')) { Write-Error 'Unity project missing at Client/'; exit 1 }; $hub = Join-Path ${env:ProgramFiles} 'Unity Hub/Unity Hub.exe'; if (Test-Path $hub) { Start-Process $hub -ArgumentList '-- --projectPath', (Resolve-Path 'Client').Path } else { Start-Process (Resolve-Path 'Client').Path }"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "allow_concurrent_runs": true,
+    "tags": ["iron-exiles-run"]
+  },
+  {
+    "label": "Iron Exiles: Unity Edit Mode Tests (batchmode)",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "Scripts/Run-UnityTests.ps1"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "tags": ["iron-exiles-test"]
+  },
+  {
+    "label": "Legacy UE5: Run Editor",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "Scripts/Launch-Editor.ps1"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "allow_concurrent_runs": true,
+    "tags": ["legacy-ue5"]
+  },
+  {
+    "label": "Legacy UE5: Run Game (Standalone)",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "Scripts/Run-Game.ps1"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "allow_concurrent_runs": false,
+    "tags": ["legacy-ue5"]
+  },
+  {
+    "label": "Legacy UE5: Build and Run Editor",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "Scripts/Build-And-Launch-Editor.ps1"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "allow_concurrent_runs": false,
+    "tags": ["legacy-ue5"]
+  },
+  {
+    "label": "Legacy UE5: Run Tests",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-Command",
+      "& ./Scripts/Run-FoundationTests.ps1; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & ./Scripts/Run-FlightTests.ps1"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "tags": ["legacy-ue5"]
+  }
+]

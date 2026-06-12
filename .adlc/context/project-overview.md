@@ -8,8 +8,8 @@ Iron Exiles is a multiplayer space combat MMO inspired by *Earth and Beyond* (20
 
 | Layer | Technology |
 |-------|------------|
-| Game Client & Dedicated Servers | Unreal Engine 5 (C++ core, Blueprint gameplay) |
-| Networking | UE5 replication, dedicated servers, sector instancing |
+| Game Client & Dedicated Servers | **Unity 6 LTS** (C# gameplay, URP; headless server builds) |
+| Networking | Netcode for GameObjects, Unity Transport, dedicated servers, sector instancing |
 | Backend Services | Containerized microservices (Auth, Account, Economy, Chat, Guild, Mission, etc.) |
 | Local Development | Docker + Docker Compose (all backend deps and services) |
 | Production Deployment | Kubernetes (EKS or equivalent) |
@@ -17,20 +17,21 @@ Iron Exiles is a multiplayer space combat MMO inspired by *Earth and Beyond* (20
 | Cache | Redis |
 | Metrics | InfluxDB |
 | Object Storage | S3-compatible (assets, logs) |
-| Game Server Hosting | AWS GameLift / EC2 (UE5 dedicated servers — containerized where practical) |
-| CI/CD | GitHub Actions + Jenkins (planned); build and push container images |
+| Game Server Hosting | AWS GameLift / EC2 / K8s (Unity dedicated server builds) |
+| CI/CD | GitHub Actions; Unity batchmode builds + container image pipeline for backend |
 
 ## Project Scope
 
-**In scope (design phase):**
+**In scope:**
 - Game design documents for races, ships, planets, combat, leveling, assets, multiplayer, and architecture
-- UE5 client-server MMO with sector-based instancing (50–100 players per sector)
+- Unity client-server MMO with sector-based instancing (50–100 players per sector)
 - Server-authoritative combat with client prediction
 - Triple-XP progression, ship AI companion system, economy/crafting, social/guild systems
 - Persistent galaxy with jump gates, wormholes, and instanced content
 
 **Out of scope (current repo state):**
-- Implemented game code (repo currently contains design docs only)
-- Live backend infrastructure deployment
+- Production live ops deployment
 - Console ports (secondary target, post-PC)
 - Modding support (future consideration)
+
+**Legacy:** Early Unreal Engine 5 scaffold (REQ-032/033) remains in repo temporarily; superseded by ADR-034 (Unity).

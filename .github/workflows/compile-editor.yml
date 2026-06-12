@@ -1,27 +1,9 @@
-# Builds IronExilesEditor on a self-hosted Windows runner with UE 5.5 installed.
-# Prerequisites: runner label `ue5`, env UE_ROOT pointing at the engine install.
-name: compile-editor
+# Legacy UE5 CI — superseded by ADR-034 (Unity).
+# Manual runs only; requires self-hosted Windows runner with label `ue5` and UE_ROOT.
+name: compile-editor-legacy
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'Source/**'
-      - 'Config/**'
-      - 'IronExiles.uproject'
-      - 'Scripts/**'
-      - '.github/workflows/compile-editor.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'Source/**'
-      - 'Config/**'
-      - 'IronExiles.uproject'
-      - 'Scripts/**'
-      - '.github/workflows/compile-editor.yml'
 
 jobs:
   build-and-test:

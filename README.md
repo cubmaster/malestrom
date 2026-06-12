@@ -1,89 +1,80 @@
 # Iron Exiles (Malestrom)
 
-Space MMO prototype based on the Iron Exiles universe. Design docs live in `docs/`; executable code is the Unreal Engine 5 project in this repository.
+Space MMO prototype based on the Iron Exiles universe. Design docs live in `docs/`; the **active game client** is a **Unity** project (see ADR-034 in `.adlc/context/architecture.md`).
 
-## Prerequisites
+## Engine status
+
+| Stack | Status |
+|-------|--------|
+| **Unity 6 LTS** (`Client/`) | **Target** — bootstrap in REQ-051 (not created yet) |
+| **Unreal Engine 5** (repo root) | **Legacy** — REQ-032/033 reference implementation; do not extend |
+
+See `.adlc/knowledge/lessons/LESSON-002-engine-pivot-unity.md` for the pivot rationale.
+
+## Prerequisites (Unity — when `Client/` exists)
 
 | Tool | Version |
 |------|---------|
-| Unreal Engine | **5.5.x** (pinned — upgrades require a new REQ) |
-| Visual Studio | 2022 with **Desktop development with C++** |
-| Git LFS | Required before pulling content assets |
+| Unity Hub | Latest |
+| Unity Editor | **6000.0.32f1** (Unity 6 LTS — pinned in `Client/ProjectSettings/ProjectVersion.txt`) |
+| .NET SDK | Per Unity version requirements |
 
-Set the engine path:
+Optional: Unity Hub CLI or `unity-root.local.ps1` for CI and Zed tasks (added with REQ-051).
 
-```powershell
-$env:UE_ROOT = "C:\Program Files\Epic Games\UE_5.5"
-```
+## Quick start (Unity — planned)
 
-## Quick start (Runnable Demo)
+After REQ-051 lands:
 
-1. **Clone** and enable LFS:
-   ```powershell
-   git clone <repo-url> Malestrom
-   cd Malestrom
-   git lfs install
-   git lfs pull
-   ```
+1. **Clone** the repository.
+2. Open **`Client/`** in Unity Hub (Iron Exiles project).
+3. Open scene **`Assets/Scenes/Test/EmptySector.unity`**.
+4. Press **Play** — foundation Play Mode tests and flight prototype run in-editor.
 
-2. **Generate & open** the project:
-   - Right-click `IronExiles.uproject` → *Generate Visual Studio project files*
-   - Open `IronExiles.uproject` in Unreal Editor 5.5
-
-3. **Initialize content** (first time only, creates `EmptySector` map):
-   ```powershell
-   .\Scripts\Initialize-Content.ps1
-   ```
-
-4. **Play** — press Play in the editor (`EmptySector` test map, `IronExilesGameModeBase`).
-
-5. **Run foundation tests**:
-   ```powershell
-   .\Scripts\Run-FoundationTests.ps1
-   .\Scripts\Run-FlightTests.ps1
-   ```
-
-## Flight controls (REQ-033)
-
-After content init, press **Play** in `EmptySector` to fly the placeholder ship (6DOF, momentum-based):
-
-| Input | Action |
-|-------|--------|
-| W / S | Forward / reverse thrust |
-| A / D | Strafe left / right |
-| Space / Ctrl | Strafe up / down |
-| Mouse | Pitch / yaw |
-| Q / E | Roll left / right |
-| Shift (hold) | Brake |
-
-Ship stats load from DataTable row `Human_Starter_Fighter` (`/Game/Data/DT_ShipStats`) with C++ fallbacks if the asset is missing.
-
-## Build from command line
-
-```powershell
-.\Scripts\Build-Editor.ps1
-```
-
-## CI
-
-GitHub Actions workflow `.github/workflows/compile-editor.yml` runs on a **self-hosted Windows runner** with label `ue5` and `UE_ROOT` configured. Use *workflow_dispatch* if no runner is attached yet.
+Until then, use the legacy Unreal scaffold at repo root only if you need the historical REQ-032/033 demo (requires UE 5.5 — see [Legacy Unreal](#legacy-unreal-optional)).
 
 ## Project layout
 
 ```
-IronExiles.uproject
-Source/IronExiles/          # C++ game module
-Content/Maps/Test/          # EmptySector test sector
-Config/                     # DefaultEngine.ini, DefaultGame.ini
-Scripts/                    # Build & test automation
+Client/                     # Unity project (Iron Exiles) — REQ-051
+legacy/unreal/              # Planned home for deprecated UE tree
+IronExiles.uproject         # Legacy UE5 (root until moved)
+Source/IronExiles/          # Legacy C++ module
+Scripts/                    # Repo automation (UE legacy + future Unity CI)
 docs/                       # Game design documents
 .adlc/                      # Spec-driven development artifacts
-deploy/                     # Docker/K8s scaffolding (REQ-042+)
+deploy/                     # Docker/K8s scaffolding (backend — REQ-042+)
 ```
+
+## Zed
+
+Project tasks live in `.zed/tasks.json`. After Unity bootstrap, use **Iron Exiles: Open Unity Project** and related test tasks. Legacy Unreal tasks remain prefixed **Legacy UE5:** for the old scaffold.
+
+## CI
+
+- **Unity:** `.github/workflows/unity-ci.yml` (added with REQ-051) — batchmode build + Edit/Play Mode tests.
+- **Legacy UE5:** `.github/workflows/compile-editor.yml` — manual `workflow_dispatch` only; requires self-hosted `ue5` runner.
 
 ## ADLC
 
-Incremental delivery is spec-driven. See `.adlc/specs/REQ-031-delivery-roadmap/` for the full REQ sequence. Current milestone: **REQ-033** ship flight prototype.
+Incremental delivery is spec-driven. See `.adlc/specs/REQ-031-delivery-roadmap/` for the REQ sequence.
+
+**Current milestone:** Architecture pivot to Unity (ADR-034). Next implementation: **REQ-051** Unity project foundation, then re-platform REQ-033 flight in Unity.
+
+## Legacy Unreal (optional)
+
+The UE5 scaffold at repo root was completed under REQ-032/033. It is **superseded** and frozen.
+
+Prerequisites: Unreal **5.5.x**, Visual Studio 2022, `Scripts/ue-root.local.ps1` (copy from `Scripts/ue-root.local.ps1.example`).
+
+```powershell
+Copy-Item Scripts/ue-root.local.ps1.example Scripts/ue-root.local.ps1
+# Edit UE_ROOT path, then:
+.\Scripts\Build-Editor.ps1
+.\Scripts\Launch-Editor.ps1
+.\Scripts\Initialize-Content.ps1
+.\Scripts\Run-FoundationTests.ps1
+.\Scripts\Run-FlightTests.ps1
+```
 
 ## License
 

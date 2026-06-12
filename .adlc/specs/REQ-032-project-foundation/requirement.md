@@ -1,7 +1,7 @@
 ---
 id: REQ-032
 title: "UE5 Project Foundation & Dev Pipeline"
-status: complete
+status: superseded
 deployable: true
 created: 2026-06-11
 updated: 2026-06-12
@@ -9,10 +9,12 @@ component: "game/foundation"
 domain: "infra"
 stack: ["unreal", "cpp", "github-actions"]
 concerns: ["developer-experience", "testability", "reliability"]
-tags: ["project-scaffold", "ci", "automation-tests", "tier-a"]
+tags: ["project-scaffold", "ci", "automation-tests", "tier-a", "legacy"]
 ---
 
 ## Description
+
+> **Superseded by ADR-034 (Unity).** Do not extend. Replacement: **REQ-051** Unity project foundation. UE artifacts remain at repo root until moved to `legacy/unreal/`.
 
 Establish the Unreal Engine 5 project skeleton, module layout, and developer workflow so every subsequent increment has a consistent home. This is the first runnable increment: launching the editor and running an empty automation test pass.
 
