@@ -14,6 +14,8 @@ DerivedDataCache/
 Intermediate/
 Saved/
 Build/
+Scripts/ue-root.local.ps1
+Scripts/unity-root.local.ps1
 .vs/
 *.VC.db
 *.opensdf
@@ -23,3 +25,13 @@ Build/
 *.suo
 *.xcodeproj
 *.xcworkspace
+
+# Unity (Client/)
+Client/[Ll]ibrary/
+Client/[Tt]emp/
+Client/[Oo]bj/
+Client/[Ll]ogs/
+Client/[Uu]ser[Ss]ettings/
+Client/MemoryCaptures/
+Client/Recordings/
+Client/.vs/

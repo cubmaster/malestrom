@@ -1,0 +1,4 @@
+# Copy this file to ue-root.local.ps1 (same folder) and set your engine path.
+# ue-root.local.ps1 is gitignored — one copy per machine.
+
+$env:UE_ROOT = 'C:\Program Files\Epic Games\UE_5.5'

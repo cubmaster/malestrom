@@ -6,14 +6,16 @@
 
 ## Executive Summary
 
-**Recommended Engine: Unreal Engine 5**
+**Recommended Engine: Unity 6 LTS**
 
-For a multiplayer space combat MMO based on Iron Exiles with Earth & Beyond-style gameplay, Unreal Engine 5 is the recommended choice due to:
-- Industry-leading visuals for space environments (Nanite, Lumen)
-- Proven MMO networking (Lyra/dedicated server framework)
-- Blueprint system for rapid prototyping alongside C++ for performance
-- Massive marketplace with space-relevant assets
-- Replication system built for persistent multiplayer worlds
+For a multiplayer space combat MMO based on Iron Exiles with Earth & Beyond-style gameplay, **Unity** is the chosen engine due to:
+- Faster iteration and broader C# hiring pool for MMO UI/economy systems
+- **Netcode for GameObjects** + headless dedicated server builds for sector hosting
+- URP/HDRP for space visuals; VFX Graph and Shader Graph for combat effects
+- Addressables for scalable content delivery and sector streaming
+- Mature tooling for cross-platform client builds (PC primary)
+
+**Previous recommendation:** Unreal Engine 5 (see ADR-034 / LESSON-002 for pivot rationale).
 
 **Game Type:** Space MMO - Real-time combat, trade, exploration (Earth & Beyond style)
 **Target Platforms:** PC (primary), Console (secondary)
@@ -22,24 +24,25 @@ For a multiplayer space combat MMO based on Iron Exiles with Earth & Beyond-styl
 
 ---
 
-## Why Unreal Engine 5
+## Why Unity
 
-| Requirement | UE5 Capability |
-|-------------|---------------|
-| Stunning space visuals | Nanite + Lumen for detailed ships and dynamic lighting |
-| Large-scale battles | Niagara VFX system for particle-heavy combat |
-| MMO Networking | Dedicated server, replication, Iris (spatial networking) |
-| AI-driven enemies + Ship AI | Behavior Trees + EQS + GAS (Gameplay Ability System) |
-| UI-heavy MMO interface | UMG/CommonUI for HUD, inventory, trade, chat |
-| Modding support (future) | Blueprint exposure enables modding community |
-| Audio | MetaSounds for dynamic combat audio |
-| Persistent world | Seamless travel via level streaming + World Partition |
+| Requirement | Unity Capability |
+|-------------|-----------------|
+| Space visuals | URP/HDRP, VFX Graph, post-processing volumes |
+| Large-scale battles | LOD groups, occlusion, net-relevant effect culling |
+| MMO networking | Netcode for GameObjects, dedicated server, Unity Transport |
+| AI-driven enemies + Ship AI | Unity AI / behavior trees / custom C# state machines |
+| UI-heavy MMO interface | UI Toolkit + uGUI for HUD, inventory, trade, chat |
+| Modding support (future) | Addressables + data-driven ScriptableObjects |
+| Audio | Unity Audio + adaptive music middleware |
+| Persistent world | Additive scene loading, Addressables, sector streaming |
 
 ### Alternatives Considered
 
 | Engine | Verdict |
 |--------|---------|
-| Unity | Good networking (Netcode/Mirror) but HDRP less mature; licensing risk |
+| **Unity** | **Selected** — balance of net tooling, iteration speed, team fit |
+| Unreal Engine 5 | Strong visuals/net; superseded due to install/tooling constraints (ADR-034) |
 | Godot | Networking insufficient for MMO-scale; 3D still maturing |
 | Custom Engine | Maximum control but 3-5 year time investment before gameplay |
 
@@ -49,7 +52,7 @@ For a multiplayer space combat MMO based on Iron Exiles with Earth & Beyond-styl
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                           CLIENT (UE5)                                   │
+│                           CLIENT (Unity)                                   │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────────┐  │
@@ -62,11 +65,11 @@ For a multiplayer space combat MMO based on Iron Exiles with Earth & Beyond-styl
 │  │              CLIENT CORE SYSTEMS                                    │ │
 │  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────────────┐  │ │
 │  │  │Ship AI │ │ HUD/UI │ │Physics │ │ Audio  │ │ Net Prediction │  │ │
-│  │  │(Local) │ │(UMG)   │ │(Client)│ │(Meta)  │ │ & Interp       │  │ │
+│  │  │(Local) │ │(UI)    │ │(Client)│ │(Unity) │ │ & Interp       │  │ │
 │  │  └────────┘ └────────┘ └────────┘ └────────┘ └────────────────┘  │ │
 │  └────────────────────────────────────────────────────────────────────┘ │
 │                                    │                                     │
-│                            [UE5 Replication]                             │
+│              [Netcode for GameObjects / Unity Transport]                 │
 └────────────────────────────────────┼─────────────────────────────────────┘
                                      │ Network
 ┌────────────────────────────────────┼─────────────────────────────────────┐
@@ -75,7 +78,7 @@ For a multiplayer space combat MMO based on Iron Exiles with Earth & Beyond-styl
 │                                                                            │
 │  ┌──────────────────┐  ┌──────────────────┐  ┌────────────────────────┐  │
 │  │  GAME SERVERS    │  │  WORLD SERVER    │  │  SERVICES (Backend)    │  │
-│  │  (UE5 Dedicated) │  │  (Orchestrator)  │  │                        │  │
+│  │  (Unity Dedicated) │  │  (Orchestrator)  │  │                        │  │
 │  │                  │  │                  │  │  - Auth Service         │  │
 │  │  - Sector Host   │  │  - Sector Mgmt   │  │  - Account/Character   │  │
 │  │  - Combat Auth   │  │  - Player Route  │  │  - Economy Service     │  │
@@ -99,9 +102,9 @@ For a multiplayer space combat MMO based on Iron Exiles with Earth & Beyond-styl
 
 ## Server Architecture Detail
 
-### Dedicated Game Servers (UE5)
+### Dedicated Game Servers (Unity)
 
-Each sector of space runs as a UE5 Dedicated Server instance:
+Each sector of space runs as a **headless Unity dedicated server** build:
 
 | Component | Responsibility |
 |-----------|---------------|
@@ -109,7 +112,7 @@ Each sector of space runs as a UE5 Dedicated Server instance:
 | Combat Authority | Server-authoritative hit detection, damage calculation |
 | NPC Simulation | Faction NPCs, enemy ships, patrol routes |
 | Loot Authority | Drop tables, reward distribution |
-| Replication | Sync ship positions, combat state to all clients |
+| Replication | Netcode sync of ship transforms, combat state to clients |
 
 ### World Server (Orchestrator)
 
@@ -144,6 +147,8 @@ Services/
 ---
 
 ## Module Breakdown (Client-Side)
+
+Logical modules map to Unity assemblies under `Client/Assets/_Project/` (e.g. `IronExiles.Combat`, `IronExiles.Galaxy`). Folder names below are conceptual, not Unreal module paths.
 
 ### 1. Combat Module
 
@@ -491,60 +496,32 @@ CREATE TABLE guilds (
 | `faction:territory` | Current territory map | 30s |
 | `events:active` | Live world events | Event duration |
 
-### UE5 Data Tables (Client-Side, Static)
+### Unity Data Definitions (Client-Side, Static)
 
-```cpp
-// Ship hull definitions per faction + tier
-USTRUCT()
-struct FShipHullData : public FTableRowBase
-{
-    UPROPERTY() FName HullId;
-    UPROPERTY() EFaction Faction;
-    UPROPERTY() EShipClass Class;
-    UPROPERTY() int32 HullTier;        // 1-6
-    UPROPERTY() float BaseHullHP;
-    UPROPERTY() float BaseShieldHP;
-    UPROPERTY() float BaseSpeed;
-    UPROPERTY() float Maneuverability;
-    UPROPERTY() float ReactorOutput;
-    UPROPERTY() int32 WeaponSlots;
-    UPROPERTY() int32 DeviceSlots;
-    UPROPERTY() int32 CargoCapacity;
-    UPROPERTY() int32 AIModuleSlots;
-    UPROPERTY() TSoftObjectPtr<UStaticMesh> ShipMesh;
-    UPROPERTY() TSoftObjectPtr<UMaterialInstance> ShipMaterial;
-};
+ScriptableObjects and Addressable assets define static hull/weapon/AI data. Example:
 
-// Weapon template definitions
-USTRUCT()
-struct FWeaponData : public FTableRowBase
+```csharp
+[CreateAssetMenu(menuName = "Iron Exiles/Ship Hull")]
+public class ShipHullDefinition : ScriptableObject
 {
-    UPROPERTY() FName WeaponId;
-    UPROPERTY() EWeaponType Type;      // Beam/Projectile/Missile/Plasma/Drone
-    UPROPERTY() int32 TechLevel;       // 1-9
-    UPROPERTY() float BaseDamage;
-    UPROPERTY() float FireRate;
-    UPROPERTY() float Range;
-    UPROPERTY() float EnergyCost;
-    UPROPERTY() int32 AmmoCapacity;    // -1 for energy weapons
-    UPROPERTY() EFaction FactionRestriction;
-};
-
-// AI Ability definitions
-USTRUCT()
-struct FAIAbilityData : public FTableRowBase
-{
-    UPROPERTY() FName AbilityId;
-    UPROPERTY() FText DisplayName;
-    UPROPERTY() EAbilityType Type;     // Active/Passive
-    UPROPERTY() int32 RequiredAILevel;
-    UPROPERTY() float Cooldown;
-    UPROPERTY() float PowerCost;
-    UPROPERTY() float Duration;
-    UPROPERTY() float EffectValue;
-    UPROPERTY() TSoftObjectPtr<UTexture2D> Icon;
-};
+    public string HullId;
+    public Faction Faction;
+    public ShipClass Class;
+    public int HullTier;           // 1-6
+    public float BaseHullHp;
+    public float BaseShieldHp;
+    public float BaseSpeed;
+    public float Maneuverability;
+    public float ReactorOutput;
+    public int WeaponSlots;
+    public int DeviceSlots;
+    public int CargoCapacity;
+    public int AiModuleSlots;
+    public AssetReference ShipMesh;
+}
 ```
+
+Additional definitions follow the same ScriptableObject pattern (`WeaponDefinition`, `AiAbilityDefinition`, etc.) and are loaded via Addressables at runtime.
 
 ---
 
@@ -594,16 +571,16 @@ Player accepts mission / enters raid
 
 ### Space Environment
 
-| Feature | UE5 System | Notes |
-|---------|-----------|-------|
-| Starfields/Nebulae | Volumetric clouds + skybox | Per-sector unique look |
-| Ship Detail | Nanite meshes | LOD-free, visual hull tiers |
-| Lighting | Lumen GI | Star as primary light source |
-| Explosions/VFX | Niagara | Particle budgets for MMO perf |
-| Beam Weapons | Niagara beams | Replicated start/end points |
-| Shield Effects | Custom shader + Niagara | Hit direction visualization |
-| Jump/Wormhole FX | Post-process + Niagara | Transition effects |
-| Other Players | Nanite + LOD at distance | Reduce detail past 5km |
+| Feature | Unity System | Notes |
+|---------|-------------|-------|
+| Starfields/Nebulae | Skybox + volumetric fog (URP/HDRP) | Per-sector unique look |
+| Ship Detail | LOD groups + Addressables | Hull tiers swap meshes/materials |
+| Lighting | URP/HDRP + baked probes where needed | Star as primary light source |
+| Explosions/VFX | VFX Graph / Particle System | Particle budgets for MMO perf |
+| Beam Weapons | Line renderer / VFX Graph beams | Replicated start/end points |
+| Shield Effects | Shader Graph + VFX | Hit direction visualization |
+| Jump/Wormhole FX | Post-processing + VFX | Transition effects |
+| Other Players | LOD + impostors at distance | Reduce detail past 5km |
 
 ### Camera System
 
@@ -762,7 +739,7 @@ Galaxy Map (Overlay)
 | Fleet battle performance | Reduce tick rate, LOD ships, cull distant VFX |
 | Database load | Read replicas, Redis cache, sharding |
 | World events (many players) | Overflow instances, phasing |
-| Asset streaming | World Partition, Nanite auto-LOD |
+| Asset streaming | Addressables, scene additive loading, LOD |
 
 ### Key Technical Risks
 
@@ -783,7 +760,7 @@ Galaxy Map (Overlay)
 
 | Component | Platform | Notes |
 |-----------|----------|-------|
-| Game Servers | AWS GameLift or custom EC2 | Auto-scaling UE5 dedicated servers |
+| Game Servers | AWS GameLift or custom EC2/K8s | Auto-scaling Unity dedicated server builds |
 | Backend Services | Kubernetes (EKS) | Microservices, auto-scale |
 | Database | AWS RDS (PostgreSQL) | Managed, multi-AZ |
 | Cache | ElastiCache (Redis) | Session data, hot queries |
@@ -817,7 +794,7 @@ Galaxy Map (Overlay)
 | Role | Count | Responsibility |
 |------|-------|---------------|
 | Technical Director | 1 | Architecture, server infrastructure |
-| Lead Gameplay Programmer (C++) | 1 | Combat, flight, ship systems |
+| Lead Gameplay Programmer (C#) | 1 | Combat, flight, ship systems |
 | Network Programmer | 2 | Replication, server auth, transitions |
 | Backend Engineer | 2 | Microservices, database, economy |
 | AI Programmer | 1 | Ship AI, NPC behavior trees |
@@ -844,8 +821,8 @@ Galaxy Map (Overlay)
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Engine | Unreal Engine 5 | Best visuals + proven dedicated server framework |
-| Language | C++ (core) + Blueprint (gameplay) | Performance + rapid iteration |
+| Engine | Unity 6 LTS | Netcode + dedicated servers + team iteration speed |
+| Language | C# (gameplay) + Burst/Jobs where profiled | Performance + rapid iteration |
 | Architecture | Client-Server MMO with sector instancing | Scalable, server-authoritative |
 | Backend | Microservices (Kubernetes) | Independent scaling per service |
 | Database | PostgreSQL + Redis | Persistent data + real-time cache |

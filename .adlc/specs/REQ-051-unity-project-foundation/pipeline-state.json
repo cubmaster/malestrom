@@ -1,0 +1,28 @@
+{
+  "req": "REQ-051",
+  "branch": "feat/REQ-051-unity-project-foundation",
+  "startedAt": "2026-06-12T00:00:00Z",
+  "completed": false,
+  "currentPhase": 4,
+  "completedPhases": [0, 1, 2, 3],
+  "phaseHistory": [
+    { "phase": 0, "name": "Create Worktree", "completedAt": "2026-06-12T00:00:00Z" }
+  ],
+  "repos": {
+    "Malestrom": {
+      "primary": true,
+      "path": "C:/Users/wmcclellan001/code/test/Malestrom",
+      "worktree": "C:/Users/wmcclellan001/code/test/Malestrom/.worktrees/REQ-051",
+      "branch": "feat/REQ-051-unity-project-foundation",
+      "touched": true,
+      "prUrl": null,
+      "merged": false
+    }
+  },
+  "mergeOrder": ["Malestrom"],
+  "phase4": {
+    "currentTask": null,
+    "completedTasks": [],
+    "failedTasks": []
+  }
+}

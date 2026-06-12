@@ -1,7 +1,7 @@
 ---
 id: REQ-033
 title: "6DOF Ship Flight Prototype (Single-Player)"
-status: complete
+status: superseded
 deployable: true
 created: 2026-06-11
 updated: 2026-06-12
@@ -9,18 +9,22 @@ component: "game/combat/Movement"
 domain: "combat"
 stack: ["unreal", "cpp"]
 concerns: ["performance", "testability"]
-tags: ["6dof", "flight", "single-player", "tier-a"]
+tags: ["6dof", "flight", "single-player", "tier-a", "legacy"]
 ---
 
 ## Description
+
+> **Superseded by ADR-034 (Unity).** UE implementation is frozen reference only. Re-platform this increment on Unity after **REQ-051** (same acceptance criteria, C# + Unity physics/input).
+
+6DOF momentum-based ship flight in a single-player test sector — the first playable ship loop for Tier A.
 
 Implement six-degrees-of-freedom ship movement for a single player in the test sector. Movement uses thrust, strafe, pitch/yaw/roll, and speed clamping appropriate for space combat (not atmospheric flight).
 
 **Why:** Flight is the foundation of every combat, travel, and mission loop. It must feel correct locally before networking adds complexity.
 
-**Depends on:** REQ-032
+**Depends on:** REQ-051 (Unity foundation; was REQ-032 on UE)
 
-**Runnable Demo:** PIE in test sector — WASD + mouse (or documented bindings) fly a placeholder ship through open space at variable speed.
+**Runnable Demo (Unity re-platform):** Play Mode in `EmptySector` — WASD + mouse fly a placeholder ship through open space at variable speed.
 
 Reference: `docs/05-architecture.md` Combat Module → `MovementComponent`; `docs/04-space-combat.md` engagement flow.
 

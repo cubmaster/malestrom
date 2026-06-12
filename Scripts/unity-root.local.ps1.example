@@ -1,0 +1,3 @@
+# Copy to Scripts/unity-root.local.ps1 (gitignored) and set your Unity Editor install folder.
+# Example for Unity Hub on Windows:
+#   $env:UNITY_ROOT = 'C:\Program Files\Unity\Hub\Editor\6000.0.32f1'

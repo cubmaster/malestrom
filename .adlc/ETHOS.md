@@ -44,6 +44,6 @@ When you hit a failure, fix the root cause — don't bypass it. Skipping hooks (
 
 Backend services, orchestrators, and supporting infrastructure are implemented as **containers**. **Docker** (Compose) is the local development and integration-test runtime. **Kubernetes** is the production deployment target — manifests, Helm charts, or an equivalent K8s-native packaging layer belong in the repo alongside the services they run.
 
-Do not build "works on my machine" services that only run as bare processes on a developer host. Every new service ships with a `Dockerfile`, local Compose wiring, and a path to a K8s deployment. The UE5 game client is not containerized for player installs; dedicated game servers and all backend microservices are.
+Do not build "works on my machine" services that only run as bare processes on a developer host. Every new service ships with a `Dockerfile`, local Compose wiring, and a path to a K8s deployment. The **Unity game client** is not containerized for player installs; **Unity dedicated game servers** and all backend microservices are.
 
 **Applies when**: Adding a backend service, standing up dependencies (PostgreSQL, Redis, etc.), writing CI/CD pipelines, choosing how to run integration tests, or planning deployment for any REQ.
