@@ -3,6 +3,7 @@
     "rootNamespace": "IronExiles.Core.Tests",
     "references": [
         "IronExiles.Core",
+        "IronExiles.Combat",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

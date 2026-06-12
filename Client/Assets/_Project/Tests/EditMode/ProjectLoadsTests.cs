@@ -1,3 +1,4 @@
+using IronExiles.Combat;
 using IronExiles.Core;
 using NUnit.Framework;
 using UnityEditor;
@@ -30,6 +31,14 @@ namespace IronExiles.Core.Tests
             Assert.IsTrue(scene.IsValid());
             Assert.AreEqual("EmptySector", scene.name);
             Assert.IsNotNull(Camera.main, "Main Camera should be tagged in EmptySector");
+        }
+
+        [Test]
+        public void ProjectLoads_FlightSetupPresentInEmptySector()
+        {
+            EditorSceneManager.OpenScene(EmptySectorScenePath, OpenSceneMode.Single);
+            var setup = Object.FindFirstObjectByType<EmptySectorFlightSetup>();
+            Assert.IsNotNull(setup, "EmptySector should contain EmptySectorFlightSetup for REQ-033");
         }
     }
 }

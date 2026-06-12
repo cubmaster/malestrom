@@ -6,12 +6,12 @@ Space MMO prototype based on the Iron Exiles universe. Design docs live in `docs
 
 | Stack | Status |
 |-------|--------|
-| **Unity 6 LTS** (`Client/`) | **Target** — bootstrap in REQ-051 (not created yet) |
-| **Unreal Engine 5** (repo root) | **Legacy** — REQ-032/033 reference implementation; do not extend |
+| **Unity 6 LTS** (`Client/`) | **Active** — foundation (REQ-051) + 6DOF flight (REQ-033) |
+| **Unreal Engine 5** (repo root) | **Legacy** — REQ-032/033 reference; do not extend |
 
 See `.adlc/knowledge/lessons/LESSON-002-engine-pivot-unity.md` for the pivot rationale.
 
-## Prerequisites (Unity — when `Client/` exists)
+## Prerequisites (Unity)
 
 | Tool | Version |
 |------|---------|
@@ -19,18 +19,19 @@ See `.adlc/knowledge/lessons/LESSON-002-engine-pivot-unity.md` for the pivot rat
 | Unity Editor | **6000.0.32f1** (Unity 6 LTS — pinned in `Client/ProjectSettings/ProjectVersion.txt`) |
 | .NET SDK | Per Unity version requirements |
 
-Optional: Unity Hub CLI or `unity-root.local.ps1` for CI and Zed tasks (added with REQ-051).
+Optional: `Scripts/unity-root.local.ps1` (copy from example) to point batchmode scripts at your Hub editor install.
 
-## Quick start (Unity — planned)
-
-After REQ-051 lands:
+## Quick start (Unity)
 
 1. **Clone** the repository.
-2. Open **`Client/`** in Unity Hub (Iron Exiles project).
+2. Open **`Client/`** in Unity Hub.
 3. Open scene **`Assets/Scenes/Test/EmptySector.unity`**.
-4. Press **Play** — foundation Play Mode tests and flight prototype run in-editor.
+4. Press **Play** — placeholder ship spawns; fly with keyboard + mouse (see `Client/README.md`).
 
-Until then, use the legacy Unreal scaffold at repo root only if you need the historical REQ-032/033 demo (requires UE 5.5 — see [Legacy Unreal](#legacy-unreal-optional)).
+```powershell
+# Optional: run Edit Mode tests from repo root
+.\Scripts\Run-UnityTests.ps1
+```
 
 ## Project layout
 
@@ -58,7 +59,7 @@ Project tasks live in `.zed/tasks.json`. After Unity bootstrap, use **Iron Exile
 
 Incremental delivery is spec-driven. See `.adlc/specs/REQ-031-delivery-roadmap/` for the REQ sequence.
 
-**Current milestone:** Architecture pivot to Unity (ADR-034). Next implementation: **REQ-051** Unity project foundation, then re-platform REQ-033 flight in Unity.
+**Current milestone:** REQ-033 Unity 6DOF flight shipped. Next: **REQ-034** flight HUD / camera polish.
 
 ## Legacy Unreal (optional)
 
