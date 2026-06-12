@@ -1,0 +1,38 @@
+{
+  "req": "REQ-034",
+  "branch": "feat/REQ-034-flight-hud-camera",
+  "startedAt": "2026-06-11T15:00:00Z",
+  "completed": true,
+  "completedAt": "2026-06-12T03:20:00Z",
+  "currentPhase": 8,
+  "completedPhases": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  "phaseHistory": [
+    { "phase": 0, "name": "Create Worktree", "completedAt": "2026-06-11T15:00:00Z" },
+    { "phase": 1, "name": "Validate Spec", "completedAt": "2026-06-11T15:05:00Z" },
+    { "phase": 2, "name": "Architect", "completedAt": "2026-06-11T15:10:00Z" },
+    { "phase": 3, "name": "Validate Tasks", "completedAt": "2026-06-11T15:15:00Z" },
+    { "phase": 4, "name": "Implement", "completedAt": "2026-06-12T03:18:00Z" },
+    { "phase": 5, "name": "Reflect", "completedAt": "2026-06-12T03:19:00Z" },
+    { "phase": 6, "name": "Review", "completedAt": "2026-06-12T03:19:00Z" },
+    { "phase": 7, "name": "Create PR", "completedAt": "2026-06-12T03:19:00Z" },
+    { "phase": 8, "name": "Merge", "completedAt": "2026-06-12T03:20:00Z" }
+  ],
+  "repos": {
+    "malestrom": {
+      "primary": true,
+      "path": "C:/Users/wmcclellan001/code/test/Malestrom",
+      "worktree": "C:/Users/wmcclellan001/code/test/Malestrom/.worktrees/REQ-034",
+      "branch": "feat/REQ-034-flight-hud-camera",
+      "touched": true,
+      "prUrl": null,
+      "merged": true,
+      "mergeCommit": "local"
+    }
+  },
+  "mergeOrder": ["malestrom"],
+  "phase4": {
+    "currentTask": null,
+    "completedTasks": ["TASK-019", "TASK-020", "TASK-021", "TASK-022"],
+    "failedTasks": []
+  }
+}

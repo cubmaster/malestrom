@@ -1,0 +1,17 @@
+{
+    "name": "IronExiles.UI",
+    "rootNamespace": "IronExiles.UI",
+    "references": [
+        "IronExiles.Combat",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

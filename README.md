@@ -6,7 +6,7 @@ Space MMO prototype based on the Iron Exiles universe. Design docs live in `docs
 
 | Stack | Status |
 |-------|--------|
-| **Unity 6 LTS** (`Client/`) | **Active** — foundation (REQ-051) + 6DOF flight (REQ-033) |
+| **Unity 6 LTS** (`Client/`) | **Active** — foundation (REQ-051) + 6DOF flight (REQ-033) + HUD/camera (REQ-034) |
 | **Unreal Engine 5** (repo root) | **Legacy** — REQ-032/033 reference; do not extend |
 
 See `.adlc/knowledge/lessons/LESSON-002-engine-pivot-unity.md` for the pivot rationale.
@@ -59,7 +59,7 @@ Project tasks live in `.zed/tasks.json`. After Unity bootstrap, use **Iron Exile
 
 Incremental delivery is spec-driven. See `.adlc/specs/REQ-031-delivery-roadmap/` for the REQ sequence.
 
-**Current milestone:** REQ-033 Unity 6DOF flight shipped. Next: **REQ-034** flight HUD / camera polish.
+**Current milestone:** REQ-034 chase camera + flight HUD shipped. Next: **REQ-035** dedicated server bootstrap.
 
 ## Legacy Unreal (optional)
 

@@ -32,6 +32,7 @@ namespace IronExiles.Combat
             ship.AddComponent<ShipInputController>();
             var movement = ship.AddComponent<ShipMovementController>();
             movement.SetSectorBoundsExtent(_sectorBoundsExtent);
+            ship.AddComponent<ShipFlightTelemetryAdapter>();
 
             return ship;
         }
@@ -44,13 +45,13 @@ namespace IronExiles.Combat
                 return;
             }
 
-            var follow = camera.gameObject.GetComponent<ShipCameraFollow>();
-            if (follow == null)
+            var rig = camera.gameObject.GetComponent<ChaseCameraRig>();
+            if (rig == null)
             {
-                follow = camera.gameObject.AddComponent<ShipCameraFollow>();
+                rig = camera.gameObject.AddComponent<ChaseCameraRig>();
             }
 
-            follow.SetTarget(shipTransform);
+            rig.SetTarget(shipTransform);
         }
     }
 }
