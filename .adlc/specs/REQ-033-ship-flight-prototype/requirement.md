@@ -1,10 +1,10 @@
 ---
 id: REQ-033
 title: "6DOF Ship Flight Prototype (Single-Player)"
-status: draft
+status: complete
 deployable: true
 created: 2026-06-11
-updated: 2026-06-11
+updated: 2026-06-12
 component: "game/combat/Movement"
 domain: "combat"
 stack: ["unreal", "cpp"]
@@ -74,7 +74,7 @@ Reference: `docs/05-architecture.md` Combat Module → `MovementComponent`; `doc
 
 ## Open Questions
 
-- [ ] Include optional "flight assist" toggle (EVE-style) in this REQ or defer?
+- Resolved: **Flight assist deferred** — see `architecture.md` ADR-033-3.
 
 ## Out of Scope
 

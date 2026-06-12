@@ -11,4 +11,11 @@ class AIronExilesGameModeBase : public AGameModeBase
 
 public:
 	AIronExilesGameModeBase();
+
+	UFUNCTION(BlueprintPure, Category = "IronExiles|Sector")
+	FVector GetSectorBoundsExtent() const { return SectorBoundsExtent; }
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "IronExiles|Sector")
+	FVector SectorBoundsExtent = FVector(500000.f, 500000.f, 500000.f);
 };

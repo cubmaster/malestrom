@@ -40,7 +40,23 @@ $env:UE_ROOT = "C:\Program Files\Epic Games\UE_5.5"
 5. **Run foundation tests**:
    ```powershell
    .\Scripts\Run-FoundationTests.ps1
+   .\Scripts\Run-FlightTests.ps1
    ```
+
+## Flight controls (REQ-033)
+
+After content init, press **Play** in `EmptySector` to fly the placeholder ship (6DOF, momentum-based):
+
+| Input | Action |
+|-------|--------|
+| W / S | Forward / reverse thrust |
+| A / D | Strafe left / right |
+| Space / Ctrl | Strafe up / down |
+| Mouse | Pitch / yaw |
+| Q / E | Roll left / right |
+| Shift (hold) | Brake |
+
+Ship stats load from DataTable row `Human_Starter_Fighter` (`/Game/Data/DT_ShipStats`) with C++ fallbacks if the asset is missing.
 
 ## Build from command line
 
@@ -67,7 +83,7 @@ deploy/                     # Docker/K8s scaffolding (REQ-042+)
 
 ## ADLC
 
-Incremental delivery is spec-driven. See `.adlc/specs/REQ-031-delivery-roadmap/` for the full REQ sequence. Current milestone: **REQ-032** project foundation.
+Incremental delivery is spec-driven. See `.adlc/specs/REQ-031-delivery-roadmap/` for the full REQ sequence. Current milestone: **REQ-033** ship flight prototype.
 
 ## License
 

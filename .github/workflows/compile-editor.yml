@@ -49,3 +49,9 @@ jobs:
         env:
           UE_ROOT: ${{ env.UE_ROOT }}
         run: ./Scripts/Run-FoundationTests.ps1
+
+      - name: Run flight automation tests
+        shell: pwsh
+        env:
+          UE_ROOT: ${{ env.UE_ROOT }}
+        run: ./Scripts/Run-FlightTests.ps1

@@ -1,7 +1,7 @@
 #include "IronExilesGameModeBase.h"
-#include "GameFramework/DefaultPawn.h"
+#include "Ship/ShipPawn.h"
 
 AIronExilesGameModeBase::AIronExilesGameModeBase()
 {
-	DefaultPawnClass = ADefaultPawn::StaticClass();
+	DefaultPawnClass = AShipPawn::StaticClass();
 }
