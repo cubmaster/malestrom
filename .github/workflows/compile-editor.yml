@@ -4,6 +4,15 @@ name: compile-editor
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'Source/**'
+      - 'Config/**'
+      - 'IronExiles.uproject'
+      - 'Scripts/**'
+      - '.github/workflows/compile-editor.yml'
   push:
     branches:
       - main
