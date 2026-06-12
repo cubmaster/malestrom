@@ -1,0 +1,25 @@
+# ADLC worktrees (used by /proceed for parallel session isolation)
+.worktrees/
+
+# Claude Code per-user permission overrides (team settings live in .claude/settings.json)
+.claude/settings.local.json
+
+# ADLC global REQ counter is at ~/.claude/.global-next-req (not per-project)
+# ADLC local BUG counter (per-project state, not shared)
+.adlc/.next-bug
+
+# Unreal Engine
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+.vs/
+*.VC.db
+*.opensdf
+*.opendb
+*.sdf
+*.sln
+*.suo
+*.xcodeproj
+*.xcworkspace

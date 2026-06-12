@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.5",
+	"Category": "",
+	"Description": "Iron Exiles — space MMO (Iron Exiles universe)",
+	"Modules": [
+		{
+			"Name": "IronExiles",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"TargetPlatforms": [
+		"Win64"
+	]
+}

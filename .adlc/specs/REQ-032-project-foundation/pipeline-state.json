@@ -1,0 +1,34 @@
+{
+  "req": "REQ-032",
+  "branch": "feat/REQ-032-project-foundation",
+  "startedAt": "2026-06-12T00:00:00Z",
+  "completed": false,
+  "currentPhase": 7,
+  "completedPhases": [0, 1, 2, 3, 4, 5, 6],
+  "phaseHistory": [
+    { "phase": 0, "name": "Create Worktree", "completedAt": "2026-06-12T00:00:00Z" },
+    { "phase": 1, "name": "Validate Spec", "completedAt": "2026-06-12T00:00:00Z" },
+    { "phase": 2, "name": "Architect", "completedAt": "2026-06-12T00:00:00Z" },
+    { "phase": 3, "name": "Validate Tasks", "completedAt": "2026-06-12T00:00:00Z" },
+    { "phase": 4, "name": "Implement", "completedAt": "2026-06-12T12:00:00Z" },
+    { "phase": 5, "name": "Verify", "completedAt": "2026-06-12T12:00:00Z" },
+    { "phase": 6, "name": "Create PR", "completedAt": "2026-06-12T12:30:00Z" }
+  ],
+  "repos": {
+    "malestrom": {
+      "primary": true,
+      "path": "C:/Users/wmcclellan001/code/test/Malestrom",
+      "worktree": "C:/Users/wmcclellan001/code/test/Malestrom/.worktrees/REQ-032",
+      "branch": "feat/REQ-032-project-foundation",
+      "touched": true,
+      "prUrl": "https://github.com/cubmaster/malestrom/pull/1",
+      "merged": false
+    }
+  },
+  "mergeOrder": ["malestrom"],
+  "phase4": {
+    "currentTask": null,
+    "completedTasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
+    "failedTasks": []
+  }
+}
