@@ -21,5 +21,6 @@ REQ-051 bootstrapped `Client/` on a machine without Unity Hub/Editor installed. 
 
 ## Follow-up
 
-- Re-platform REQ-033 flight in Unity after validating foundation in Editor
-- Move root UE tree to `legacy/unreal/` once Unity flight lands
+- ~~Re-platform REQ-033 flight in Unity after validating foundation in Editor~~ (done — REQ-033)
+- REQ-034 flight HUD / camera polish
+- Move root UE tree to `legacy/unreal/` when no longer needed for reference
