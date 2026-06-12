@@ -1,7 +1,7 @@
 ---
 id: TASK-014
 title: "README, CI workflow, Zed tasks, architecture pivot docs"
-status: draft
+status: complete
 parent: REQ-051
 created: 2026-06-12
 updated: 2026-06-12

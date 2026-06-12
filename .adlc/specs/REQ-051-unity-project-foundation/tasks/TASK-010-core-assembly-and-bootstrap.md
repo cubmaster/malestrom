@@ -1,7 +1,7 @@
 ---
 id: TASK-010
 title: "IronExiles.Core assembly and bootstrap types"
-status: draft
+status: complete
 parent: REQ-051
 created: 2026-06-12
 updated: 2026-06-12

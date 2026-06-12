@@ -1,7 +1,7 @@
 ---
 id: TASK-012
 title: "Edit Mode foundation tests (ProjectLoads)"
-status: draft
+status: complete
 parent: REQ-051
 created: 2026-06-12
 updated: 2026-06-12

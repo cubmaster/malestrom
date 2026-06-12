@@ -1,7 +1,7 @@
 ---
 id: TASK-009
 title: "Create Unity Client/ project scaffold (URP, packages, gitignore)"
-status: draft
+status: complete
 parent: REQ-051
 created: 2026-06-12
 updated: 2026-06-12

@@ -1,7 +1,7 @@
 ---
 id: TASK-013
 title: "Unity dev scripts and local editor path resolution"
-status: draft
+status: complete
 parent: REQ-051
 created: 2026-06-12
 updated: 2026-06-12
