@@ -42,6 +42,7 @@ namespace IronExiles.Editor
             else
             {
                 Debug.LogError($"[ServerBuild] {target} server build failed: {report.summary.totalErrors} errors");
+                EditorApplication.Exit(1);
             }
         }
     }

@@ -21,14 +21,9 @@ namespace IronExiles.Networking
 
             void Start()
             {
-                var sessionManager = Object.FindFirstObjectByType<NetworkSessionManager>();
-                if (sessionManager != null)
+                if (Object.FindFirstObjectByType<NetworkSessionManager>() == null)
                 {
-                    sessionManager.StartClient();
-                }
-                else
-                {
-                    Debug.LogError("[Verification] NetworkSessionManager not found in scene");
+                    Debug.LogError("[Verification] NetworkSessionManager not found — is EmptySectorMultiplayerBootstrap in the scene?");
                     Application.Quit(1);
                 }
             }

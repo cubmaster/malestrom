@@ -36,5 +36,11 @@ namespace IronExiles.Networking
         }
 
         public void ResetIndex() => _nextIndex = 0;
+
+        public void ConfigureSpawnPoints(Transform[] spawnPoints)
+        {
+            _spawnPoints = spawnPoints;
+            _nextIndex = 0;
+        }
     }
 }

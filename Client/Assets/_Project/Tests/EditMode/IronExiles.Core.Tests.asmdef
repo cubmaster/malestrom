@@ -4,6 +4,7 @@
     "references": [
         "IronExiles.Core",
         "IronExiles.Combat",
+        "IronExiles.Networking",
         "IronExiles.UI",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

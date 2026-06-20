@@ -11,24 +11,28 @@ namespace IronExiles.UI
     {
         void Start()
         {
-            var player = GameObject.FindGameObjectWithTag("Player");
-            if (player == null)
-            {
-                return;
-            }
+            StartCoroutine(BindWhenPlayerReady());
+        }
 
-            if (!player.TryGetComponent<IShipFlightTelemetry>(out var telemetry))
+        System.Collections.IEnumerator BindWhenPlayerReady()
+        {
+            for (var i = 0; i < 600; i++)
             {
-                return;
-            }
+                var player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null && player.TryGetComponent<IShipFlightTelemetry>(out var telemetry))
+                {
+                    var hud = gameObject.GetComponent<FlightHudController>();
+                    if (hud == null)
+                    {
+                        hud = gameObject.AddComponent<FlightHudController>();
+                    }
 
-            var hud = gameObject.GetComponent<FlightHudController>();
-            if (hud == null)
-            {
-                hud = gameObject.AddComponent<FlightHudController>();
-            }
+                    hud.Bind(telemetry);
+                    yield break;
+                }
 
-            hud.Bind(telemetry);
+                yield return null;
+            }
         }
     }
 }

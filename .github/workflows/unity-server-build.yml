@@ -41,13 +41,14 @@ jobs:
           chmod +x Builds/Server/Linux/IronExilesServer
 
           # Start server in background
-          ./Builds/Server/Linux/IronExilesServer -batchmode -nographics -serverPort 7878 &
+          ./Builds/Server/Linux/IronExilesServer -batchmode -nographics -serverPort 7878 -logFile server.log &
           SERVER_PID=$!
-          sleep 5
+          sleep 8
 
           # Verify server is running
           if ! kill -0 $SERVER_PID 2>/dev/null; then
             echo "ERROR: Server process died"
+            cat server.log 2>/dev/null | tail -40
             exit 1
           fi
 
@@ -70,8 +71,8 @@ jobs:
           # Wait for verification (max 30s)
           sleep 15
 
-          # Check server logs for connection count
-          CONNECTED=$(grep -c "Spawned ship for client" build-server.log 2>/dev/null || echo "0")
+          # Check server logs for spawn count
+          CONNECTED=$(grep -c "Spawned ship for client" server.log 2>/dev/null || echo "0")
           echo "Connected clients with ships spawned: $CONNECTED"
 
           # Cleanup
@@ -97,4 +98,5 @@ jobs:
           path: |
             verify-clientA.log
             verify-clientB.log
+            server.log
             build-server.log

@@ -9,6 +9,12 @@ namespace IronExiles.Networking
         [SerializeField] GameObject _playerShipPrefab;
         [SerializeField] SpawnPointManager _spawnPointManager;
 
+        public void Configure(GameObject playerShipPrefab, SpawnPointManager spawnPointManager)
+        {
+            _playerShipPrefab = playerShipPrefab;
+            _spawnPointManager = spawnPointManager;
+        }
+
         void OnEnable()
         {
             var nm = NetworkManager.Singleton;
