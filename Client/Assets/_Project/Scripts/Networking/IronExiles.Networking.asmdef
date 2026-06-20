@@ -1,9 +1,11 @@
 {
-    "name": "IronExiles.Combat",
-    "rootNamespace": "IronExiles.Combat",
+    "name": "IronExiles.Networking",
+    "rootNamespace": "IronExiles.Networking",
     "references": [
-        "Unity.InputSystem",
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "IronExiles.Combat",
+        "IronExiles.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

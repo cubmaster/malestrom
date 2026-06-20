@@ -1,0 +1,100 @@
+name: Unity Dedicated Server Build & Verification
+
+on:
+  push:
+    branches: [feat/REQ-035-*]
+    paths: ['Client/**']
+  pull_request:
+    branches: [main]
+    paths: ['Client/**']
+
+jobs:
+  build-and-verify:
+    runs-on: [self-hosted, unity, linux]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Linux Dedicated Server
+        run: |
+          unity -batchmode -nographics \
+            -projectPath ./Client \
+            -buildTarget StandaloneLinux64 \
+            -standaloneBuildSubtarget Server \
+            -executeMethod IronExiles.Editor.ServerBuildMenu.BuildLinuxServer \
+            -logFile build-server.log \
+            -quit
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-build-log
+          path: build-server.log
+
+      - name: Run multiplayer verification
+        run: |
+          chmod +x Builds/Server/Linux/IronExilesServer
+
+          # Start server in background
+          ./Builds/Server/Linux/IronExilesServer -batchmode -nographics -serverPort 7878 &
+          SERVER_PID=$!
+          sleep 5
+
+          # Verify server is running
+          if ! kill -0 $SERVER_PID 2>/dev/null; then
+            echo "ERROR: Server process died"
+            exit 1
+          fi
+
+          # Start client A in verification mode
+          unity -batchmode -nographics \
+            -projectPath ./Client \
+            -executeMethod IronExiles.Networking.MultiplayerVerificationTest.RunAsClient \
+            -connectAddress 127.0.0.1 -connectPort 7878 \
+            -logFile verify-clientA.log &
+          CLIENT_A_PID=$!
+
+          # Start client B in verification mode
+          unity -batchmode -nographics \
+            -projectPath ./Client \
+            -executeMethod IronExiles.Networking.MultiplayerVerificationTest.RunAsClient \
+            -connectAddress 127.0.0.1 -connectPort 7878 \
+            -logFile verify-clientB.log &
+          CLIENT_B_PID=$!
+
+          # Wait for verification (max 30s)
+          sleep 15
+
+          # Check server logs for connection count
+          CONNECTED=$(grep -c "Spawned ship for client" build-server.log 2>/dev/null || echo "0")
+          echo "Connected clients with ships spawned: $CONNECTED"
+
+          # Cleanup
+          kill $CLIENT_A_PID $CLIENT_B_PID $SERVER_PID 2>/dev/null || true
+          wait $CLIENT_A_PID $CLIENT_B_PID $SERVER_PID 2>/dev/null || true
+
+          # Assert
+          if [ "$CONNECTED" -ge 2 ]; then
+            echo "PASS: 2+ clients connected and ships spawned"
+            exit 0
+          else
+            echo "FAIL: Expected 2 connected clients, got $CONNECTED"
+            cat verify-clientA.log 2>/dev/null | tail -20
+            cat verify-clientB.log 2>/dev/null | tail -20
+            exit 1
+          fi
+
+      - name: Upload verification logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-logs
+          path: |
+            verify-clientA.log
+            verify-clientB.log
+            build-server.log
