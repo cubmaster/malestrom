@@ -18,7 +18,7 @@ namespace IronExiles.Combat
             }
 
             var movementController = GetComponent<ShipMovementController>();
-            if (movementController != null)
+            if (movementController != null && GetComponent<NetworkShipMovementController>() == null)
             {
                 movementController.enabled = IsOwner;
             }

@@ -13,9 +13,18 @@ namespace IronExiles.Combat
 
         readonly ShipMovementModel _model = new ShipMovementModel();
         ShipInputController _input;
+        bool _networkDriverActive;
 
         public ShipMovementModel Model => _model;
         public Vector3 Velocity => _model.Velocity;
+
+        public void SetNetworkDriverActive(bool active) => _networkDriverActive = active;
+
+        public void SimulateInput(ShipMovementInput input, float deltaTime)
+        {
+            _model.SetMovementInput(input.LocalThrust, input.LocalRotation, input.Brake);
+            _model.Simulate(deltaTime);
+        }
 
         void Awake()
         {
@@ -39,6 +48,11 @@ namespace IronExiles.Combat
 
         void Update()
         {
+            if (_networkDriverActive)
+            {
+                return;
+            }
+
             if (_input != null)
             {
                 _input.ReadInto(_model);

@@ -16,6 +16,12 @@ namespace IronExiles.Combat
         Vector3 _rotationInput;
         bool _brakeHeld;
 
+        public ShipMovementInput CaptureInput()
+        {
+            GatherInput();
+            return ShipMovementInput.FromAxes(_thrustInput, _rotationInput, _brakeHeld);
+        }
+
         public void ReadInto(ShipMovementModel model)
         {
             GatherInput();

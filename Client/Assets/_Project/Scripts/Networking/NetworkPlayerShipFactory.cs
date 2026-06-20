@@ -31,6 +31,7 @@ namespace IronExiles.Networking
             ship.AddComponent<ShipInputController>();
             var movement = ship.AddComponent<ShipMovementController>();
             movement.SetSectorBoundsExtent(new Vector3(5000f, 5000f, 5000f));
+            ship.AddComponent<NetworkShipMovementController>();
             ship.AddComponent<NetworkedShipSetup>();
 
             return ship;
