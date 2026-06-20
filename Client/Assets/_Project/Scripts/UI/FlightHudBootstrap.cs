@@ -3,40 +3,35 @@ using UnityEngine;
 
 namespace IronExiles.UI
 {
+    /// <summary>
+    /// Binds the flight HUD to the player ship telemetry after scene spawn.
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class FlightHudBootstrap : MonoBehaviour
     {
-        CockpitFrameView _cockpitFrame;
-
         void Start()
         {
-            _cockpitFrame = CockpitFrameView.Create(transform);
-
-            var player = GameObject.FindGameObjectWithTag("Player");
-            if (player == null)
-            {
-                return;
-            }
-
-            if (!player.TryGetComponent<IShipFlightTelemetry>(out var telemetry))
-            {
-                return;
-            }
-
-            var hud = gameObject.GetComponent<FlightHudController>();
-            if (hud == null)
-            {
-                hud = gameObject.AddComponent<FlightHudController>();
-            }
-
-            hud.Bind(telemetry);
+            StartCoroutine(BindWhenPlayerReady());
         }
 
-        void OnDestroy()
+        System.Collections.IEnumerator BindWhenPlayerReady()
         {
-            if (_cockpitFrame?.Canvas != null)
+            for (var i = 0; i < 600; i++)
             {
-                Destroy(_cockpitFrame.Canvas.gameObject);
+                var player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null && player.TryGetComponent<IShipFlightTelemetry>(out var telemetry))
+                {
+                    var hud = gameObject.GetComponent<FlightHudController>();
+                    if (hud == null)
+                    {
+                        hud = gameObject.AddComponent<FlightHudController>();
+                    }
+
+                    hud.Bind(telemetry);
+                    yield break;
+                }
+
+                yield return null;
             }
         }
     }

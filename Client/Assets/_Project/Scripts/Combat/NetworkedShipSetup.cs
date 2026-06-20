@@ -35,6 +35,8 @@ namespace IronExiles.Combat
 
         void AttachLocalPlayerSystems()
         {
+            gameObject.tag = "Player";
+
             var camera = Camera.main;
             if (camera != null)
             {

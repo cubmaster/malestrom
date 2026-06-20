@@ -33,13 +33,20 @@ $outputPath = Join-Path (Resolve-Path $output) $execName
 
 Write-Host "Building dedicated server ($buildTarget) -> $outputPath"
 
+$executeMethod = if ($Linux) {
+    "IronExiles.Editor.ServerBuildMenu.BuildLinuxServer"
+} else {
+    "IronExiles.Editor.ServerBuildMenu.BuildWindowsServer"
+}
+
 $args = @(
     "-batchmode",
     "-nographics",
     "-projectPath", $projectPath,
     "-buildTarget", $buildTarget,
     "-standaloneBuildSubtarget", "Server",
-    "-buildOutput", $outputPath,
+    "-executeMethod", $executeMethod,
+    "-logFile", "build-server.log",
     "-quit"
 )
 

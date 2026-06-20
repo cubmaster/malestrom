@@ -77,7 +77,7 @@ namespace IronExiles.Networking
 #if UNITY_SERVER
             return true;
 #else
-            return Application.isBatchMode;
+            return false;
 #endif
         }
     }
