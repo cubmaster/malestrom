@@ -1,7 +1,7 @@
 ---
 id: TASK-031
 title: "Wire networked ship prefab and movement replication docs"
-status: draft
+status: complete
 parent: REQ-036
 created: 2026-06-20
 updated: 2026-06-20

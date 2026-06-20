@@ -1,7 +1,7 @@
 ---
 id: TASK-032
 title: "Movement replication Edit Mode tests"
-status: draft
+status: complete
 parent: REQ-036
 created: 2026-06-20
 updated: 2026-06-20

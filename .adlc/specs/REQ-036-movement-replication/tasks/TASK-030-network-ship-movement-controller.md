@@ -1,7 +1,7 @@
 ---
 id: TASK-030
 title: "NetworkShipMovementController — server sim, owner predict, reconcile"
-status: draft
+status: complete
 parent: REQ-036
 created: 2026-06-20
 updated: 2026-06-20
