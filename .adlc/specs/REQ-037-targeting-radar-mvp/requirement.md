@@ -1,7 +1,7 @@
 ---
 id: REQ-037
 title: "Targeting, Tab-Lock & Radar (MVP)"
-status: approved
+status: complete
 deployable: true
 created: 2026-06-11
 updated: 2026-06-20
