@@ -1,7 +1,7 @@
 ---
 id: TASK-029
 title: "ShipMovementInput payload and movement controller network hooks"
-status: draft
+status: complete
 parent: REQ-036
 created: 2026-06-20
 updated: 2026-06-20

@@ -43,6 +43,7 @@
     <UnityVersion>6000.4.11f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Analyzer Include="C:\Users\wmcclellan001\code\test\Malestrom\Client\Library\PackageCache\com.unity.transport@c6e877f31661\Analyzers\Unity.Transport.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.11f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.11f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.11f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
@@ -52,6 +53,7 @@
     <Compile Include="Assets\_Project\Scripts\Combat\EmptySectorFlightSetup.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\CockpitCameraRig.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipStatsDefinition.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\NetworkedShipSetup.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ChaseCameraPlacement.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipFlightTelemetryAdapter.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementController.cs" />
@@ -1152,6 +1154,10 @@
     </Reference>
     <Reference Include="Unity.InputSystem">
       <HintPath>Library\ScriptAssemblies\Unity.InputSystem.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Netcode.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.Netcode.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEditor.UI">
