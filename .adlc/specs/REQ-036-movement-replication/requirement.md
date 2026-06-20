@@ -1,28 +1,29 @@
 ---
 id: REQ-036
 title: "Server-Authoritative Ship Movement Replication"
-status: draft
+status: approved
 deployable: true
 created: 2026-06-11
-updated: 2026-06-11
+updated: 2026-06-20
 component: "game/networking/Replication"
 domain: "networking"
-stack: ["unreal", "cpp"]
+stack: ["unity", "csharp", "netcode"]
 concerns: ["performance", "reliability", "testability"]
 tags: ["replication", "client-prediction", "movement", "tier-b"]
+repo: malestrom
 ---
 
 ## Description
 
-Replicate ship movement from server to all clients with client-side prediction and reconciliation for the owning player. Remote players see smooth interpolated motion.
+Replicate ship movement from the dedicated server to all clients with client-side prediction and reconciliation for the owning player. Remote players see smooth interpolated motion.
 
 **Why:** Core MMO feel depends on responsive local control and accurate remote views. Must be proven before combat (which assumes correct positions).
 
-**Depends on:** REQ-035, REQ-033
+**Depends on:** REQ-035 (session/spawn), REQ-033 (6DOF movement model)
 
-**Runnable Demo:** Two clients connected — Client A flies in circles; Client B observes smooth motion; server remains authoritative (no client teleport exploits in test).
+**Runnable Demo:** Two clients connected — Client A flies in circles; Client B observes smooth motion; server remains authoritative (no client position teleports accepted).
 
-Reference: `docs/05-architecture.md` Replication Strategy table (ship position/rotation).
+Reference: `docs/05-architecture.md` Replication Strategy table (ship position/rotation); ADR-034/035-1.
 
 ## System Model
 
@@ -30,58 +31,71 @@ Reference: `docs/05-architecture.md` Replication Strategy table (ship position/r
 
 | Entity | Field | Type | Constraints |
 |--------|-------|------|-------------|
-| ReplicatedMovement | server_transform | FTransform | authoritative |
-| ReplicatedMovement | client_predicted | bool | owner only |
-| NetSettings | tick_rate | float | 30 Hz combat default documented |
+| ShipMovementInput | local_thrust | Vector3 | clamped -1..1 per axis |
+| ShipMovementInput | local_rotation | Vector3 | clamped -1..1 per axis |
+| ShipMovementInput | brake | bool | |
+| NetworkShipMovement | server_tick_hz | float | default 30 Hz |
+| NetworkShipMovement | reconcile_position_m | float | default 2m snap/blend threshold |
 
 ### Events
 
 | Event | Trigger | Payload |
 |-------|---------|---------|
-| movement_corrector | Server/client mismatch | `{ delta, snap_or_blend }` |
+| movement_input_submitted | Owner client each frame | `ShipMovementInput` |
+| movement_reconciled | Owner divergence > threshold | `{ position_delta, blend }` |
 
 ### Permissions
 
 | Action | Roles Allowed |
 |--------|---------------|
-| submit_movement_input | owning client |
-| apply_authoritative_move | server |
+| submit_movement_input | owning client (ServerRpc) |
+| apply_authoritative_move | server only |
 
 ## Business Rules
 
-- [ ] BR-1: Server simulates movement for all ships; clients send input or acceleration requests, not raw position teleports.
+- [ ] BR-1: Server simulates movement for all ships; clients send input requests, not raw position teleports.
 - [ ] BR-2: Owning client predicts locally; reconciliation on divergence beyond threshold.
-- [ ] BR-3: Non-owner clients interpolate remote ships (no prediction).
-- [ ] BR-4: Replication relevancy uses distance culling appropriate for sector scale (documented radius).
+- [ ] BR-3: Non-owner clients interpolate remote ships (NetworkTransform), no local simulation.
+- [ ] BR-4: Replication relevancy documented for sector scale (default: full sector / no culling in prototype).
 
 ## Acceptance Criteria
 
 - [ ] Two-client test: both players see each other move in real time.
-- [ ] Owning client input latency feels responsive (<100ms on LAN in manual test).
+- [ ] Owning client input latency feels responsive on LAN manual test.
 - [ ] Forced server correction does not permanently desync client.
-- [ ] Automation test (multi-instance or mocked): server moves pawn, client receives updated transform within N ticks.
+- [ ] Edit Mode or automated test: input payload round-trip + reconciliation threshold behavior.
 - [ ] **Runnable Demo:** REQ-035 demo with both ships flying simultaneously visible to both clients.
 
 ## External Dependencies
 
-- REQ-035 session layer
-- REQ-033 movement component refactored for server authority
+- REQ-035 session layer and networked player ship prefab
+- REQ-033 `ShipMovementModel` integrator
 
 ## Assumptions
 
-- 30 Hz server tick for prototype; 10 Hz travel mode deferred.
+- 30 Hz server simulation tick for prototype; travel-mode throttling deferred.
+- NGO `NetworkTransform` (server authority) for remote interpolation.
 - No lag compensation for weapons until REQ-039.
+
+## Resolved Decisions
+
+| Question | Decision |
+|----------|----------|
+| Replication approach | Custom `NetworkShipMovementController` using `ShipMovementModel` + owner ServerRpc input (not UE CharacterMovement) |
+| Remote viewers | Server-authoritative `NetworkTransform` with interpolation enabled |
 
 ## Open Questions
 
-- [ ] CharacterMovementComponent-style vs custom movement replication?
+None.
 
 ## Out of Scope
 
 - Sector transition handoff
 - Vehicle ownership transfer
-- Cheat detection beyond basic validation
+- Cheat detection beyond basic server-side simulation
+- Distance-based relevancy culling (document only)
 
 ## Retrieved Context
 
-No prior context retrieved — no tagged documents matched this area.
+- LESSON-004 (Unity flight re-platform): reuse `ShipMovementModel` for server + client prediction
+- REQ-035: networking bootstrap, spawn, static ships baseline
