@@ -1,0 +1,34 @@
+{
+  "req": "REQ-037",
+  "branch": "feat/REQ-037-targeting-radar-mvp",
+  "integrationBranch": "main",
+  "startedAt": "2026-06-20T16:00:00Z",
+  "completed": false,
+  "currentPhase": 4,
+  "completedPhases": [0, 1, 2, 3],
+  "phaseHistory": [
+    { "phase": 0, "name": "Create Worktree", "completedAt": "2026-06-20T16:00:00Z" },
+    { "phase": 1, "name": "Validate Spec", "completedAt": "2026-06-20T16:05:00Z" },
+    { "phase": 2, "name": "Architect", "completedAt": "2026-06-20T16:10:00Z" },
+    { "phase": 3, "name": "Validate Tasks", "completedAt": "2026-06-20T16:12:00Z" }
+  ],
+  "repos": {
+    "Malestrom": {
+      "primary": true,
+      "path": "C:/Users/wmcclellan001/code/test/Malestrom",
+      "worktree": "C:/Users/wmcclellan001/code/test/Malestrom/.worktrees/REQ-037",
+      "branch": "feat/REQ-037-targeting-radar-mvp",
+      "touched": true,
+      "prUrl": null,
+      "prNumber": null,
+      "merged": false,
+      "mergeCommit": null
+    }
+  },
+  "mergeOrder": ["Malestrom"],
+  "phase4": {
+    "currentTask": "TASK-033",
+    "completedTasks": [],
+    "failedTasks": []
+  }
+}

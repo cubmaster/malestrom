@@ -55,6 +55,7 @@
 - **ADR-032-1 … ADR-032-4 (superseded):** UE5 foundation decisions — historical; see `legacy/unreal/` and LESSON-002
 - **ADR-035-1 (approved):** `IronExiles.Networking` owns session lifecycle and spawn; `IronExiles.Combat` references `Unity.Netcode.Runtime` for network-aware ship components. Runtime `EmptySectorMultiplayerBootstrap` wires NetworkManager/spawner without hand-editing scene YAML.
 - **ADR-036-1 (approved):** Server-side `ShipMovementModel` simulation with owner client prediction/reconciliation via `NetworkShipMovementController`. Observers never simulate movement locally; `NetworkTransform` interpolates remote ships.
+- **ADR-037-1 (approved):** Server-authoritative tab targeting via `NetworkShipTargetingController`; owner radar from replicated transforms; tab cycle sorts by forward angle then distance.
 - **ADR-034 (approved):** **Unity** as primary game engine — see below
 
 ### ADR-034: Unity as primary game engine

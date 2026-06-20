@@ -26,6 +26,11 @@ namespace IronExiles.UI
         public float PowerEcm;
         public HardpointDisplayState[] Hardpoints;
         public int RadarContactCount;
+        public Vector3[] RadarContacts;
+        public string LockedTargetName;
+        public float LockedTargetDistanceMeters;
+        public float LockedTargetHullFill01;
+        public ulong LockedTargetNetworkObjectId;
         public bool IsVisible;
     }
 
@@ -56,6 +61,16 @@ namespace IronExiles.UI
             var jumpCharge = telemetry.JumpDriveChargePercent;
             var jumpReady = telemetry.JumpDriveReady;
 
+            Vector3[] radarContacts = null;
+            if (telemetry.RadarContactCount > 0)
+            {
+                radarContacts = new Vector3[telemetry.RadarContactCount];
+                for (var i = 0; i < telemetry.RadarContactCount; i++)
+                {
+                    radarContacts[i] = telemetry.GetRadarContact(i);
+                }
+            }
+
             return new FlightHudDisplayState
             {
                 SpeedText = $"{telemetry.SpeedMetersPerSecond:F0} m/s",
@@ -71,6 +86,11 @@ namespace IronExiles.UI
                 PowerEcm = power.Ecm,
                 Hardpoints = hardpoints,
                 RadarContactCount = telemetry.RadarContactCount,
+                RadarContacts = radarContacts,
+                LockedTargetName = telemetry.LockedTargetName,
+                LockedTargetDistanceMeters = telemetry.LockedTargetDistanceMeters,
+                LockedTargetHullFill01 = telemetry.LockedTargetHullFill01,
+                LockedTargetNetworkObjectId = telemetry.LockedTargetNetworkObjectId,
                 IsVisible = true
             };
         }

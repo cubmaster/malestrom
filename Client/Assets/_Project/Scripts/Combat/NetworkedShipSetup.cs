@@ -23,6 +23,8 @@ namespace IronExiles.Combat
                 movementController.enabled = IsOwner;
             }
 
+            ConfigureTargetableAffiliation();
+
             if (IsOwner)
             {
                 AttachLocalPlayerSystems();
@@ -30,6 +32,24 @@ namespace IronExiles.Combat
             else
             {
                 ConfigureRemoteShipVisual();
+            }
+        }
+
+        void ConfigureTargetableAffiliation()
+        {
+            var targetable = GetComponent<TargetableEntity>();
+            if (targetable == null)
+            {
+                return;
+            }
+
+            if (IsOwner)
+            {
+                targetable.Configure("Player Ship", TargetAffiliation.Friendly, 100f);
+            }
+            else
+            {
+                targetable.Configure($"Hostile {OwnerClientId}", TargetAffiliation.Hostile, 100f);
             }
         }
 
