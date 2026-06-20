@@ -1,7 +1,7 @@
 ---
 id: TASK-025
 title: "PlayerShipSpawner and SpawnPointManager"
-status: draft
+status: complete
 parent: REQ-035
 created: 2026-06-19
 updated: 2026-06-19

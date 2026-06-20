@@ -1,7 +1,7 @@
 ---
 id: TASK-026
 title: "Networked player ship prefab with ownership-based control"
-status: draft
+status: complete
 parent: REQ-035
 created: 2026-06-19
 updated: 2026-06-19

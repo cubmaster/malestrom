@@ -1,7 +1,7 @@
 ---
 id: TASK-027
 title: "Dedicated server build scripts and local multi-client test"
-status: draft
+status: complete
 parent: REQ-035
 created: 2026-06-19
 updated: 2026-06-19

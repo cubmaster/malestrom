@@ -1,10 +1,10 @@
 ---
 id: REQ-035
 title: "Dedicated Server Bootstrap & Client Connection"
-status: approved
+status: complete
 deployable: true
 created: 2026-06-11
-updated: 2026-06-19
+updated: 2026-06-20
 component: "game/networking/Session"
 domain: "networking"
 stack: ["unity", "csharp", "netcode", "unity-transport"]

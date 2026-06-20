@@ -1,7 +1,7 @@
 ---
 id: TASK-028
 title: "CI workflow: self-hosted Linux server build + 2-client verification"
-status: draft
+status: complete
 parent: REQ-035
 created: 2026-06-19
 updated: 2026-06-19

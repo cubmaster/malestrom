@@ -1,7 +1,7 @@
 ---
 id: TASK-024
 title: "Create IronExiles.Networking assembly and NetworkSessionManager"
-status: draft
+status: complete
 parent: REQ-035
 created: 2026-06-19
 updated: 2026-06-19

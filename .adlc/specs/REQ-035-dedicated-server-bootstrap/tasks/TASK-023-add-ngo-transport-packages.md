@@ -1,7 +1,7 @@
 ---
 id: TASK-023
 title: "Add Netcode for GameObjects + Unity Transport packages"
-status: draft
+status: complete
 parent: REQ-035
 created: 2026-06-19
 updated: 2026-06-19
