@@ -1,3 +1,4 @@
+using IronExiles.Combat;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,8 +10,24 @@ namespace IronExiles.UI
         readonly Text _speedText;
         readonly Text _headingText;
         readonly Image _hullFill;
+        readonly Image _shieldFill;
+        readonly Image _jumpChargeFill;
+        readonly Text _jumpStatusText;
+        readonly Image[] _powerBars;
+        readonly Text[] _powerLabels;
+        readonly HardpointSlotUI[] _hardpointSlots;
+        readonly RectTransform _radarPanel;
+        readonly Text _radarCountText;
+        readonly Image _reticle;
 
         public Canvas Canvas => _canvas;
+
+        struct HardpointSlotUI
+        {
+            public Text Label;
+            public Image ChargeFill;
+            public Image Background;
+        }
 
         public static FlightHudView Create(Transform parent)
         {
@@ -27,118 +44,395 @@ namespace IronExiles.UI
 
             canvasGo.AddComponent<GraphicRaycaster>();
 
-            var panel = CreatePanel(canvasGo.transform);
-            var speedText = CreateLabel(panel, "SpeedLabel", new Vector2(16f, 16f), TextAnchor.LowerLeft);
-            var headingText = CreateLabel(panel, "HeadingLabel", new Vector2(16f, 48f), TextAnchor.LowerLeft);
-            var hullBackground = CreateHullBarBackground(panel);
-            var hullFill = CreateHullBarFill(hullBackground);
+            var speedText = CreateLabel(canvasGo.transform, "SpeedLabel",
+                new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 200f), 24, TextAnchor.LowerLeft);
+            var headingText = CreateLabel(canvasGo.transform, "HeadingLabel",
+                new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 230f), 20, TextAnchor.LowerLeft);
 
-            return new FlightHudView(canvas, speedText, headingText, hullFill);
+            var hullFill = CreateStatusBar(canvasGo.transform, "HullBar", new Vector2(80f, 260f), 200f, 14f,
+                new Color(0.2f, 0.85f, 0.35f, 1f), "HULL");
+            var shieldFill = CreateStatusBar(canvasGo.transform, "ShieldBar", new Vector2(80f, 282f), 200f, 14f,
+                new Color(0.3f, 0.6f, 1f, 1f), "SHLD");
+
+            var jumpChargeFill = CreateStatusBar(canvasGo.transform, "JumpBar", new Vector2(80f, 310f), 160f, 12f,
+                new Color(0.8f, 0.4f, 1f, 1f), "");
+            var jumpStatusText = CreateLabel(canvasGo.transform, "JumpStatus",
+                new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(250f, 310f), 16, TextAnchor.LowerLeft);
+            jumpStatusText.color = new Color(0.8f, 0.4f, 1f, 1f);
+
+            var powerBars = new Image[4];
+            var powerLabels = new Text[4];
+            string[] powerNames = { "WPN", "SHD", "ENG", "ECM" };
+            Color[] powerColors =
+            {
+                new Color(1f, 0.4f, 0.3f, 1f),
+                new Color(0.3f, 0.6f, 1f, 1f),
+                new Color(0.4f, 1f, 0.5f, 1f),
+                new Color(1f, 0.8f, 0.2f, 1f)
+            };
+
+            for (int i = 0; i < 4; i++)
+            {
+                float yPos = 200f + i * 22f;
+                powerLabels[i] = CreateLabel(canvasGo.transform, $"PowerLabel_{powerNames[i]}",
+                    new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-280f, yPos), 14, TextAnchor.LowerRight);
+                powerLabels[i].text = powerNames[i];
+                powerLabels[i].color = powerColors[i];
+                powerBars[i] = CreateStatusBar(canvasGo.transform, $"PowerBar_{powerNames[i]}",
+                    new Vector2(-260f, yPos), 120f, 12f, powerColors[i], "",
+                    new Vector2(1f, 0f), new Vector2(1f, 0f));
+            }
+
+            var hardpointSlots = CreateHardpointPanel(canvasGo.transform);
+
+            var radarPanel = CreateRadarPanel(canvasGo.transform);
+            var radarCountText = CreateLabel(canvasGo.transform, "RadarCount",
+                new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-80f, -90f), 14, TextAnchor.UpperRight);
+            radarCountText.color = new Color(0.4f, 1f, 0.6f, 0.8f);
+
+            var reticle = CreateReticle(canvasGo.transform);
+
+            return new FlightHudView(canvas, speedText, headingText, hullFill, shieldFill,
+                jumpChargeFill, jumpStatusText, powerBars, powerLabels, hardpointSlots,
+                radarPanel, radarCountText, reticle);
         }
 
-        FlightHudView(Canvas canvas, Text speedText, Text headingText, Image hullFill)
+        FlightHudView(Canvas canvas, Text speedText, Text headingText, Image hullFill,
+            Image shieldFill, Image jumpChargeFill, Text jumpStatusText,
+            Image[] powerBars, Text[] powerLabels, HardpointSlotUI[] hardpointSlots,
+            RectTransform radarPanel, Text radarCountText, Image reticle)
         {
             _canvas = canvas;
             _speedText = speedText;
             _headingText = headingText;
             _hullFill = hullFill;
+            _shieldFill = shieldFill;
+            _jumpChargeFill = jumpChargeFill;
+            _jumpStatusText = jumpStatusText;
+            _powerBars = powerBars;
+            _powerLabels = powerLabels;
+            _hardpointSlots = hardpointSlots;
+            _radarPanel = radarPanel;
+            _radarCountText = radarCountText;
+            _reticle = reticle;
         }
 
         public void Apply(FlightHudDisplayState state)
         {
-            var visible = !string.IsNullOrEmpty(state.SpeedText);
-            _canvas.enabled = visible;
-            if (!visible)
-            {
-                return;
-            }
+            _canvas.enabled = state.IsVisible;
+            if (!state.IsVisible) return;
 
             _speedText.text = state.SpeedText;
             _headingText.text = state.HeadingText;
             _hullFill.fillAmount = Mathf.Clamp01(state.HullFill01);
+            _shieldFill.fillAmount = Mathf.Clamp01(state.ShieldFill01);
+            _jumpChargeFill.fillAmount = Mathf.Clamp01(state.JumpChargeFill01);
+            _jumpStatusText.text = state.JumpStatusText;
+            _jumpStatusText.color = state.JumpReady
+                ? new Color(0.5f, 1f, 0.7f, 1f)
+                : new Color(0.8f, 0.4f, 1f, 1f);
+
+            _powerBars[0].fillAmount = state.PowerWeapons;
+            _powerBars[1].fillAmount = state.PowerShields;
+            _powerBars[2].fillAmount = state.PowerEngines;
+            _powerBars[3].fillAmount = state.PowerEcm;
+
+            if (state.Hardpoints != null)
+            {
+                for (int i = 0; i < _hardpointSlots.Length && i < state.Hardpoints.Length; i++)
+                {
+                    var hp = state.Hardpoints[i];
+                    _hardpointSlots[i].Label.text = hp.Label;
+                    _hardpointSlots[i].ChargeFill.fillAmount = hp.ChargeFill01;
+                    _hardpointSlots[i].Background.color = hp.IsActive
+                        ? new Color(0.08f, 0.12f, 0.18f, 0.9f)
+                        : new Color(0.15f, 0.05f, 0.05f, 0.9f);
+                    _hardpointSlots[i].ChargeFill.color = GetHardpointColor(hp.Type);
+                }
+            }
+
+            _radarCountText.text = state.RadarContactCount > 0
+                ? $"{state.RadarContactCount} CONTACT{(state.RadarContactCount > 1 ? "S" : "")}"
+                : "NO CONTACTS";
         }
 
-        static RectTransform CreatePanel(Transform parent)
+        static Color GetHardpointColor(HardpointType type)
         {
-            var panelGo = new GameObject("Panel");
-            panelGo.transform.SetParent(parent, false);
-            var rect = panelGo.AddComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-            return rect;
+            switch (type)
+            {
+                case HardpointType.Weapon: return new Color(1f, 0.5f, 0.3f, 1f);
+                case HardpointType.Missile: return new Color(1f, 0.2f, 0.2f, 1f);
+                case HardpointType.PointDefense: return new Color(1f, 1f, 0.3f, 1f);
+                case HardpointType.Shield: return new Color(0.3f, 0.6f, 1f, 1f);
+                default: return Color.white;
+            }
         }
 
-        static Text CreateLabel(RectTransform parent, string name, Vector2 anchoredPosition, TextAnchor anchor)
+        static Text CreateLabel(Transform parent, string name,
+            Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, int fontSize, TextAnchor anchor)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             var rect = go.AddComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.zero;
-            rect.pivot = PivotForTextAnchor(anchor);
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.pivot = new Vector2(0f, 0f);
             rect.anchoredPosition = anchoredPosition;
             rect.sizeDelta = new Vector2(320f, 28f);
 
             var text = go.AddComponent<Text>();
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            text.fontSize = 22;
+            text.fontSize = fontSize;
             text.color = Color.white;
             text.alignment = anchor;
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
             return text;
         }
 
-        static Vector2 PivotForTextAnchor(TextAnchor anchor)
+        static Image CreateStatusBar(Transform parent, string name, Vector2 position, float width, float height,
+            Color fillColor, string label, Vector2? anchorMin = null, Vector2? anchorMax = null)
         {
-            switch (anchor)
+            var aMin = anchorMin ?? new Vector2(0f, 0f);
+            var aMax = anchorMax ?? new Vector2(0f, 0f);
+
+            var bgGo = new GameObject($"{name}_BG");
+            bgGo.transform.SetParent(parent, false);
+            var bgRect = bgGo.AddComponent<RectTransform>();
+            bgRect.anchorMin = aMin;
+            bgRect.anchorMax = aMax;
+            bgRect.pivot = new Vector2(0f, 0f);
+            bgRect.anchoredPosition = position;
+            bgRect.sizeDelta = new Vector2(width, height);
+            var bgImg = bgGo.AddComponent<Image>();
+            bgImg.color = new Color(0.08f, 0.08f, 0.1f, 0.85f);
+            bgImg.raycastTarget = false;
+
+            var fillGo = new GameObject($"{name}_Fill");
+            fillGo.transform.SetParent(bgGo.transform, false);
+            var fillRect = fillGo.AddComponent<RectTransform>();
+            fillRect.anchorMin = Vector2.zero;
+            fillRect.anchorMax = Vector2.one;
+            fillRect.offsetMin = new Vector2(1f, 1f);
+            fillRect.offsetMax = new Vector2(-1f, -1f);
+            var fillImg = fillGo.AddComponent<Image>();
+            fillImg.color = fillColor;
+            fillImg.type = Image.Type.Filled;
+            fillImg.fillMethod = Image.FillMethod.Horizontal;
+            fillImg.fillOrigin = (int)Image.OriginHorizontal.Left;
+            fillImg.fillAmount = 1f;
+            fillImg.raycastTarget = false;
+
+            if (!string.IsNullOrEmpty(label))
             {
-                case TextAnchor.UpperLeft: return new Vector2(0f, 1f);
-                case TextAnchor.UpperCenter: return new Vector2(0.5f, 1f);
-                case TextAnchor.UpperRight: return new Vector2(1f, 1f);
-                case TextAnchor.MiddleLeft: return new Vector2(0f, 0.5f);
-                case TextAnchor.MiddleCenter: return new Vector2(0.5f, 0.5f);
-                case TextAnchor.MiddleRight: return new Vector2(1f, 0.5f);
-                case TextAnchor.LowerCenter: return new Vector2(0.5f, 0f);
-                case TextAnchor.LowerRight: return new Vector2(1f, 0f);
-                default: return new Vector2(0f, 0f);
+                var labelGo = new GameObject($"{name}_Label");
+                labelGo.transform.SetParent(bgGo.transform, false);
+                var labelRect = labelGo.AddComponent<RectTransform>();
+                labelRect.anchorMin = Vector2.zero;
+                labelRect.anchorMax = Vector2.one;
+                labelRect.offsetMin = new Vector2(4f, 0f);
+                labelRect.offsetMax = Vector2.zero;
+                var labelText = labelGo.AddComponent<Text>();
+                labelText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                labelText.fontSize = (int)(height - 3);
+                labelText.color = new Color(0.9f, 0.9f, 0.9f, 0.8f);
+                labelText.alignment = TextAnchor.MiddleLeft;
+                labelText.text = label;
+                labelText.raycastTarget = false;
             }
+
+            return fillImg;
         }
 
-        static RectTransform CreateHullBarBackground(RectTransform parent)
+        static HardpointSlotUI[] CreateHardpointPanel(Transform parent)
         {
-            var go = new GameObject("HullBarBackground");
+            int slotCount = 7;
+            var slots = new HardpointSlotUI[slotCount];
+            float slotWidth = 70f;
+            float slotHeight = 40f;
+            float spacing = 4f;
+            float totalWidth = slotCount * slotWidth + (slotCount - 1) * spacing;
+            float startX = -totalWidth / 2f;
+
+            for (int i = 0; i < slotCount; i++)
+            {
+                float xPos = startX + i * (slotWidth + spacing);
+
+                var slotGo = new GameObject($"Hardpoint_{i}");
+                slotGo.transform.SetParent(parent, false);
+                var slotRect = slotGo.AddComponent<RectTransform>();
+                slotRect.anchorMin = new Vector2(0.5f, 0f);
+                slotRect.anchorMax = new Vector2(0.5f, 0f);
+                slotRect.pivot = new Vector2(0.5f, 0f);
+                slotRect.anchoredPosition = new Vector2(xPos + slotWidth / 2f, 170f);
+                slotRect.sizeDelta = new Vector2(slotWidth, slotHeight);
+
+                var bgImg = slotGo.AddComponent<Image>();
+                bgImg.color = new Color(0.08f, 0.12f, 0.18f, 0.9f);
+                bgImg.raycastTarget = false;
+
+                var fillGo = new GameObject("Fill");
+                fillGo.transform.SetParent(slotGo.transform, false);
+                var fillRect = fillGo.AddComponent<RectTransform>();
+                fillRect.anchorMin = new Vector2(0f, 0f);
+                fillRect.anchorMax = new Vector2(1f, 0.3f);
+                fillRect.offsetMin = new Vector2(2f, 2f);
+                fillRect.offsetMax = new Vector2(-2f, 0f);
+                var fillImg = fillGo.AddComponent<Image>();
+                fillImg.type = Image.Type.Filled;
+                fillImg.fillMethod = Image.FillMethod.Horizontal;
+                fillImg.fillOrigin = (int)Image.OriginHorizontal.Left;
+                fillImg.fillAmount = 1f;
+                fillImg.color = Color.white;
+                fillImg.raycastTarget = false;
+
+                var labelGo = new GameObject("Label");
+                labelGo.transform.SetParent(slotGo.transform, false);
+                var labelRect = labelGo.AddComponent<RectTransform>();
+                labelRect.anchorMin = Vector2.zero;
+                labelRect.anchorMax = Vector2.one;
+                labelRect.offsetMin = Vector2.zero;
+                labelRect.offsetMax = Vector2.zero;
+                var labelText = labelGo.AddComponent<Text>();
+                labelText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                labelText.fontSize = 11;
+                labelText.color = new Color(0.9f, 0.9f, 0.9f, 0.9f);
+                labelText.alignment = TextAnchor.MiddleCenter;
+                labelText.raycastTarget = false;
+
+                slots[i] = new HardpointSlotUI
+                {
+                    Label = labelText,
+                    ChargeFill = fillImg,
+                    Background = bgImg
+                };
+            }
+
+            return slots;
+        }
+
+        static RectTransform CreateRadarPanel(Transform parent)
+        {
+            var go = new GameObject("RadarPanel");
             go.transform.SetParent(parent, false);
             var rect = go.AddComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.zero;
-            rect.pivot = new Vector2(0f, 0f);
-            rect.anchoredPosition = new Vector2(16f, 88f);
-            rect.sizeDelta = new Vector2(220f, 18f);
+            rect.anchorMin = new Vector2(1f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.anchoredPosition = new Vector2(-20f, -20f);
+            rect.sizeDelta = new Vector2(160f, 160f);
 
-            var image = go.AddComponent<Image>();
-            image.color = new Color(0.1f, 0.1f, 0.12f, 0.85f);
+            var bg = go.AddComponent<Image>();
+            bg.color = new Color(0.02f, 0.06f, 0.04f, 0.85f);
+            bg.raycastTarget = false;
+
+            var borderGo = new GameObject("RadarBorder");
+            borderGo.transform.SetParent(go.transform, false);
+            var borderRect = borderGo.AddComponent<RectTransform>();
+            borderRect.anchorMin = Vector2.zero;
+            borderRect.anchorMax = Vector2.one;
+            borderRect.offsetMin = Vector2.zero;
+            borderRect.offsetMax = Vector2.zero;
+            var outline = borderGo.AddComponent<Outline>();
+            var borderImg = borderGo.AddComponent<Image>();
+            borderImg.color = Color.clear;
+            borderImg.raycastTarget = false;
+            outline.effectColor = new Color(0.2f, 0.7f, 0.4f, 0.6f);
+            outline.effectDistance = new Vector2(2f, 2f);
+
+            var crosshairH = new GameObject("CrossH");
+            crosshairH.transform.SetParent(go.transform, false);
+            var chRect = crosshairH.AddComponent<RectTransform>();
+            chRect.anchorMin = new Vector2(0f, 0.5f);
+            chRect.anchorMax = new Vector2(1f, 0.5f);
+            chRect.sizeDelta = new Vector2(0f, 1f);
+            var chImg = crosshairH.AddComponent<Image>();
+            chImg.color = new Color(0.2f, 0.5f, 0.3f, 0.4f);
+            chImg.raycastTarget = false;
+
+            var crosshairV = new GameObject("CrossV");
+            crosshairV.transform.SetParent(go.transform, false);
+            var cvRect = crosshairV.AddComponent<RectTransform>();
+            cvRect.anchorMin = new Vector2(0.5f, 0f);
+            cvRect.anchorMax = new Vector2(0.5f, 1f);
+            cvRect.sizeDelta = new Vector2(1f, 0f);
+            var cvImg = crosshairV.AddComponent<Image>();
+            cvImg.color = new Color(0.2f, 0.5f, 0.3f, 0.4f);
+            cvImg.raycastTarget = false;
+
+            var titleText = CreateLabel(go.transform, "RadarTitle",
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(4f, -16f), 10, TextAnchor.UpperLeft);
+            titleText.text = "RADAR";
+            titleText.color = new Color(0.3f, 0.8f, 0.5f, 0.7f);
+
             return rect;
         }
 
-        static Image CreateHullBarFill(RectTransform background)
+        static Image CreateReticle(Transform parent)
         {
-            var go = new GameObject("HullBarFill");
-            go.transform.SetParent(background, false);
+            var go = new GameObject("Reticle");
+            go.transform.SetParent(parent, false);
             var rect = go.AddComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = new Vector2(2f, 2f);
-            rect.offsetMax = new Vector2(-2f, -2f);
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(40f, 40f);
 
-            var image = go.AddComponent<Image>();
-            image.color = new Color(0.2f, 0.85f, 0.35f, 1f);
-            image.type = Image.Type.Filled;
-            image.fillMethod = Image.FillMethod.Horizontal;
-            image.fillOrigin = (int)Image.OriginHorizontal.Left;
-            image.fillAmount = 1f;
-            return image;
+            var img = go.AddComponent<Image>();
+            img.color = new Color(0.4f, 1f, 0.6f, 0.5f);
+            img.raycastTarget = false;
+
+            var topGo = new GameObject("Top");
+            topGo.transform.SetParent(go.transform, false);
+            var topRect = topGo.AddComponent<RectTransform>();
+            topRect.anchorMin = new Vector2(0.5f, 1f);
+            topRect.anchorMax = new Vector2(0.5f, 1f);
+            topRect.pivot = new Vector2(0.5f, 1f);
+            topRect.anchoredPosition = new Vector2(0f, 4f);
+            topRect.sizeDelta = new Vector2(2f, 10f);
+            var topImg = topGo.AddComponent<Image>();
+            topImg.color = new Color(0.4f, 1f, 0.6f, 0.7f);
+            topImg.raycastTarget = false;
+
+            var botGo = new GameObject("Bottom");
+            botGo.transform.SetParent(go.transform, false);
+            var botRect = botGo.AddComponent<RectTransform>();
+            botRect.anchorMin = new Vector2(0.5f, 0f);
+            botRect.anchorMax = new Vector2(0.5f, 0f);
+            botRect.pivot = new Vector2(0.5f, 0f);
+            botRect.anchoredPosition = new Vector2(0f, -4f);
+            botRect.sizeDelta = new Vector2(2f, 10f);
+            var botImg = botGo.AddComponent<Image>();
+            botImg.color = new Color(0.4f, 1f, 0.6f, 0.7f);
+            botImg.raycastTarget = false;
+
+            var leftGo = new GameObject("Left");
+            leftGo.transform.SetParent(go.transform, false);
+            var leftRect = leftGo.AddComponent<RectTransform>();
+            leftRect.anchorMin = new Vector2(0f, 0.5f);
+            leftRect.anchorMax = new Vector2(0f, 0.5f);
+            leftRect.pivot = new Vector2(0f, 0.5f);
+            leftRect.anchoredPosition = new Vector2(-4f, 0f);
+            leftRect.sizeDelta = new Vector2(10f, 2f);
+            var leftImg = leftGo.AddComponent<Image>();
+            leftImg.color = new Color(0.4f, 1f, 0.6f, 0.7f);
+            leftImg.raycastTarget = false;
+
+            var rightGo = new GameObject("Right");
+            rightGo.transform.SetParent(go.transform, false);
+            var rightRect = rightGo.AddComponent<RectTransform>();
+            rightRect.anchorMin = new Vector2(1f, 0.5f);
+            rightRect.anchorMax = new Vector2(1f, 0.5f);
+            rightRect.pivot = new Vector2(1f, 0.5f);
+            rightRect.anchoredPosition = new Vector2(4f, 0f);
+            rightRect.sizeDelta = new Vector2(10f, 2f);
+            var rightImg = rightGo.AddComponent<Image>();
+            rightImg.color = new Color(0.4f, 1f, 0.6f, 0.7f);
+            rightImg.raycastTarget = false;
+
+            img.enabled = false;
+
+            return img;
         }
     }
 }

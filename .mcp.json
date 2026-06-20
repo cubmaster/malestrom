@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "unity-mcp": {
+      "command": "node",
+      "args": ["C:/Users/wmcclellan001/.claude/tools/UnityMCP/unity-mcp-ts/build/index.js"]
+    }
+  }
+}

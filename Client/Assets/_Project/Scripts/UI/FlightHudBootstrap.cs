@@ -3,14 +3,15 @@ using UnityEngine;
 
 namespace IronExiles.UI
 {
-    /// <summary>
-    /// Binds the flight HUD to the player ship telemetry after scene spawn.
-    /// </summary>
     [DisallowMultipleComponent]
     public sealed class FlightHudBootstrap : MonoBehaviour
     {
+        CockpitFrameView _cockpitFrame;
+
         void Start()
         {
+            _cockpitFrame = CockpitFrameView.Create(transform);
+
             var player = GameObject.FindGameObjectWithTag("Player");
             if (player == null)
             {
@@ -29,6 +30,14 @@ namespace IronExiles.UI
             }
 
             hud.Bind(telemetry);
+        }
+
+        void OnDestroy()
+        {
+            if (_cockpitFrame?.Canvas != null)
+            {
+                Destroy(_cockpitFrame.Canvas.gameObject);
+            }
         }
     }
 }

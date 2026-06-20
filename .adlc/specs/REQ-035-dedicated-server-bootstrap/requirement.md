@@ -1,10 +1,10 @@
 ---
 id: REQ-035
 title: "Dedicated Server Bootstrap & Client Connection"
-status: draft
+status: approved
 deployable: true
 created: 2026-06-11
-updated: 2026-06-12
+updated: 2026-06-19
 component: "game/networking/Session"
 domain: "networking"
 stack: ["unity", "csharp", "netcode", "unity-transport"]
@@ -32,7 +32,7 @@ Reference: `docs/05-architecture.md` Dedicated Game Servers, Networking Architec
 | Entity | Field | Type | Constraints |
 |--------|-------|------|-------------|
 | NetworkSession | listen_address | string | default `0.0.0.0` on server |
-| NetworkSession | listen_port | ushort | default `7777` (configurable) |
+| NetworkSession | listen_port | ushort | default `7878` (configurable) |
 | NetworkSession | max_players | int | default 10 for prototype |
 | PlayerSpawnPoint | spawn_index | int | unique per slot in scene |
 | PlayerSpawnPoint | transform | Vector3/Quaternion | world pose |
@@ -98,9 +98,15 @@ Reference: `docs/05-architecture.md` Dedicated Game Servers, Networking Architec
 | CI runner | **Self-hosted** GitHub Actions runner with Unity installed (`self-hosted`, `unity`, `linux` labels). Multi-instance Play Mode or batchmode integration test for 2-client verification. |
 | Linux headless in CI | **Yes, immediately** — Linux dedicated-server build is a first-pass acceptance gate, not documentation-only. |
 
+## Resolved Decisions (continued)
+
+| Question | Decision |
+|----------|----------|
+| Default connection flow | **Hardcoded localhost:7878** for self-hosted local dev. Clients auto-connect to `127.0.0.1:7878` in prototype. CLI override (`-connectAddress`, `-connectPort`) available for non-local testing. |
+
 ## Open Questions
 
-- [ ] Default connection flow for local dev: raw IP:port UI vs. hardcoded dev connect button vs. command-line `-connectAddress`?
+None.
 
 ## Out of Scope
 

@@ -2,18 +2,31 @@ using IronExiles.Combat;
 
 namespace IronExiles.UI
 {
-    public readonly struct FlightHudDisplayState
+    public struct HardpointDisplayState
     {
-        public readonly string SpeedText;
-        public readonly string HeadingText;
-        public readonly float HullFill01;
+        public string Label;
+        public float ChargeFill01;
+        public bool IsActive;
+        public bool IsFiring;
+        public HardpointType Type;
+    }
 
-        public FlightHudDisplayState(string speedText, string headingText, float hullFill01)
-        {
-            SpeedText = speedText;
-            HeadingText = headingText;
-            HullFill01 = hullFill01;
-        }
+    public struct FlightHudDisplayState
+    {
+        public string SpeedText;
+        public string HeadingText;
+        public float HullFill01;
+        public float ShieldFill01;
+        public float JumpChargeFill01;
+        public bool JumpReady;
+        public string JumpStatusText;
+        public float PowerWeapons;
+        public float PowerShields;
+        public float PowerEngines;
+        public float PowerEcm;
+        public HardpointDisplayState[] Hardpoints;
+        public int RadarContactCount;
+        public bool IsVisible;
     }
 
     public static class FlightHudPresenter
@@ -22,17 +35,44 @@ namespace IronExiles.UI
         {
             if (telemetry == null || !telemetry.IsActive)
             {
-                return new FlightHudDisplayState(string.Empty, string.Empty, 0f);
+                return new FlightHudDisplayState { IsVisible = false };
             }
 
-            var speed = telemetry.SpeedMetersPerSecond;
-            var heading = telemetry.HeadingDegrees;
-            var hullFill = telemetry.HullPercent / 100f;
+            var power = telemetry.Power;
+            var hardpoints = new HardpointDisplayState[telemetry.HardpointCount];
+            for (int i = 0; i < telemetry.HardpointCount; i++)
+            {
+                var hp = telemetry.GetHardpoint(i);
+                hardpoints[i] = new HardpointDisplayState
+                {
+                    Label = hp.Label,
+                    ChargeFill01 = hp.ChargePercent / 100f,
+                    IsActive = hp.IsActive,
+                    IsFiring = hp.IsFiring,
+                    Type = hp.Type
+                };
+            }
 
-            return new FlightHudDisplayState(
-                $"{speed:F0} m/s",
-                $"HDG {heading:F0}°",
-                hullFill);
+            var jumpCharge = telemetry.JumpDriveChargePercent;
+            var jumpReady = telemetry.JumpDriveReady;
+
+            return new FlightHudDisplayState
+            {
+                SpeedText = $"{telemetry.SpeedMetersPerSecond:F0} m/s",
+                HeadingText = $"HDG {telemetry.HeadingDegrees:F0}°",
+                HullFill01 = telemetry.HullPercent / 100f,
+                ShieldFill01 = telemetry.ShieldPercent / 100f,
+                JumpChargeFill01 = jumpCharge / 100f,
+                JumpReady = jumpReady,
+                JumpStatusText = jumpReady ? "JUMP RDY" : $"JUMP {jumpCharge:F0}%",
+                PowerWeapons = power.Weapons,
+                PowerShields = power.Shields,
+                PowerEngines = power.Engines,
+                PowerEcm = power.Ecm,
+                Hardpoints = hardpoints,
+                RadarContactCount = telemetry.RadarContactCount,
+                IsVisible = true
+            };
         }
     }
 }
