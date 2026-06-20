@@ -49,6 +49,11 @@ namespace IronExiles.Networking
             var spawner = networkRoot.AddComponent<PlayerShipSpawner>();
             spawner.Configure(shipPrefab, spawnManager);
 
+            var dummyPrefab = TargetDummyFactory.CreatePrefab();
+            TargetDummyFactory.RegisterPrefab(dummyPrefab);
+            var dummySpawner = networkRoot.AddComponent<TargetDummySpawner>();
+            dummySpawner.Configure(dummyPrefab, new Vector3(40f, 0f, 40f));
+
             Object.DontDestroyOnLoad(networkRoot);
             Object.DontDestroyOnLoad(spawnRoot);
         }

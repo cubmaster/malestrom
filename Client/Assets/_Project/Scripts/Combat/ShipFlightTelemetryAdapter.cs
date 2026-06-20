@@ -34,6 +34,10 @@ namespace IronExiles.Combat
         HardpointStatus GetHardpoint(int index);
         int RadarContactCount { get; }
         Vector3 GetRadarContact(int index);
+        string LockedTargetName { get; }
+        float LockedTargetDistanceMeters { get; }
+        float LockedTargetHullFill01 { get; }
+        ulong LockedTargetNetworkObjectId { get; }
         bool IsActive { get; }
     }
 
@@ -42,6 +46,8 @@ namespace IronExiles.Combat
     public sealed class ShipFlightTelemetryAdapter : MonoBehaviour, IShipFlightTelemetry
     {
         ShipMovementController _movement;
+        NetworkShipTargetingController _targeting;
+        RadarContact[] _radarContacts = System.Array.Empty<RadarContact>();
 
         float _jumpChargeTimer;
         const float JumpChargeDuration = 15f;
@@ -68,6 +74,7 @@ namespace IronExiles.Combat
         void Awake()
         {
             _movement = GetComponent<ShipMovementController>();
+            _targeting = GetComponent<NetworkShipTargetingController>();
             _jumpChargeTimer = JumpChargeDuration;
         }
 
@@ -76,6 +83,29 @@ namespace IronExiles.Combat
             if (_jumpChargeTimer < JumpChargeDuration)
             {
                 _jumpChargeTimer += Time.deltaTime;
+            }
+
+            if (_targeting != null && _targeting.IsOwner)
+            {
+                var contacts = _targeting.GetRadarContacts();
+                if (contacts.Count == 0)
+                {
+                    _radarContacts = System.Array.Empty<RadarContact>();
+                }
+                else
+                {
+                    var copy = new RadarContact[contacts.Count];
+                    for (var i = 0; i < contacts.Count; i++)
+                    {
+                        copy[i] = contacts[i];
+                    }
+
+                    _radarContacts = copy;
+                }
+            }
+            else
+            {
+                _radarContacts = System.Array.Empty<RadarContact>();
             }
         }
 
@@ -102,8 +132,48 @@ namespace IronExiles.Combat
         public int HardpointCount => _hardpoints.Length;
         public HardpointStatus GetHardpoint(int index) => _hardpoints[index];
 
-        public int RadarContactCount => 0;
-        public Vector3 GetRadarContact(int index) => Vector3.zero;
+        public int RadarContactCount => _radarContacts.Length;
+
+        public Vector3 GetRadarContact(int index)
+        {
+            if (index < 0 || index >= _radarContacts.Length)
+            {
+                return Vector3.zero;
+            }
+
+            var contact = _radarContacts[index];
+            return new Vector3(contact.RadarPlane01.x, contact.RadarPlane01.y, contact.Distance);
+        }
+
+        public string LockedTargetName
+        {
+            get
+            {
+                var locked = _targeting != null ? _targeting.GetLockedTarget() : null;
+                return locked != null ? locked.DisplayName : string.Empty;
+            }
+        }
+
+        public float LockedTargetDistanceMeters
+        {
+            get
+            {
+                var locked = _targeting != null ? _targeting.GetLockedTarget() : null;
+                return locked != null ? Vector3.Distance(transform.position, locked.transform.position) : 0f;
+            }
+        }
+
+        public float LockedTargetHullFill01
+        {
+            get
+            {
+                var locked = _targeting != null ? _targeting.GetLockedTarget() : null;
+                return locked != null ? locked.HullPercent / 100f : 0f;
+            }
+        }
+
+        public ulong LockedTargetNetworkObjectId =>
+            _targeting != null ? _targeting.LockedTargetNetworkObjectId : 0UL;
 
         public bool IsActive => isActiveAndEnabled && _movement != null && _movement.isActiveAndEnabled;
     }

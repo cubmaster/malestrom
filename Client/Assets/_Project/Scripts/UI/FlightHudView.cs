@@ -18,6 +18,10 @@ namespace IronExiles.UI
         readonly HardpointSlotUI[] _hardpointSlots;
         readonly RectTransform _radarPanel;
         readonly Text _radarCountText;
+        readonly Image[] _radarBlips;
+        readonly Text _lockedTargetNameText;
+        readonly Text _lockedTargetDistanceText;
+        readonly Image _lockedTargetHullFill;
         readonly Image _reticle;
 
         public Canvas Canvas => _canvas;
@@ -86,21 +90,35 @@ namespace IronExiles.UI
             var hardpointSlots = CreateHardpointPanel(canvasGo.transform);
 
             var radarPanel = CreateRadarPanel(canvasGo.transform);
+            var radarBlips = CreateRadarBlips(radarPanel, TargetingSensorSettings.DefaultMaxRadarContacts);
             var radarCountText = CreateLabel(canvasGo.transform, "RadarCount",
                 new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-80f, -90f), 14, TextAnchor.UpperRight);
             radarCountText.color = new Color(0.4f, 1f, 0.6f, 0.8f);
+
+            var lockedTargetNameText = CreateLabel(canvasGo.transform, "LockedTargetName",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -40f), 18, TextAnchor.UpperCenter);
+            lockedTargetNameText.color = new Color(1f, 0.75f, 0.35f, 1f);
+            var lockedTargetDistanceText = CreateLabel(canvasGo.transform, "LockedTargetDistance",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -62f), 14, TextAnchor.UpperCenter);
+            lockedTargetDistanceText.color = new Color(0.9f, 0.9f, 0.9f, 0.85f);
+            var lockedTargetHullFill = CreateStatusBar(canvasGo.transform, "LockedTargetHull", new Vector2(-100f, -82f), 200f, 12f,
+                new Color(0.95f, 0.35f, 0.25f, 1f), "",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
 
             var reticle = CreateReticle(canvasGo.transform);
 
             return new FlightHudView(canvas, speedText, headingText, hullFill, shieldFill,
                 jumpChargeFill, jumpStatusText, powerBars, powerLabels, hardpointSlots,
-                radarPanel, radarCountText, reticle);
+                radarPanel, radarCountText, radarBlips, lockedTargetNameText, lockedTargetDistanceText,
+                lockedTargetHullFill, reticle);
         }
 
         FlightHudView(Canvas canvas, Text speedText, Text headingText, Image hullFill,
             Image shieldFill, Image jumpChargeFill, Text jumpStatusText,
             Image[] powerBars, Text[] powerLabels, HardpointSlotUI[] hardpointSlots,
-            RectTransform radarPanel, Text radarCountText, Image reticle)
+            RectTransform radarPanel, Text radarCountText, Image[] radarBlips,
+            Text lockedTargetNameText, Text lockedTargetDistanceText, Image lockedTargetHullFill,
+            Image reticle)
         {
             _canvas = canvas;
             _speedText = speedText;
@@ -114,6 +132,10 @@ namespace IronExiles.UI
             _hardpointSlots = hardpointSlots;
             _radarPanel = radarPanel;
             _radarCountText = radarCountText;
+            _radarBlips = radarBlips;
+            _lockedTargetNameText = lockedTargetNameText;
+            _lockedTargetDistanceText = lockedTargetDistanceText;
+            _lockedTargetHullFill = lockedTargetHullFill;
             _reticle = reticle;
         }
 
@@ -154,6 +176,45 @@ namespace IronExiles.UI
             _radarCountText.text = state.RadarContactCount > 0
                 ? $"{state.RadarContactCount} CONTACT{(state.RadarContactCount > 1 ? "S" : "")}"
                 : "NO CONTACTS";
+
+            ApplyRadarBlips(state.RadarContacts, state.RadarContactCount);
+            ApplyLockedTargetPanel(state);
+        }
+
+        void ApplyLockedTargetPanel(FlightHudDisplayState state)
+        {
+            var hasLock = !string.IsNullOrEmpty(state.LockedTargetName);
+            _lockedTargetNameText.gameObject.SetActive(hasLock);
+            _lockedTargetDistanceText.gameObject.SetActive(hasLock);
+            _lockedTargetHullFill.transform.parent.gameObject.SetActive(hasLock);
+
+            if (!hasLock)
+            {
+                return;
+            }
+
+            _lockedTargetNameText.text = state.LockedTargetName;
+            _lockedTargetDistanceText.text = $"{state.LockedTargetDistanceMeters:F0} m";
+            _lockedTargetHullFill.fillAmount = Mathf.Clamp01(state.LockedTargetHullFill01);
+        }
+
+        void ApplyRadarBlips(Vector3[] contacts, int count)
+        {
+            for (var i = 0; i < _radarBlips.Length; i++)
+            {
+                var blip = _radarBlips[i];
+                if (contacts == null || i >= count)
+                {
+                    blip.enabled = false;
+                    continue;
+                }
+
+                var contact = contacts[i];
+                blip.enabled = true;
+                var rect = blip.rectTransform;
+                var half = _radarPanel.rect.width * 0.5f - 8f;
+                rect.anchoredPosition = new Vector2(contact.x * half, contact.y * half);
+            }
         }
 
         static Color GetHardpointColor(HardpointType type)
@@ -365,6 +426,28 @@ namespace IronExiles.UI
             titleText.color = new Color(0.3f, 0.8f, 0.5f, 0.7f);
 
             return rect;
+        }
+
+        static Image[] CreateRadarBlips(RectTransform radarPanel, int maxBlips)
+        {
+            var blips = new Image[maxBlips];
+            for (var i = 0; i < maxBlips; i++)
+            {
+                var go = new GameObject($"RadarBlip_{i}");
+                go.transform.SetParent(radarPanel, false);
+                var rect = go.AddComponent<RectTransform>();
+                rect.anchorMin = new Vector2(0.5f, 0.5f);
+                rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.sizeDelta = new Vector2(6f, 6f);
+                var img = go.AddComponent<Image>();
+                img.color = new Color(1f, 0.45f, 0.25f, 0.95f);
+                img.raycastTarget = false;
+                img.enabled = false;
+                blips[i] = img;
+            }
+
+            return blips;
         }
 
         static Image CreateReticle(Transform parent)
