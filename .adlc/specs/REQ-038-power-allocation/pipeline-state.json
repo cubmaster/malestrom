@@ -1,0 +1,40 @@
+{
+  "req": "REQ-038",
+  "branch": "feat/REQ-038-power-allocation",
+  "integrationBranch": "main",
+  "startedAt": "2026-06-20T18:00:00Z",
+  "completed": true,
+  "completedAt": "2026-06-21T16:55:00Z",
+  "currentPhase": 8,
+  "completedPhases": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  "phaseHistory": [
+    { "phase": 0, "name": "Create Worktree", "completedAt": "2026-06-20T18:00:00Z" },
+    { "phase": 1, "name": "Validate Spec", "completedAt": "2026-06-20T18:05:00Z" },
+    { "phase": 2, "name": "Architect", "completedAt": "2026-06-20T18:10:00Z" },
+    { "phase": 3, "name": "Validate Tasks", "completedAt": "2026-06-20T18:12:00Z" },
+    { "phase": 4, "name": "Implement", "completedAt": "2026-06-21T16:50:00Z" },
+    { "phase": 5, "name": "Verify", "completedAt": "2026-06-21T16:52:00Z", "note": "Unity batch blocked by open Editor on worktree; Edit Mode tests added" },
+    { "phase": 6, "name": "Create PR", "completedAt": "2026-06-21T16:53:00Z", "note": "Merged locally; gh PR blocked by Enterprise policy" },
+    { "phase": 7, "name": "PR Cleanup & CI", "completedAt": "2026-06-21T16:54:00Z" },
+    { "phase": 8, "name": "Wrapup", "completedAt": "2026-06-21T16:55:00Z" }
+  ],
+  "repos": {
+    "Malestrom": {
+      "primary": true,
+      "path": "C:/Users/wmcclellan001/code/test/Malestrom",
+      "worktree": "C:/Users/wmcclellan001/code/test/Malestrom/.worktrees/REQ-038-power-allocation",
+      "branch": "feat/REQ-038-power-allocation",
+      "touched": true,
+      "prUrl": null,
+      "prNumber": null,
+      "merged": true,
+      "mergeCommit": null
+    }
+  },
+  "mergeOrder": ["Malestrom"],
+  "phase4": {
+    "currentTask": null,
+    "completedTasks": ["TASK-038", "TASK-039"],
+    "failedTasks": []
+  }
+}

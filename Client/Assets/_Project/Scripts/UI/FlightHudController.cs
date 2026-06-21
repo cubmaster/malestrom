@@ -15,8 +15,36 @@ namespace IronExiles.UI
             if (_view == null)
             {
                 _view = FlightHudView.Create(transform);
+                _view.WirePowerSliderCallbacks(OnPowerSliderChanged, OnPowerPresetClicked);
             }
+
+            BindPowerControl(ResolvePowerControl(telemetry));
         }
+
+        void BindPowerControl(IShipReactorPowerControl control)
+        {
+            _view?.BindPowerControl(control);
+        }
+
+        static IShipReactorPowerControl ResolvePowerControl(IShipFlightTelemetry telemetry)
+        {
+            if (telemetry is Component component)
+            {
+                var network = component.GetComponent<NetworkShipReactorPowerController>();
+                if (network != null)
+                {
+                    return network;
+                }
+
+                return component.GetComponent<ShipReactorPowerController>();
+            }
+
+            return null;
+        }
+
+        void OnPowerSliderChanged(int channelIndex) => _view?.OnPowerSliderChanged(channelIndex);
+
+        void OnPowerPresetClicked(PowerAllocation preset) => _view?.OnPowerPresetClicked(preset);
 
         void LateUpdate()
         {

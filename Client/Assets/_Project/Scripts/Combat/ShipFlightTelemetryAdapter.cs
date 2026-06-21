@@ -49,6 +49,7 @@ namespace IronExiles.Combat
         ShipMovementController _movement;
         NetworkShipTargetingController _targeting;
         LocalShipRadarSensor _localRadar;
+        IShipReactorPowerControl _reactorPower;
         RadarContact[] _radarContacts = System.Array.Empty<RadarContact>();
 
         float _jumpChargeTimer;
@@ -65,21 +66,27 @@ namespace IronExiles.Combat
             new HardpointStatus { Type = HardpointType.Shield, Label = "SHLD", ChargePercent = 100f, IsActive = true },
         };
 
-        PowerAllocation _power = new PowerAllocation
-        {
-            Weapons = 0.50f,
-            Shields = 0.30f,
-            Engines = 0.12f,
-            Ecm = 0.08f
-        };
-
         void Awake()
         {
             _movement = GetComponent<ShipMovementController>();
             _targeting = GetComponent<NetworkShipTargetingController>();
             _localRadar = GetComponent<LocalShipRadarSensor>();
+            _reactorPower = ResolveReactorPowerControl();
             _jumpChargeTimer = JumpChargeDuration;
         }
+
+        static IShipReactorPowerControl ResolveReactorPowerControl(Component host)
+        {
+            var network = host.GetComponent<NetworkShipReactorPowerController>();
+            if (network != null)
+            {
+                return network;
+            }
+
+            return host.GetComponent<ShipReactorPowerController>();
+        }
+
+        IShipReactorPowerControl ResolveReactorPowerControl() => ResolveReactorPowerControl(this);
 
         void Update()
         {
@@ -144,7 +151,9 @@ namespace IronExiles.Combat
         public float JumpDriveChargePercent => Mathf.Clamp01(_jumpChargeTimer / JumpChargeDuration) * 100f;
         public bool JumpDriveReady => _jumpChargeTimer >= JumpChargeDuration;
 
-        public PowerAllocation Power => _power;
+        public PowerAllocation Power => _reactorPower != null
+            ? _reactorPower.Current
+            : ReactorPowerAllocationMath.CombatPreset;
 
         public int HardpointCount => _hardpoints.Length;
         public HardpointStatus GetHardpoint(int index) => _hardpoints[index];

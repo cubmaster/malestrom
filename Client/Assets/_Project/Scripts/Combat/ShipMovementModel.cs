@@ -15,6 +15,7 @@ namespace IronExiles.Combat
         public Vector3 SectorBoundsExtent { get; private set; } = new Vector3(5000f, 5000f, 5000f);
 
         ShipStatsSnapshot _stats = ShipStatsDefinition.HumanStarterFighterDefaults();
+        float _enginePerformanceMultiplier = 1f;
         Vector3 _thrustInput;
         Vector3 _rotationInput;
         bool _brakeInput;
@@ -30,6 +31,9 @@ namespace IronExiles.Combat
         }
 
         public void SetStats(ShipStatsSnapshot stats) => _stats = stats;
+
+        public void SetEnginePerformanceMultiplier(float multiplier) =>
+            _enginePerformanceMultiplier = Mathf.Max(0f, multiplier);
 
         public void SetSectorBoundsExtent(Vector3 extent)
         {
@@ -73,9 +77,10 @@ namespace IronExiles.Combat
             var right = Rotation * Vector3.right;
             var up = Rotation * Vector3.up;
 
-            var acceleration = forward * (_thrustInput.x * _stats.ForwardThrust)
-                + right * (_thrustInput.y * _stats.StrafeThrust)
-                + up * (_thrustInput.z * _stats.StrafeThrust);
+            var thrustScale = _enginePerformanceMultiplier;
+            var acceleration = forward * (_thrustInput.x * _stats.ForwardThrust * thrustScale)
+                + right * (_thrustInput.y * _stats.StrafeThrust * thrustScale)
+                + up * (_thrustInput.z * _stats.StrafeThrust * thrustScale);
 
             Velocity += acceleration * deltaTime;
 
@@ -103,10 +108,11 @@ namespace IronExiles.Combat
         void ClampSpeed()
         {
             var speedSq = Velocity.sqrMagnitude;
-            var maxSpeedSq = _stats.MaxSpeed * _stats.MaxSpeed;
+            var maxSpeed = _stats.MaxSpeed * _enginePerformanceMultiplier;
+            var maxSpeedSq = maxSpeed * maxSpeed;
             if (speedSq > maxSpeedSq && speedSq > Mathf.Epsilon)
             {
-                Velocity = Velocity.normalized * _stats.MaxSpeed;
+                Velocity = Velocity.normalized * maxSpeed;
             }
         }
 

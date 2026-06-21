@@ -34,6 +34,7 @@ namespace IronExiles.Networking
             movement.SetSectorBoundsExtent(new Vector3(5000f, 5000f, 5000f));
             ship.AddComponent<ShipInputController>();
             ship.AddComponent<NetworkShipMovementController>();
+            ship.AddComponent<NetworkShipReactorPowerController>();
             var targetable = ship.AddComponent<TargetableEntity>();
             targetable.Configure("Player Ship", TargetAffiliation.Hostile, 100f);
             ship.AddComponent<NetworkShipTargetingController>();

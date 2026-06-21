@@ -83,6 +83,12 @@ namespace IronExiles.Combat
         public float PredictedSpeedMetersPerSecond =>
             IsOwner && _ownerPredictedModel != null ? _ownerPredictedModel.Velocity.magnitude : 0f;
 
+        public void SetEnginePerformanceMultiplier(float multiplier)
+        {
+            _movement.Model.SetEnginePerformanceMultiplier(multiplier);
+            _ownerPredictedModel?.SetEnginePerformanceMultiplier(multiplier);
+        }
+
         [ServerRpc]
         void SubmitMovementInputServerRpc(ShipMovementInput input)
         {

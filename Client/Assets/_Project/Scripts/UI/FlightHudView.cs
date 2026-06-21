@@ -1,3 +1,4 @@
+using System;
 using IronExiles.Combat;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +16,9 @@ namespace IronExiles.UI
         readonly Text _jumpStatusText;
         readonly Image[] _powerBars;
         readonly Text[] _powerLabels;
+        readonly Slider[] _powerSliders;
+        readonly Button[] _powerPresetButtons;
+        readonly Text _powerTotalText;
         readonly HardpointSlotUI[] _hardpointSlots;
         readonly RectTransform _radarPanel;
         readonly Text _radarCountText;
@@ -23,6 +27,9 @@ namespace IronExiles.UI
         readonly Text _lockedTargetDistanceText;
         readonly Image _lockedTargetHullFill;
         readonly Image _reticle;
+
+        IShipReactorPowerControl _powerControl;
+        bool _suppressPowerCallbacks;
 
         public Canvas Canvas => _canvas;
 
@@ -87,6 +94,12 @@ namespace IronExiles.UI
                     new Vector2(1f, 0f), new Vector2(1f, 0f));
             }
 
+            var powerSliders = CreatePowerSliders(canvasGo.transform, powerColors);
+            var powerPresetButtons = CreatePowerPresetButtons(canvasGo.transform);
+            var powerTotalText = CreateLabel(canvasGo.transform, "PowerTotal",
+                new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-280f, 118f), 12, TextAnchor.LowerRight);
+            powerTotalText.color = new Color(0.7f, 0.9f, 0.75f, 0.9f);
+
             var hardpointSlots = CreateHardpointPanel(canvasGo.transform);
 
             var radarPanel = CreateRadarPanel(canvasGo.transform);
@@ -108,14 +121,16 @@ namespace IronExiles.UI
             var reticle = CreateReticle(canvasGo.transform);
 
             return new FlightHudView(canvas, speedText, headingText, hullFill, shieldFill,
-                jumpChargeFill, jumpStatusText, powerBars, powerLabels, hardpointSlots,
+                jumpChargeFill, jumpStatusText, powerBars, powerLabels, powerSliders, powerPresetButtons,
+                powerTotalText, hardpointSlots,
                 radarPanel, radarCountText, radarBlips, lockedTargetNameText, lockedTargetDistanceText,
                 lockedTargetHullFill, reticle);
         }
 
         FlightHudView(Canvas canvas, Text speedText, Text headingText, Image hullFill,
             Image shieldFill, Image jumpChargeFill, Text jumpStatusText,
-            Image[] powerBars, Text[] powerLabels, HardpointSlotUI[] hardpointSlots,
+            Image[] powerBars, Text[] powerLabels, Slider[] powerSliders, Button[] powerPresetButtons,
+            Text powerTotalText, HardpointSlotUI[] hardpointSlots,
             RectTransform radarPanel, Text radarCountText, Image[] radarBlips,
             Text lockedTargetNameText, Text lockedTargetDistanceText, Image lockedTargetHullFill,
             Image reticle)
@@ -129,6 +144,9 @@ namespace IronExiles.UI
             _jumpStatusText = jumpStatusText;
             _powerBars = powerBars;
             _powerLabels = powerLabels;
+            _powerSliders = powerSliders;
+            _powerPresetButtons = powerPresetButtons;
+            _powerTotalText = powerTotalText;
             _hardpointSlots = hardpointSlots;
             _radarPanel = radarPanel;
             _radarCountText = radarCountText;
@@ -137,6 +155,91 @@ namespace IronExiles.UI
             _lockedTargetDistanceText = lockedTargetDistanceText;
             _lockedTargetHullFill = lockedTargetHullFill;
             _reticle = reticle;
+        }
+
+        public void BindPowerControl(IShipReactorPowerControl control)
+        {
+            if (_powerControl != null)
+            {
+                _powerControl.AllocationChanged -= OnPowerAllocationChanged;
+            }
+
+            _powerControl = control;
+            var hasControl = _powerControl != null;
+            SetPowerControlsVisible(hasControl);
+
+            if (!hasControl)
+            {
+                return;
+            }
+
+            _powerControl.AllocationChanged += OnPowerAllocationChanged;
+            SyncPowerSliders(_powerControl.Current);
+        }
+
+        void SetPowerControlsVisible(bool visible)
+        {
+            for (var i = 0; i < _powerSliders.Length; i++)
+            {
+                _powerSliders[i].gameObject.SetActive(visible);
+            }
+
+            for (var i = 0; i < _powerPresetButtons.Length; i++)
+            {
+                _powerPresetButtons[i].gameObject.SetActive(visible);
+            }
+
+            _powerTotalText.gameObject.SetActive(visible);
+        }
+
+        void OnPowerAllocationChanged(PowerAllocation allocation) => SyncPowerSliders(allocation);
+
+        void SyncPowerSliders(PowerAllocation allocation)
+        {
+            _suppressPowerCallbacks = true;
+            _powerSliders[0].value = allocation.Weapons;
+            _powerSliders[1].value = allocation.Shields;
+            _powerSliders[2].value = allocation.Engines;
+            _powerSliders[3].value = allocation.Ecm;
+            _suppressPowerCallbacks = false;
+            UpdatePowerTotalLabel(allocation);
+        }
+
+        void UpdatePowerTotalLabel(PowerAllocation allocation)
+        {
+            var total = (allocation.Weapons + allocation.Shields + allocation.Engines + allocation.Ecm) * 100f;
+            var valid = ReactorPowerAllocationMath.IsValid(allocation);
+            _powerTotalText.text = valid ? $"PWR {total:F0}%" : $"PWR {total:F0}% !";
+            _powerTotalText.color = valid
+                ? new Color(0.7f, 0.9f, 0.75f, 0.9f)
+                : new Color(1f, 0.45f, 0.35f, 0.95f);
+        }
+
+        internal void OnPowerSliderChanged(int channelIndex)
+        {
+            if (_suppressPowerCallbacks || _powerControl == null)
+            {
+                return;
+            }
+
+            var adjusted = ReactorPowerAllocationMath.AdjustChannel(
+                _powerControl.Current,
+                (ReactorPowerAllocationMath.PowerChannel)channelIndex,
+                _powerSliders[channelIndex].value);
+
+            SyncPowerSliders(adjusted);
+            _powerControl.RequestAllocation(adjusted);
+        }
+
+        internal void OnPowerPresetClicked(PowerAllocation preset)
+        {
+            if (_powerControl == null)
+            {
+                return;
+            }
+
+            SyncPowerSliders(preset);
+            _powerControl.RequestAllocation(preset);
         }
 
         public void Apply(FlightHudDisplayState state)
@@ -302,6 +405,140 @@ namespace IronExiles.UI
             }
 
             return fillImg;
+        }
+
+        static Slider[] CreatePowerSliders(Transform parent, Color[] channelColors)
+        {
+            var sliders = new Slider[4];
+            for (var i = 0; i < sliders.Length; i++)
+            {
+                var yPos = 200f + i * 22f;
+                var sliderGo = new GameObject($"PowerSlider_{i}");
+                sliderGo.transform.SetParent(parent, false);
+                var rect = sliderGo.AddComponent<RectTransform>();
+                rect.anchorMin = new Vector2(1f, 0f);
+                rect.anchorMax = new Vector2(1f, 0f);
+                rect.pivot = new Vector2(1f, 0.5f);
+                rect.anchoredPosition = new Vector2(-130f, yPos + 6f);
+                rect.sizeDelta = new Vector2(120f, 16f);
+
+                var bgGo = new GameObject("Background");
+                bgGo.transform.SetParent(sliderGo.transform, false);
+                var bgRect = bgGo.AddComponent<RectTransform>();
+                bgRect.anchorMin = Vector2.zero;
+                bgRect.anchorMax = Vector2.one;
+                bgRect.offsetMin = Vector2.zero;
+                bgRect.offsetMax = Vector2.zero;
+                var bgImg = bgGo.AddComponent<Image>();
+                bgImg.color = new Color(0.08f, 0.08f, 0.1f, 0.85f);
+
+                var fillAreaGo = new GameObject("Fill Area");
+                fillAreaGo.transform.SetParent(sliderGo.transform, false);
+                var fillAreaRect = fillAreaGo.AddComponent<RectTransform>();
+                fillAreaRect.anchorMin = new Vector2(0f, 0.25f);
+                fillAreaRect.anchorMax = new Vector2(1f, 0.75f);
+                fillAreaRect.offsetMin = new Vector2(6f, 0f);
+                fillAreaRect.offsetMax = new Vector2(-6f, 0f);
+
+                var fillGo = new GameObject("Fill");
+                fillGo.transform.SetParent(fillAreaGo.transform, false);
+                var fillRect = fillGo.AddComponent<RectTransform>();
+                fillRect.anchorMin = Vector2.zero;
+                fillRect.anchorMax = Vector2.one;
+                fillRect.offsetMin = Vector2.zero;
+                fillRect.offsetMax = Vector2.zero;
+                var fillImg = fillGo.AddComponent<Image>();
+                fillImg.color = channelColors[i];
+
+                var handleSlideAreaGo = new GameObject("Handle Slide Area");
+                handleSlideAreaGo.transform.SetParent(sliderGo.transform, false);
+                var handleSlideAreaRect = handleSlideAreaGo.AddComponent<RectTransform>();
+                handleSlideAreaRect.anchorMin = Vector2.zero;
+                handleSlideAreaRect.anchorMax = Vector2.one;
+                handleSlideAreaRect.offsetMin = new Vector2(6f, 0f);
+                handleSlideAreaRect.offsetMax = new Vector2(-6f, 0f);
+
+                var handleGo = new GameObject("Handle");
+                handleGo.transform.SetParent(handleSlideAreaGo.transform, false);
+                var handleRect = handleGo.AddComponent<RectTransform>();
+                handleRect.sizeDelta = new Vector2(12f, 18f);
+                var handleImg = handleGo.AddComponent<Image>();
+                handleImg.color = new Color(0.95f, 0.95f, 0.95f, 0.95f);
+
+                var slider = sliderGo.AddComponent<Slider>();
+                slider.targetGraphic = handleImg;
+                slider.fillRect = fillRect;
+                slider.handleRect = handleRect;
+                slider.direction = Slider.Direction.LeftToRight;
+                slider.minValue = 0f;
+                slider.maxValue = 1f;
+                slider.wholeNumbers = false;
+                sliders[i] = slider;
+            }
+
+            return sliders;
+        }
+
+        static Button[] CreatePowerPresetButtons(Transform parent)
+        {
+            var presets = new[]
+            {
+                ("CMB", ReactorPowerAllocationMath.CombatPreset),
+                ("TRV", ReactorPowerAllocationMath.TravelPreset),
+                ("BAL", ReactorPowerAllocationMath.BalancedPreset)
+            };
+
+            var buttons = new Button[presets.Length];
+            for (var i = 0; i < presets.Length; i++)
+            {
+                var xPos = -280f + i * 52f;
+                var buttonGo = new GameObject($"PowerPreset_{presets[i].Item1}");
+                buttonGo.transform.SetParent(parent, false);
+                var rect = buttonGo.AddComponent<RectTransform>();
+                rect.anchorMin = new Vector2(1f, 0f);
+                rect.anchorMax = new Vector2(1f, 0f);
+                rect.pivot = new Vector2(1f, 0f);
+                rect.anchoredPosition = new Vector2(xPos, 92f);
+                rect.sizeDelta = new Vector2(48f, 22f);
+
+                var image = buttonGo.AddComponent<Image>();
+                image.color = new Color(0.12f, 0.16f, 0.22f, 0.95f);
+
+                var button = buttonGo.AddComponent<Button>();
+                button.targetGraphic = image;
+
+                var label = CreateLabel(buttonGo.transform, "Label",
+                    Vector2.zero, Vector2.one, Vector2.zero, 11, TextAnchor.MiddleCenter);
+                label.text = presets[i].Item1;
+                label.color = new Color(0.85f, 0.95f, 0.9f, 0.95f);
+                buttons[i] = button;
+            }
+
+            return buttons;
+        }
+
+        internal void WirePowerSliderCallbacks(Action<int> onSliderChanged, Action<PowerAllocation> onPresetClicked)
+        {
+            for (var i = 0; i < _powerSliders.Length; i++)
+            {
+                var channelIndex = i;
+                _powerSliders[i].onValueChanged.RemoveAllListeners();
+                _powerSliders[i].onValueChanged.AddListener(_ => onSliderChanged(channelIndex));
+            }
+
+            var presets = new[]
+            {
+                ReactorPowerAllocationMath.CombatPreset,
+                ReactorPowerAllocationMath.TravelPreset,
+                ReactorPowerAllocationMath.BalancedPreset
+            };
+
+            for (var i = 0; i < _powerPresetButtons.Length; i++)
+            {
+                var preset = presets[i];
+                _powerPresetButtons[i].onClick.RemoveAllListeners();
+                _powerPresetButtons[i].onClick.AddListener(() => onPresetClicked(preset));
+            }
         }
 
         static HardpointSlotUI[] CreateHardpointPanel(Transform parent)
