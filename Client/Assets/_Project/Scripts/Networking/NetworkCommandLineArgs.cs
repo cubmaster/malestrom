@@ -29,6 +29,36 @@ namespace IronExiles.Networking
             return ushort.TryParse(value, out var port) ? port : DefaultPort;
         }
 
+        public static bool IsDedicatedServerLaunch()
+        {
+            if (!Application.isBatchMode)
+            {
+                return false;
+            }
+
+            if (HasExplicitArg(ServerPortArg))
+            {
+                return true;
+            }
+
+            var processName = System.IO.Path.GetFileNameWithoutExtension(System.Diagnostics.Process.GetCurrentProcess().ProcessName);
+            return string.Equals(processName, "IronExilesServer", System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        static bool HasExplicitArg(string argName)
+        {
+            var args = Environment.GetCommandLineArgs();
+            for (var i = 0; i < args.Length; i++)
+            {
+                if (string.Equals(args[i], argName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         static string GetArgValue(string argName, string defaultValue)
         {
             var args = Environment.GetCommandLineArgs();

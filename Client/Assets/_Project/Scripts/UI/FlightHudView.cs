@@ -425,6 +425,18 @@ namespace IronExiles.UI
             titleText.text = "RADAR";
             titleText.color = new Color(0.3f, 0.8f, 0.5f, 0.7f);
 
+            var forwardMarker = new GameObject("RadarForwardMarker");
+            forwardMarker.transform.SetParent(go.transform, false);
+            var forwardRect = forwardMarker.AddComponent<RectTransform>();
+            forwardRect.anchorMin = new Vector2(0.5f, 0.5f);
+            forwardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            forwardRect.pivot = new Vector2(0.5f, 0f);
+            forwardRect.anchoredPosition = new Vector2(0f, 2f);
+            forwardRect.sizeDelta = new Vector2(4f, 18f);
+            var forwardImg = forwardMarker.AddComponent<Image>();
+            forwardImg.color = new Color(0.35f, 1f, 0.55f, 0.85f);
+            forwardImg.raycastTarget = false;
+
             return rect;
         }
 

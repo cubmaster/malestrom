@@ -24,6 +24,7 @@ namespace IronExiles.Combat
         public ulong LockedTargetNetworkObjectId => _lockedTargetId.Value;
         public float LockRangeMeters => _lockRangeMeters;
         public int MaxRadarContacts => _maxRadarContacts;
+        public bool ProvidesLocalRadar => !IsSpawned || IsOwner;
 
         void Awake()
         {
@@ -44,7 +45,7 @@ namespace IronExiles.Combat
 
         public IReadOnlyList<RadarContact> GetRadarContacts()
         {
-            if (!IsOwner)
+            if (IsSpawned && !IsOwner)
             {
                 return System.Array.Empty<RadarContact>();
             }
@@ -197,7 +198,7 @@ namespace IronExiles.Combat
 
         static IEnumerable<TargetableEntity> FindAllTargetables()
         {
-            return Object.FindObjectsByType<TargetableEntity>(FindObjectsSortMode.None);
+            return Object.FindObjectsByType<TargetableEntity>();
         }
     }
 }

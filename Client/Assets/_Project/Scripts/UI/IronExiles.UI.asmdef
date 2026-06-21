@@ -3,6 +3,7 @@
     "rootNamespace": "IronExiles.UI",
     "references": [
         "IronExiles.Combat",
+        "Unity.Netcode.Runtime",
         "UnityEngine.UI"
     ],
     "includePlatforms": [],

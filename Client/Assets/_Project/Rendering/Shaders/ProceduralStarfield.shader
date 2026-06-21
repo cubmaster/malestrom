@@ -8,6 +8,7 @@ Shader "IronExiles/ProceduralStarfield"
         _NebulaColor1 ("Nebula Color 1", Color) = (0.06, 0.02, 0.12, 1)
         _NebulaColor2 ("Nebula Color 2", Color) = (0.02, 0.06, 0.1, 1)
         _NebulaIntensity ("Nebula Intensity", Range(0, 0.2)) = 0.06
+        _ParallaxEuler ("Parallax Euler", Vector) = (0, 0, 0, 0)
     }
 
     SubShader
@@ -48,6 +49,19 @@ Shader "IronExiles/ProceduralStarfield"
             float4 _NebulaColor1;
             float4 _NebulaColor2;
             float _NebulaIntensity;
+            float4 _ParallaxEuler;
+
+            float3 RotateYawPitch(float3 dir, float2 yawPitch)
+            {
+                float yaw = yawPitch.x;
+                float pitch = yawPitch.y;
+                float sy = sin(yaw);
+                float cy = cos(yaw);
+                float3 yawed = float3(cy * dir.x + sy * dir.z, dir.y, -sy * dir.x + cy * dir.z);
+                float sp = sin(pitch);
+                float cp = cos(pitch);
+                return normalize(float3(yawed.x, cp * yawed.y - sp * yawed.z, sp * yawed.y + cp * yawed.z));
+            }
 
             float2 hash22(float2 p)
             {
@@ -130,6 +144,7 @@ Shader "IronExiles/ProceduralStarfield"
             half4 frag(Varyings input) : SV_Target
             {
                 float3 dir = normalize(input.viewDir);
+                dir = RotateYawPitch(dir, _ParallaxEuler.xy);
 
                 float stars = starLayer(dir, _StarDensity);
                 stars += starLayer(dir, _StarDensity * 0.5) * 0.6;

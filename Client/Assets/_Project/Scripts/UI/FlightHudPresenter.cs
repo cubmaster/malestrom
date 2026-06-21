@@ -1,4 +1,5 @@
 using IronExiles.Combat;
+using UnityEngine;
 
 namespace IronExiles.UI
 {
@@ -38,7 +39,7 @@ namespace IronExiles.UI
     {
         public static FlightHudDisplayState Build(IShipFlightTelemetry telemetry)
         {
-            if (telemetry == null || !telemetry.IsActive)
+            if (telemetry == null)
             {
                 return new FlightHudDisplayState { IsVisible = false };
             }

@@ -80,6 +80,9 @@ namespace IronExiles.Combat
             transform.SetPositionAndRotation(_movement.Model.Position, _movement.Model.Rotation);
         }
 
+        public float PredictedSpeedMetersPerSecond =>
+            IsOwner && _ownerPredictedModel != null ? _ownerPredictedModel.Velocity.magnitude : 0f;
+
         [ServerRpc]
         void SubmitMovementInputServerRpc(ShipMovementInput input)
         {

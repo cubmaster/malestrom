@@ -1,8 +1,8 @@
 ﻿<Solution>
   <Project Path="IronExiles.Core.Tests.csproj" />
   <Project Path="IronExiles.Combat.csproj" />
-  <Project Path="IronExiles.UI.csproj" />
   <Project Path="IronExiles.Networking.csproj" />
+  <Project Path="IronExiles.UI.csproj" />
   <Project Path="IronExiles.Editor.csproj" />
   <Project Path="IronExiles.Core.csproj" />
 </Solution>

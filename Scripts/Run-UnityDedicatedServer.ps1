@@ -7,7 +7,7 @@
     Use the Linux build path (for WSL testing).
 #>
 param(
-    [ushort]$Port = 7878,
+    [uint16]$Port = 7878,
     [switch]$Linux
 )
 

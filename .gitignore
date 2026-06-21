@@ -17,6 +17,7 @@ Build/
 Scripts/ue-root.local.ps1
 Scripts/legacy/ue-root.local.ps1
 Scripts/unity-root.local.ps1
+.iron-exiles-auto-connect
 .vs/
 *.VC.db
 *.opensdf

@@ -70,6 +70,7 @@ namespace IronExiles.Combat
             }
 
             gameObject.AddComponent<ShipFlightTelemetryAdapter>();
+            LocalPlayerSystemsEvents.NotifyLocalPlayerShipReady(gameObject);
         }
 
         void ConfigureRemoteShipVisual()

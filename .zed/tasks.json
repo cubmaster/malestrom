@@ -1,5 +1,35 @@
 [
   {
+    "label": "Iron Exiles: Local Multiplayer Dev (Server + Unity)",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "Scripts/Launch-LocalMultiplayerDev.ps1"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "allow_concurrent_runs": false,
+    "tags": ["iron-exiles-run"]
+  },
+  {
+    "label": "Iron Exiles: Start Dedicated Server",
+    "command": "powershell",
+    "args": [
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "Scripts/Run-UnityDedicatedServer.ps1"
+    ],
+    "use_new_terminal": true,
+    "reveal": "always",
+    "allow_concurrent_runs": false,
+    "tags": ["iron-exiles-run"]
+  },
+  {
     "label": "Iron Exiles: Open Unity Editor",
     "command": "powershell",
     "args": [

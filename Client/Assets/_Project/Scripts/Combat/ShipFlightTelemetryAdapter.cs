@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace IronExiles.Combat
@@ -47,6 +48,7 @@ namespace IronExiles.Combat
     {
         ShipMovementController _movement;
         NetworkShipTargetingController _targeting;
+        LocalShipRadarSensor _localRadar;
         RadarContact[] _radarContacts = System.Array.Empty<RadarContact>();
 
         float _jumpChargeTimer;
@@ -75,6 +77,7 @@ namespace IronExiles.Combat
         {
             _movement = GetComponent<ShipMovementController>();
             _targeting = GetComponent<NetworkShipTargetingController>();
+            _localRadar = GetComponent<LocalShipRadarSensor>();
             _jumpChargeTimer = JumpChargeDuration;
         }
 
@@ -85,31 +88,45 @@ namespace IronExiles.Combat
                 _jumpChargeTimer += Time.deltaTime;
             }
 
-            if (_targeting != null && _targeting.IsOwner)
+            IReadOnlyList<RadarContact> contacts = null;
+            if (_targeting != null && _targeting.ProvidesLocalRadar)
             {
-                var contacts = _targeting.GetRadarContacts();
-                if (contacts.Count == 0)
-                {
-                    _radarContacts = System.Array.Empty<RadarContact>();
-                }
-                else
-                {
-                    var copy = new RadarContact[contacts.Count];
-                    for (var i = 0; i < contacts.Count; i++)
-                    {
-                        copy[i] = contacts[i];
-                    }
-
-                    _radarContacts = copy;
-                }
+                contacts = _targeting.GetRadarContacts();
             }
-            else
+            else if (_localRadar != null)
+            {
+                contacts = _localRadar.GetRadarContacts();
+            }
+
+            if (contacts == null || contacts.Count == 0)
             {
                 _radarContacts = System.Array.Empty<RadarContact>();
             }
+            else
+            {
+                var copy = new RadarContact[contacts.Count];
+                for (var i = 0; i < contacts.Count; i++)
+                {
+                    copy[i] = contacts[i];
+                }
+
+                _radarContacts = copy;
+            }
         }
 
-        public float SpeedMetersPerSecond => _movement != null ? _movement.Velocity.magnitude : 0f;
+        public float SpeedMetersPerSecond
+        {
+            get
+            {
+                var networkMovement = GetComponent<NetworkShipMovementController>();
+                if (networkMovement != null && networkMovement.IsOwner)
+                {
+                    return networkMovement.PredictedSpeedMetersPerSecond;
+                }
+
+                return _movement != null ? _movement.Velocity.magnitude : 0f;
+            }
+        }
 
         public float HeadingDegrees
         {
@@ -175,6 +192,6 @@ namespace IronExiles.Combat
         public ulong LockedTargetNetworkObjectId =>
             _targeting != null ? _targeting.LockedTargetNetworkObjectId : 0UL;
 
-        public bool IsActive => isActiveAndEnabled && _movement != null && _movement.isActiveAndEnabled;
+        public bool IsActive => isActiveAndEnabled && _movement != null;
     }
 }

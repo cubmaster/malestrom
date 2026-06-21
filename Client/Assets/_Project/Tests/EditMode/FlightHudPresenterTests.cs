@@ -48,13 +48,14 @@ namespace IronExiles.Core.Tests
         }
 
         [Test]
-        public void Build_WhenInactive_ReturnsInvisibleState()
+        public void Build_WhenInactive_StillShowsHud()
         {
             var telemetry = new StubTelemetry { IsActive = false, SpeedMetersPerSecond = 10f };
 
             var state = FlightHudPresenter.Build(telemetry);
 
-            Assert.IsFalse(state.IsVisible);
+            Assert.IsTrue(state.IsVisible);
+            Assert.AreEqual("10 m/s", state.SpeedText);
         }
 
         [Test]

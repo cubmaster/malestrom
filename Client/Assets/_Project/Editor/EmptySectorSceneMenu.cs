@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
 
 namespace IronExiles.Editor
 {
@@ -10,10 +11,30 @@ namespace IronExiles.Editor
         [MenuItem("Iron Exiles/Open EmptySector Scene")]
         public static void OpenEmptySector()
         {
-            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            OpenEmptySector(promptSave: true);
+        }
+
+        public static void OpenEmptySector(bool promptSave)
+        {
+            if (promptSave && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
             {
-                EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+                return;
             }
+
+            EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            Debug.Log("[Iron Exiles] Opened EmptySector. Hierarchy should show FlightSetup — then press Play.");
+        }
+
+        internal static void OpenEmptySectorIfNeeded()
+        {
+            var activeScene = EditorSceneManager.GetActiveScene();
+            if (activeScene.path == ScenePath)
+            {
+                return;
+            }
+
+            var canOpenWithoutPrompt = string.IsNullOrEmpty(activeScene.path) && !activeScene.isDirty;
+            OpenEmptySector(promptSave: !canOpenWithoutPrompt);
         }
     }
 }

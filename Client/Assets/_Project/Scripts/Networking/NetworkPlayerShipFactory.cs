@@ -14,6 +14,7 @@ namespace IronExiles.Networking
             var existing = GameObject.Find(PrefabRootName);
             if (existing != null)
             {
+                RuntimeNetworkPrefabUtility.EnsurePlayerShipPrefabHash(existing.GetComponent<NetworkObject>());
                 return existing;
             }
 
@@ -27,10 +28,11 @@ namespace IronExiles.Networking
             collider.size = Vector3.one;
 
             ship.AddComponent<NetworkObject>();
+            RuntimeNetworkPrefabUtility.EnsurePlayerShipPrefabHash(ship.GetComponent<NetworkObject>());
             ship.AddComponent<NetworkTransform>();
-            ship.AddComponent<ShipInputController>();
             var movement = ship.AddComponent<ShipMovementController>();
             movement.SetSectorBoundsExtent(new Vector3(5000f, 5000f, 5000f));
+            ship.AddComponent<ShipInputController>();
             ship.AddComponent<NetworkShipMovementController>();
             var targetable = ship.AddComponent<TargetableEntity>();
             targetable.Configure("Player Ship", TargetAffiliation.Hostile, 100f);
@@ -41,23 +43,9 @@ namespace IronExiles.Networking
             return ship;
         }
 
-        public static void RegisterPrefab(GameObject prefab)
+        public static void RegisterPrefab(GameObject prefab, NetworkManager networkManager = null)
         {
-            var networkManager = NetworkManager.Singleton;
-            if (networkManager == null || prefab == null)
-            {
-                return;
-            }
-
-            foreach (var entry in networkManager.NetworkConfig.Prefabs.Prefabs)
-            {
-                if (entry.Prefab == prefab)
-                {
-                    return;
-                }
-            }
-
-            networkManager.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = prefab });
+            RuntimeNetworkPrefabUtility.RegisterPrefab(prefab, networkManager ?? NetworkManager.Singleton);
         }
     }
 }

@@ -2,6 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Iron Exiles: Local Multiplayer Dev (Server + Unity)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Scripts/Launch-LocalMultiplayerDev.ps1",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Iron Exiles: Start Dedicated Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Scripts/Run-UnityDedicatedServer.ps1",
+      "cwd": "${workspaceFolder}"
+    },
+    {
       "name": "Iron Exiles: Open Unity Editor",
       "type": "node-terminal",
       "request": "launch",

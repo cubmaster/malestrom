@@ -24,7 +24,7 @@ namespace IronExiles.Networking
             }
 
             nm.OnClientConnectedCallback += OnClientConnected;
-            nm.OnClientDisconnectedCallback += OnClientDisconnected;
+            nm.OnClientDisconnectCallback += OnClientDisconnected;
         }
 
         void OnDisable()
@@ -36,7 +36,7 @@ namespace IronExiles.Networking
             }
 
             nm.OnClientConnectedCallback -= OnClientConnected;
-            nm.OnClientDisconnectedCallback -= OnClientDisconnected;
+            nm.OnClientDisconnectCallback -= OnClientDisconnected;
         }
 
         void OnClientConnected(ulong clientId)
@@ -60,6 +60,7 @@ namespace IronExiles.Networking
                 : Quaternion.identity;
 
             var instance = Instantiate(_playerShipPrefab, position, rotation);
+            instance.SetActive(true);
             var networkObject = instance.GetComponent<NetworkObject>();
 
             if (networkObject != null)

@@ -8,37 +8,32 @@ namespace IronExiles.Combat
         [SerializeField] Vector3 _spawnPosition = Vector3.zero;
         [SerializeField] Vector3 _sectorBoundsExtent = new Vector3(5000f, 5000f, 5000f);
         [SerializeField] Vector3 _hullScale = new Vector3(2f, 0.5f, 1f);
-
-        const string StarfieldShaderName = "IronExiles/ProceduralStarfield";
+        [SerializeField] Vector3 _trainingDummyPosition = new Vector3(40f, 0f, 40f);
 
         void Start()
         {
-            SetupSpaceEnvironment();
+            ProceduralStarfieldEnvironment.Apply();
+            SpawnTrainingDummy();
             var ship = CreateShip();
             AttachCockpitCamera(ship.transform);
         }
 
-        void SetupSpaceEnvironment()
+        void SpawnTrainingDummy()
         {
-            var shader = Shader.Find(StarfieldShaderName);
-            if (shader != null)
+            var dummy = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            dummy.name = "TrainingDummy";
+            dummy.transform.SetPositionAndRotation(_trainingDummyPosition, Quaternion.identity);
+            dummy.transform.localScale = new Vector3(1.5f, 0.5f, 1.5f);
+
+            var renderer = dummy.GetComponent<Renderer>();
+            if (renderer != null)
             {
-                var skyboxMat = new Material(shader);
-                RenderSettings.skybox = skyboxMat;
-            }
-            else
-            {
-                RenderSettings.skybox = null;
-                var camera = Camera.main;
-                if (camera != null)
-                {
-                    camera.clearFlags = CameraClearFlags.SolidColor;
-                    camera.backgroundColor = new Color(0.005f, 0.005f, 0.015f, 1f);
-                }
+                renderer.material.color = new Color(0.9f, 0.35f, 0.2f, 1f);
             }
 
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.03f, 0.03f, 0.05f, 1f);
+            var targetable = dummy.AddComponent<TargetableEntity>();
+            targetable.Configure("Training Dummy", TargetAffiliation.Neutral, 100f);
+            targetable.AssignNetworkObjectIdForTests(9001UL);
         }
 
         GameObject CreateShip()
@@ -61,7 +56,10 @@ namespace IronExiles.Combat
             var movement = ship.AddComponent<ShipMovementController>();
             movement.SetSectorBoundsExtent(_sectorBoundsExtent);
             ship.AddComponent<ShipInputController>();
+            ship.AddComponent<LocalShipRadarSensor>();
             ship.AddComponent<ShipFlightTelemetryAdapter>();
+
+            LocalPlayerSystemsEvents.NotifyLocalPlayerShipReady(ship);
 
             return ship;
         }

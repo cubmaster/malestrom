@@ -58,9 +58,20 @@ Project tasks live in `.zed/tasks.json`. In VS Code / Cursor, use **Run and Debu
 
 | Task | Script |
 |------|--------|
+| **Local Multiplayer Dev (Server + Unity)** | `Scripts/Launch-LocalMultiplayerDev.ps1` |
+| Start Dedicated Server | `Scripts/Run-UnityDedicatedServer.ps1` |
 | Open Unity Editor | `Scripts/Launch-UnityEditor.ps1` |
 | Play EmptySector | `Scripts/Run-UnityGame.ps1` |
 | Edit Mode tests | `Scripts/Run-UnityTests.ps1` |
+
+In Zed: **task: spawn** (or `Alt+Shift+T`) → **Iron Exiles: Local Multiplayer Dev (Server + Unity)**.
+
+That starts the dedicated server in one terminal and opens Unity with EmptySector. Press **Play**, then **Connect To Server** on `NetworkSessionManager` (or enable **Auto Connect In Editor** on `EmptySectorMultiplayerBootstrap` first).
+
+```powershell
+# Same flow from a shell (builds server automatically on first run)
+.\Scripts\Launch-LocalMultiplayerDev.ps1
+```
 
 Legacy Unreal tasks are prefixed **Legacy UE5:** and live under `Scripts/legacy/`.
 

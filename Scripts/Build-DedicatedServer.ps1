@@ -11,20 +11,23 @@ param(
     [string]$OutputDir
 )
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
 Import-Module "$PSScriptRoot/IronExiles.Dev.psm1" -Force
 
 $unityPath = Get-UnityEditorPath
-$projectPath = Resolve-Path "$PSScriptRoot/../Client"
+$projectRoot = Get-IronExilesProjectRoot
+$projectPath = Assert-IronExilesUnityProject
 
 if ($Linux) {
-    $buildTarget = "StandaloneLinux64"
-    $defaultOutput = "$PSScriptRoot/../Builds/Server/Linux"
-    $execName = "IronExilesServer"
+    $buildTarget = 'StandaloneLinux64'
+    $defaultOutput = Join-Path $projectRoot 'Builds/Server/Linux'
+    $execName = 'IronExilesServer'
 } else {
-    $buildTarget = "StandaloneWindows64"
-    $defaultOutput = "$PSScriptRoot/../Builds/Server/Windows"
-    $execName = "IronExilesServer.exe"
+    $buildTarget = 'StandaloneWindows64'
+    $defaultOutput = Join-Path $projectRoot 'Builds/Server/Windows'
+    $execName = 'IronExilesServer.exe'
 }
 
 $output = if ($OutputDir) { $OutputDir } else { $defaultOutput }
@@ -33,26 +36,36 @@ $outputPath = Join-Path (Resolve-Path $output) $execName
 
 Write-Host "Building dedicated server ($buildTarget) -> $outputPath"
 
-$executeMethod = if ($Linux) {
-    "IronExiles.Editor.ServerBuildMenu.BuildLinuxServer"
-} else {
-    "IronExiles.Editor.ServerBuildMenu.BuildWindowsServer"
+if (-not $Linux -and -not (Test-Path $outputPath)) {
+    Install-UnityWindowsServerModule | Out-Null
 }
 
-$args = @(
-    "-batchmode",
-    "-nographics",
-    "-projectPath", $projectPath,
-    "-buildTarget", $buildTarget,
-    "-standaloneBuildSubtarget", "Server",
-    "-executeMethod", $executeMethod,
-    "-logFile", "build-server.log",
-    "-quit"
+$executeMethod = if ($Linux) {
+    'IronExiles.Editor.ServerBuildMenu.BuildLinuxServer'
+} else {
+    'IronExiles.Editor.ServerBuildMenu.BuildWindowsServer'
+}
+
+$logFile = Join-Path $projectRoot 'build-server.log'
+
+$unityArgs = @(
+    '-batchmode',
+    '-nographics',
+    '-projectPath', $projectPath,
+    '-executeMethod', $executeMethod,
+    '-logFile', $logFile,
+    '-quit'
 )
 
-& $unityPath @args
-if ($LASTEXITCODE -ne 0) {
-    throw "Unity build failed with exit code $LASTEXITCODE"
+Write-Host "Unity log: $logFile"
+
+$process = Start-Process -FilePath $unityPath -ArgumentList $unityArgs -Wait -PassThru -NoNewWindow
+if ($process.ExitCode -ne 0) {
+    throw "Unity build failed with exit code $($process.ExitCode). See $logFile"
+}
+
+if (-not (Test-Path $outputPath)) {
+    throw "Unity reported success but server executable was not found at '$outputPath'. See $logFile"
 }
 
 Write-Host "Build complete: $outputPath"

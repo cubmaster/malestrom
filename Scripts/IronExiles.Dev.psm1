@@ -65,6 +65,55 @@ function Get-UnityHubPath {
     return $null
 }
 
+function Test-UnityWindowsServerModuleInstalled {
+    param(
+        [string]$EditorVersion = (Get-UnityPinnedEditorVersion)
+    )
+
+    if (-not $EditorVersion) {
+        return $false
+    }
+
+    $playbackRoot = Join-Path ${env:ProgramFiles} "Unity\Hub\Editor\$EditorVersion\Editor\Data\PlaybackEngines\WindowsStandaloneSupport"
+    if (-not (Test-Path $playbackRoot)) {
+        return $false
+    }
+
+    return @(Get-ChildItem $playbackRoot -Directory -Filter '*server*' -ErrorAction SilentlyContinue).Count -gt 0
+}
+
+function Install-UnityWindowsServerModule {
+    param(
+        [string]$EditorVersion = (Get-UnityPinnedEditorVersion)
+    )
+
+    if (Test-UnityWindowsServerModuleInstalled -EditorVersion $EditorVersion) {
+        return $true
+    }
+
+    $hub = Get-UnityHubPath
+    if (-not $hub -or -not $EditorVersion) {
+        Write-Warning 'Cannot install windows-server module: Unity Hub or pinned editor version not found.'
+        return $false
+    }
+
+    Write-Host "Installing Windows Dedicated Server module for Unity $EditorVersion (via Unity Hub)..."
+    $process = Start-Process -FilePath $hub -ArgumentList @(
+        '--',
+        '--headless',
+        'install-modules',
+        '--version', $EditorVersion,
+        '--module', 'windows-server'
+    ) -Wait -PassThru -NoNewWindow
+
+    if ($process.ExitCode -ne 0) {
+        Write-Warning "Unity Hub module install exited with code $($process.ExitCode)."
+        return $false
+    }
+
+    return $true
+}
+
 function Get-UnityEditorFromHub {
     param(
         [string]$PreferredVersion = (Get-UnityPinnedEditorVersion)

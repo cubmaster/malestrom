@@ -13,6 +13,7 @@ namespace IronExiles.Networking
             var existing = GameObject.Find(PrefabRootName);
             if (existing != null)
             {
+                RuntimeNetworkPrefabUtility.EnsureTargetDummyPrefabHash(existing.GetComponent<NetworkObject>());
                 return existing;
             }
 
@@ -29,29 +30,16 @@ namespace IronExiles.Networking
             }
 
             dummy.AddComponent<NetworkObject>();
+            RuntimeNetworkPrefabUtility.EnsureTargetDummyPrefabHash(dummy.GetComponent<NetworkObject>());
             var targetable = dummy.AddComponent<TargetableEntity>();
             targetable.Configure("Training Dummy", TargetAffiliation.Neutral, 100f);
 
             return dummy;
         }
 
-        public static void RegisterPrefab(GameObject prefab)
+        public static void RegisterPrefab(GameObject prefab, NetworkManager networkManager = null)
         {
-            var networkManager = NetworkManager.Singleton;
-            if (networkManager == null || prefab == null)
-            {
-                return;
-            }
-
-            foreach (var entry in networkManager.NetworkConfig.Prefabs.Prefabs)
-            {
-                if (entry.Prefab == prefab)
-                {
-                    return;
-                }
-            }
-
-            networkManager.NetworkConfig.Prefabs.Add(new NetworkPrefab { Prefab = prefab });
+            RuntimeNetworkPrefabUtility.RegisterPrefab(prefab, networkManager ?? NetworkManager.Singleton);
         }
     }
 

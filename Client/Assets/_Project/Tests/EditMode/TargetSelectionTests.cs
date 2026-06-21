@@ -56,6 +56,22 @@ namespace IronExiles.Core.Tests
         }
 
         [Test]
+        public void ToRadarPlane01_rotates_contacts_when_ship_turns()
+        {
+            var origin = Vector3.zero;
+            var forward = Vector3.forward;
+            var targetPosition = new Vector3(0f, 0f, 80f);
+            const float lockRange = 500f;
+
+            var ahead = TargetSelectionMath.ToRadarPlane01(origin, forward, targetPosition, lockRange);
+            var turnedRight = TargetSelectionMath.ToRadarPlane01(origin, Vector3.right, targetPosition, lockRange);
+
+            Assert.That(Mathf.Abs(ahead.y), Is.GreaterThan(Mathf.Abs(ahead.x)));
+            Assert.That(Mathf.Abs(turnedRight.x), Is.GreaterThan(0.1f));
+            Assert.That(Mathf.Abs(turnedRight.y), Is.LessThan(0.05f));
+        }
+
+        [Test]
         public void CollectRadarContacts_limits_to_max_contacts_by_distance()
         {
             var origin = Vector3.zero;

@@ -11,17 +11,45 @@ namespace IronExiles.Networking
     {
         [SerializeField] int _spawnPointCount = 4;
         [SerializeField] float _spawnSpacing = 20f;
+        [SerializeField] bool _autoConnectInEditor;
 
         void Awake()
         {
-            DisableLegacyFlightSetup();
+            ProceduralStarfieldEnvironment.Apply();
 
             if (NetworkManager.Singleton != null)
             {
                 return;
             }
 
+            if (LocalMultiplayerDevSettings.ShouldAutoConnectInEditor())
+            {
+                _autoConnectInEditor = true;
+                Debug.Log("[EmptySectorMultiplayerBootstrap] Auto-connect enabled (local multiplayer dev).");
+            }
+            else
+            {
+                Debug.Log("[EmptySectorMultiplayerBootstrap] Auto-connect disabled; using offline flight setup.");
+            }
+
+#if UNITY_EDITOR
+            if (!Application.isBatchMode && !_autoConnectInEditor)
+            {
+                EnableLegacyFlightSetup();
+                return;
+            }
+#endif
+
+            DisableLegacyFlightSetup();
             EnsureNetworkStack();
+        }
+
+        static void EnableLegacyFlightSetup()
+        {
+            foreach (var legacy in Object.FindObjectsByType<EmptySectorFlightSetup>(FindObjectsSortMode.None))
+            {
+                legacy.enabled = true;
+            }
         }
 
         static void DisableLegacyFlightSetup()
@@ -35,22 +63,25 @@ namespace IronExiles.Networking
         void EnsureNetworkStack()
         {
             var networkRoot = new GameObject("NetworkSession");
-            networkRoot.AddComponent<NetworkManager>();
-            networkRoot.AddComponent<UnityTransport>();
-            networkRoot.AddComponent<NetworkSessionManager>();
+            var networkManager = networkRoot.AddComponent<NetworkManager>();
+            var transport = networkRoot.AddComponent<UnityTransport>();
+            NetworkManagerConfigurator.EnsureInitialized(networkManager, transport);
+            var sessionManager = networkRoot.AddComponent<NetworkSessionManager>();
+            sessionManager.ConfigureEditorAutoConnect(_autoConnectInEditor);
 
             var spawnRoot = new GameObject("SpawnPointManager");
             var spawnManager = spawnRoot.AddComponent<SpawnPointManager>();
             spawnManager.ConfigureSpawnPoints(CreateSpawnPoints(spawnRoot.transform));
 
             var shipPrefab = NetworkPlayerShipFactory.CreatePrefab();
-            NetworkPlayerShipFactory.RegisterPrefab(shipPrefab);
+            NetworkPlayerShipFactory.RegisterPrefab(shipPrefab, networkManager);
 
             var spawner = networkRoot.AddComponent<PlayerShipSpawner>();
             spawner.Configure(shipPrefab, spawnManager);
+            networkRoot.AddComponent<LocalPlayerHudBridge>();
 
             var dummyPrefab = TargetDummyFactory.CreatePrefab();
-            TargetDummyFactory.RegisterPrefab(dummyPrefab);
+            TargetDummyFactory.RegisterPrefab(dummyPrefab, networkManager);
             var dummySpawner = networkRoot.AddComponent<TargetDummySpawner>();
             dummySpawner.Configure(dummyPrefab, new Vector3(40f, 0f, 40f));
 
