@@ -18,6 +18,7 @@ namespace IronExiles.Combat
         float _enginePerformanceMultiplier = 1f;
         Vector3 _thrustInput;
         Vector3 _rotationInput;
+        bool _brakeInput;
 
         public void Reset(Vector3 position, Quaternion rotation)
         {
@@ -26,6 +27,7 @@ namespace IronExiles.Combat
             Velocity = Vector3.zero;
             _thrustInput = Vector3.zero;
             _rotationInput = Vector3.zero;
+            _brakeInput = false;
         }
 
         public void SetStats(ShipStatsSnapshot stats) => _stats = stats;
@@ -41,7 +43,7 @@ namespace IronExiles.Combat
                 Mathf.Abs(extent.z));
         }
 
-        public void SetMovementInput(Vector3 localThrustInput, Vector3 localRotationInput)
+        public void SetMovementInput(Vector3 localThrustInput, Vector3 localRotationInput, bool brakeInput = false)
         {
             _thrustInput = new Vector3(
                 Mathf.Clamp(localThrustInput.x, -1f, 1f),
@@ -52,6 +54,8 @@ namespace IronExiles.Combat
                 Mathf.Clamp(localRotationInput.x, -1f, 1f),
                 Mathf.Clamp(localRotationInput.y, -1f, 1f),
                 Mathf.Clamp(localRotationInput.z, -1f, 1f));
+
+            _brakeInput = brakeInput;
         }
 
         public void Simulate(float deltaTime)
@@ -78,6 +82,24 @@ namespace IronExiles.Combat
                 + up * (_thrustInput.z * _stats.StrafeThrust * thrustScale);
 
             Velocity += acceleration * deltaTime;
+
+            if (_brakeInput)
+            {
+                var speed = Velocity.magnitude;
+                if (speed > 0f)
+                {
+                    var decelerationAmount = _stats.BrakeDeceleration * deltaTime;
+                    if (decelerationAmount >= speed)
+                    {
+                        Velocity = Vector3.zero;
+                    }
+                    else
+                    {
+                        Velocity -= Velocity.normalized * decelerationAmount;
+                    }
+                }
+            }
+
             Position += Velocity * deltaTime;
         }
 

@@ -20,15 +20,42 @@ namespace IronExiles.Combat
 
             ActiveSkyboxMaterial = material;
             material.SetVector(ParallaxEulerId, Vector4.zero);
-            RenderSettings.skybox = material;
+            
+            RenderSettings.skybox = null;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.03f, 0.03f, 0.05f, 1f);
 
             var camera = Camera.main;
             if (camera != null)
             {
-                camera.clearFlags = CameraClearFlags.Skybox;
-                EnsureController(camera);
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.backgroundColor = new Color(0.005f, 0.005f, 0.015f, 1f);
+                camera.farClipPlane = 25000f;
+            }
+
+            var boxName = "ProceduralStarfieldBox";
+            var box = GameObject.Find(boxName);
+            if (box == null)
+            {
+                box = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                box.name = boxName;
+
+                var collider = box.GetComponent<Collider>();
+                if (collider != null)
+                {
+                    Object.DestroyImmediate(collider);
+                }
+
+                box.transform.position = Vector3.zero;
+                box.transform.localScale = new Vector3(12000f, 12000f, 12000f);
+            }
+
+            var renderer = box.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.sharedMaterial = material;
+                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                renderer.receiveShadows = false;
             }
         }
 

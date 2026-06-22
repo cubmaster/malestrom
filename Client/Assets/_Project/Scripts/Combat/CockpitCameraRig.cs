@@ -12,7 +12,7 @@ namespace IronExiles.Combat
         [SerializeField] Vector3 _localEyeOffset = new Vector3(0f, 0.08f, 0f);
         [SerializeField] float _fieldOfView = 75f;
         [SerializeField] float _nearClip = 0.05f;
-        [SerializeField] float _farClip = 10000f;
+        [SerializeField] float _farClip = 25000f;
 
         Transform _ship;
         Transform _previousParent;

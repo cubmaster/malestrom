@@ -77,5 +77,38 @@ namespace IronExiles.Core.Tests
 
             Assert.Greater(model.Velocity.magnitude, speedAfterThrust * 0.9f);
         }
+
+        [Test]
+        public void Brake_BringsVelocityToStop()
+        {
+            var model = new ShipMovementModel();
+            model.SetStats(new ShipStatsSnapshot(
+                maxSpeed: 50f,
+                forwardThrust: 25f,
+                strafeThrust: 18f,
+                rotationRate: 90f,
+                brakeDeceleration: 10f));
+            model.SetSectorBoundsExtent(new Vector3(10000f, 10000f, 10000f));
+            model.Reset(Vector3.zero, Quaternion.identity);
+
+            // Thrust forward to build speed
+            model.SetMovementInput(new Vector3(1f, 0f, 0f), Vector3.zero);
+            for (var tick = 0; tick < 60; tick++)
+            {
+                model.Simulate(0.016f);
+            }
+
+            var initialSpeed = model.Velocity.magnitude;
+            Assert.Greater(initialSpeed, 5f);
+
+            // Hold brake (X) and release thrust
+            model.SetMovementInput(Vector3.zero, Vector3.zero, brakeInput: true);
+            for (var tick = 0; tick < 200; tick++)
+            {
+                model.Simulate(0.016f);
+            }
+
+            Assert.AreEqual(0f, model.Velocity.magnitude, 0.001f);
+        }
     }
 }
