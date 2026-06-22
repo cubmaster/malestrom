@@ -49,28 +49,32 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.11f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\_Project\Scripts\Combat\ProceduralStarfieldEnvironment.cs" />
-    <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementInput.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ChaseCameraRig.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\EmptySectorFlightSetup.cs" />
-    <Compile Include="Assets\_Project\Scripts\Combat\NetworkShipMovementController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\LocalPlayerSystemsEvents.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ProceduralStarfieldController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementReplicationMath.cs" />
-    <Compile Include="Assets\_Project\Scripts\Combat\LocalShipRadarSensor.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ReactorPowerAllocationMath.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\NetworkShipTargetingController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\CockpitCameraRig.cs" />
-    <Compile Include="Assets\_Project\Scripts\Combat\ShipTargetInputController.cs" />
-    <Compile Include="Assets\_Project\Scripts\Combat\ShipStatsDefinition.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\NetworkedShipSetup.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ChaseCameraPlacement.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipFlightTelemetryAdapter.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\TargetingSensorSettings.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\TargetAffiliation.cs" />
-    <Compile Include="Assets\_Project\Scripts\Combat\ShipInputController.cs" />
-    <Compile Include="Assets\_Project\Scripts\Combat\TargetableEntity.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\TargetSelectionMath.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ProceduralStarfieldEnvironment.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementInput.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\NetworkShipMovementController.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\IShipReactorPowerControl.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ShipReactorPowerController.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\LocalShipRadarSensor.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ShipTargetInputController.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ShipStatsDefinition.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\TargetableEntity.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ShipInputController.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\NetworkShipReactorPowerController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -635,6 +639,14 @@
     </Reference>
     <Reference Include="System.IO.Hashing">
       <HintPath>Library\PackageCache\com.unity.collections@5b6ebd78ccc0\Unity.Collections.Tests\System.IO.Hashing\System.IO.Hashing.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64\Runtime\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="AiEditorToolsSdk">
+      <HintPath>Packages\com.unity.ai.assistant\Modules\Unity.AI.Toolkit.Sdk\Editor\AiEditorToolsSdk.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil">

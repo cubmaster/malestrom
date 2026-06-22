@@ -98,7 +98,7 @@ namespace IronExiles.Combat
 
         static void ApplyInputToModel(ShipMovementModel model, ShipMovementInput input, float deltaTime)
         {
-            model.SetMovementInput(input.LocalThrust, input.LocalRotation, input.Brake);
+            model.SetMovementInput(input.LocalThrust, input.LocalRotation);
             model.Simulate(deltaTime);
         }
 

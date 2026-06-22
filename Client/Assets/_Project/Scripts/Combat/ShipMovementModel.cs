@@ -4,7 +4,7 @@ namespace IronExiles.Combat
 {
     /// <summary>
     /// Pure Newtonian 6DOF movement integrator (testable without Play Mode).
-    /// Ported from UE <c>UShipMovementComponent</c> with meter-based units.
+    /// Thrust applies acceleration; velocity persists in space with no artificial cap.
     /// </summary>
     public sealed class ShipMovementModel
     {
@@ -18,7 +18,6 @@ namespace IronExiles.Combat
         float _enginePerformanceMultiplier = 1f;
         Vector3 _thrustInput;
         Vector3 _rotationInput;
-        bool _brakeInput;
 
         public void Reset(Vector3 position, Quaternion rotation)
         {
@@ -27,7 +26,6 @@ namespace IronExiles.Combat
             Velocity = Vector3.zero;
             _thrustInput = Vector3.zero;
             _rotationInput = Vector3.zero;
-            _brakeInput = false;
         }
 
         public void SetStats(ShipStatsSnapshot stats) => _stats = stats;
@@ -43,7 +41,7 @@ namespace IronExiles.Combat
                 Mathf.Abs(extent.z));
         }
 
-        public void SetMovementInput(Vector3 localThrustInput, Vector3 localRotationInput, bool brake)
+        public void SetMovementInput(Vector3 localThrustInput, Vector3 localRotationInput)
         {
             _thrustInput = new Vector3(
                 Mathf.Clamp(localThrustInput.x, -1f, 1f),
@@ -54,8 +52,6 @@ namespace IronExiles.Combat
                 Mathf.Clamp(localRotationInput.x, -1f, 1f),
                 Mathf.Clamp(localRotationInput.y, -1f, 1f),
                 Mathf.Clamp(localRotationInput.z, -1f, 1f));
-
-            _brakeInput = brake;
         }
 
         public void Simulate(float deltaTime)
@@ -67,7 +63,6 @@ namespace IronExiles.Combat
 
             PerformMovement(deltaTime);
             ApplyRotation(deltaTime);
-            ClampSpeed();
             ClampToSectorBounds();
         }
 
@@ -83,14 +78,6 @@ namespace IronExiles.Combat
                 + up * (_thrustInput.z * _stats.StrafeThrust * thrustScale);
 
             Velocity += acceleration * deltaTime;
-
-            if (_brakeInput && Velocity.sqrMagnitude > Mathf.Epsilon)
-            {
-                var speed = Velocity.magnitude;
-                var brakeDelta = _stats.BrakeDeceleration * deltaTime;
-                Velocity = brakeDelta >= speed ? Vector3.zero : Velocity - Velocity.normalized * brakeDelta;
-            }
-
             Position += Velocity * deltaTime;
         }
 
@@ -103,17 +90,6 @@ namespace IronExiles.Combat
                 _rotationInput.z * rate);
 
             Rotation = Rotation * deltaRot;
-        }
-
-        void ClampSpeed()
-        {
-            var speedSq = Velocity.sqrMagnitude;
-            var maxSpeed = _stats.MaxSpeed * _enginePerformanceMultiplier;
-            var maxSpeedSq = maxSpeed * maxSpeed;
-            if (speedSq > maxSpeedSq && speedSq > Mathf.Epsilon)
-            {
-                Velocity = Velocity.normalized * maxSpeed;
-            }
         }
 
         void ClampToSectorBounds()

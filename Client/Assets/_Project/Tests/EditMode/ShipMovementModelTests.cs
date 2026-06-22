@@ -7,7 +7,7 @@ namespace IronExiles.Core.Tests
     public class ShipMovementModelTests
     {
         [Test]
-        public void SpeedClamp_MaxThrustNeverExceedsMaxSpeed()
+        public void Thrust_AcceleratesWhileHoldingInput()
         {
             var model = new ShipMovementModel();
             model.SetStats(new ShipStatsSnapshot(
@@ -18,14 +18,21 @@ namespace IronExiles.Core.Tests
                 brakeDeceleration: 0f));
             model.SetSectorBoundsExtent(new Vector3(10000f, 10000f, 10000f));
             model.Reset(Vector3.zero, Quaternion.identity);
-            model.SetMovementInput(new Vector3(1f, 0f, 0f), Vector3.zero, brake: false);
+            model.SetMovementInput(new Vector3(1f, 0f, 0f), Vector3.zero);
 
-            for (var tick = 0; tick < 600; tick++)
+            for (var tick = 0; tick < 30; tick++)
             {
                 model.Simulate(0.016f);
             }
 
-            Assert.LessOrEqual(model.Velocity.magnitude, 10f + 0.01f);
+            var earlySpeed = model.Velocity.magnitude;
+
+            for (var tick = 0; tick < 120; tick++)
+            {
+                model.Simulate(0.016f);
+            }
+
+            Assert.Greater(model.Velocity.magnitude, earlySpeed);
         }
 
         [Test]
@@ -36,7 +43,7 @@ namespace IronExiles.Core.Tests
             model.SetSectorBoundsExtent(extent);
             model.SetStats(ShipStatsDefinition.HumanStarterFighterDefaults());
             model.Reset(Vector3.zero, Quaternion.identity);
-            model.SetMovementInput(new Vector3(0f, 1f, 0f), Vector3.zero, brake: false);
+            model.SetMovementInput(new Vector3(0f, 1f, 0f), Vector3.zero);
 
             for (var tick = 0; tick < 2000; tick++)
             {
@@ -55,7 +62,7 @@ namespace IronExiles.Core.Tests
             model.SetStats(ShipStatsDefinition.HumanStarterFighterDefaults());
             model.SetSectorBoundsExtent(new Vector3(10000f, 10000f, 10000f));
             model.Reset(Vector3.zero, Quaternion.identity);
-            model.SetMovementInput(new Vector3(1f, 0f, 0f), Vector3.zero, brake: false);
+            model.SetMovementInput(new Vector3(1f, 0f, 0f), Vector3.zero);
 
             for (var tick = 0; tick < 30; tick++)
             {
@@ -65,7 +72,7 @@ namespace IronExiles.Core.Tests
             var speedAfterThrust = model.Velocity.magnitude;
             Assert.Greater(speedAfterThrust, 0.1f);
 
-            model.SetMovementInput(Vector3.zero, Vector3.zero, brake: false);
+            model.SetMovementInput(Vector3.zero, Vector3.zero);
             model.Simulate(0.016f);
 
             Assert.Greater(model.Velocity.magnitude, speedAfterThrust * 0.9f);

@@ -7,16 +7,14 @@ namespace IronExiles.Combat
     {
         public Vector3 LocalThrust;
         public Vector3 LocalRotation;
-        public bool Brake;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             serializer.SerializeValue(ref LocalThrust);
             serializer.SerializeValue(ref LocalRotation);
-            serializer.SerializeValue(ref Brake);
         }
 
-        public static ShipMovementInput FromAxes(Vector3 thrust, Vector3 rotation, bool brake)
+        public static ShipMovementInput FromAxes(Vector3 thrust, Vector3 rotation)
         {
             return new ShipMovementInput
             {
@@ -27,8 +25,7 @@ namespace IronExiles.Combat
                 LocalRotation = new Vector3(
                     Mathf.Clamp(rotation.x, -1f, 1f),
                     Mathf.Clamp(rotation.y, -1f, 1f),
-                    Mathf.Clamp(rotation.z, -1f, 1f)),
-                Brake = brake
+                    Mathf.Clamp(rotation.z, -1f, 1f))
             };
         }
     }

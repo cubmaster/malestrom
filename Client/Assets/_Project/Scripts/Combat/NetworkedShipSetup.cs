@@ -56,18 +56,8 @@ namespace IronExiles.Combat
         void AttachLocalPlayerSystems()
         {
             gameObject.tag = "Player";
-
-            var camera = Camera.main;
-            if (camera != null)
-            {
-                var rig = camera.gameObject.GetComponent<CockpitCameraRig>();
-                if (rig == null)
-                {
-                    rig = camera.gameObject.AddComponent<CockpitCameraRig>();
-                }
-
-                rig.SetTarget(transform);
-            }
+            CockpitCameraRig.HideLocalHull(gameObject);
+            CockpitCameraRig.AttachMainCameraToShip(transform);
 
             gameObject.AddComponent<ShipFlightTelemetryAdapter>();
             LocalPlayerSystemsEvents.NotifyLocalPlayerShipReady(gameObject);

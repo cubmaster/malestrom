@@ -22,7 +22,7 @@ namespace IronExiles.Combat
 
         public void SimulateInput(ShipMovementInput input, float deltaTime)
         {
-            _model.SetMovementInput(input.LocalThrust, input.LocalRotation, input.Brake);
+            _model.SetMovementInput(input.LocalThrust, input.LocalRotation);
             _model.Simulate(deltaTime);
         }
 

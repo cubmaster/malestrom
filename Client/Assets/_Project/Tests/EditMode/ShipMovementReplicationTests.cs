@@ -39,13 +39,11 @@ namespace IronExiles.Core.Tests
         {
             var input = ShipMovementInput.FromAxes(
                 new Vector3(2f, -2f, 0.5f),
-                new Vector3(-3f, 0.25f, 1f),
-                true);
+                new Vector3(-3f, 0.25f, 1f));
 
             Assert.That(input.LocalThrust.x, Is.EqualTo(1f).Within(0.001f));
             Assert.That(input.LocalThrust.y, Is.EqualTo(-1f).Within(0.001f));
             Assert.That(input.LocalRotation.x, Is.EqualTo(-1f).Within(0.001f));
-            Assert.True(input.Brake);
         }
     }
 }

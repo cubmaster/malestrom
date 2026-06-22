@@ -17,14 +17,13 @@ Open this folder in **Unity Hub** (Unity **6000.0.32f1** / Unity 6 LTS).
 | Space / Ctrl | Strafe up / down |
 | Mouse | Pitch / yaw |
 | Q / E | Roll |
-| Left Shift | Brake (hold) |
 
-Movement is Newtonian: releasing thrust keeps momentum until you brake or hit sector bounds.
+Movement is Newtonian: thrust adds acceleration in that direction, so speed builds while you hold a key. Releasing thrust keeps momentum until you hit sector bounds.
 
 ## Flight HUD & camera (REQ-034)
 
 - **HUD** (lower-left): speed in m/s, heading in degrees, hull bar (placeholder 100% until REQ-040).
-- **Chase camera**: smooth follow with sphere-cast collision pull-in so the camera does not clip through geometry.
+- **Cockpit camera**: the main camera parents to your ship at the cockpit eye point; mouse pitch/yaw rotates the ship, so you fly from inside it. Your own hull mesh is hidden.
 
 ## Tests
 

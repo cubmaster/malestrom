@@ -50,15 +50,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_Project\Scripts\Networking\TargetDummySpawner.cs" />
-    <Compile Include="Assets\_Project\Scripts\Networking\MultiplayerVerificationTest.cs" />
     <Compile Include="Assets\_Project\Scripts\Networking\SpawnPointManager.cs" />
-    <Compile Include="Assets\_Project\Scripts\Networking\PlayerShipSpawner.cs" />
     <Compile Include="Assets\_Project\Scripts\Networking\NetworkCommandLineArgs.cs" />
-    <Compile Include="Assets\_Project\Scripts\Networking\NetworkPlayerShipFactory.cs" />
     <Compile Include="Assets\_Project\Scripts\Networking\LocalPlayerHudBridge.cs" />
     <Compile Include="Assets\_Project\Scripts\Networking\RuntimeNetworkPrefabUtility.cs" />
     <Compile Include="Assets\_Project\Scripts\Networking\EmptySectorMultiplayerBootstrap.cs" />
     <Compile Include="Assets\_Project\Scripts\Networking\NetworkSessionManager.cs" />
+    <Compile Include="Assets\_Project\Scripts\Networking\MultiplayerVerificationTest.cs" />
+    <Compile Include="Assets\_Project\Scripts\Networking\PlayerShipSpawner.cs" />
+    <Compile Include="Assets\_Project\Scripts\Networking\NetworkPlayerShipFactory.cs" />
     <Compile Include="Assets\_Project\Scripts\Networking\LocalMultiplayerDevSettings.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -623,6 +623,14 @@
     </Reference>
     <Reference Include="System.IO.Hashing">
       <HintPath>Library\PackageCache\com.unity.collections@5b6ebd78ccc0\Unity.Collections.Tests\System.IO.Hashing\System.IO.Hashing.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64\Runtime\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="AiEditorToolsSdk">
+      <HintPath>Packages\com.unity.ai.assistant\Modules\Unity.AI.Toolkit.Sdk\Editor\AiEditorToolsSdk.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil">

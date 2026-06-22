@@ -4,9 +4,9 @@
   Starts the dedicated server and opens the Unity Editor for local multiplayer dev.
 .DESCRIPTION
   Launches IronExilesServer in a separate terminal, waits briefly for the listen port,
-  then opens the Unity project (EmptySector by default). Press Play in Unity and use
-  Network Session Manager > Connect To Server, or enable Auto Connect In Editor on
-  EmptySectorMultiplayerBootstrap before Play.
+  then opens the Unity project (EmptySector by default). Press Play in Unity; this
+  launch sets IRON_EXILES_AUTO_CONNECT for the editor process so the client connects
+  to the local server and spawns your ship.
 .PARAMETER Port
   Server listen port. Default: 7878.
 .PARAMETER ScenePath
@@ -100,9 +100,6 @@ if (-not $SkipServer) {
 }
 
 if (-not $SkipUnity) {
-    $projectRoot = Get-IronExilesProjectRoot
-    $autoConnectFlag = Join-Path $projectRoot '.iron-exiles-auto-connect'
-    New-Item -ItemType File -Path $autoConnectFlag -Force | Out-Null
     $env:IRON_EXILES_AUTO_CONNECT = '1'
 
     Write-Host ''

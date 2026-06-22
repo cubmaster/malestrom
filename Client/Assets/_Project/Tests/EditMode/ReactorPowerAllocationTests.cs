@@ -56,7 +56,7 @@ namespace IronExiles.Core.Tests
         }
 
         [Test]
-        public void EngineAllocation_fullEngines_reachesHigherMaxSpeedThanFullWeapons()
+        public void EngineAllocation_fullEngines_acceleratesFasterThanFullWeapons()
         {
             var stats = new ShipStatsSnapshot(
                 maxSpeed: 100f,
@@ -65,33 +65,30 @@ namespace IronExiles.Core.Tests
                 rotationRate: 90f,
                 brakeDeceleration: 0f);
 
-            var maxEnginesSpeed = SimulateUntilSpeedPlateau(
+            var maxEnginesSpeed = SimulateWithMultiplier(
                 ReactorPowerAllocationMath.GetEnginePerformanceMultiplier(ReactorPowerAllocationMath.MaxEnginesPreset));
 
-            var maxWeaponsSpeed = SimulateUntilSpeedPlateau(
+            var maxWeaponsSpeed = SimulateWithMultiplier(
                 ReactorPowerAllocationMath.GetEnginePerformanceMultiplier(ReactorPowerAllocationMath.MaxWeaponsPreset));
 
             Assert.Greater(maxEnginesSpeed, maxWeaponsSpeed);
-            Assert.That(maxEnginesSpeed, Is.EqualTo(100f).Within(1f));
-            Assert.That(maxWeaponsSpeed, Is.EqualTo(50f).Within(1f));
+            Assert.That(maxEnginesSpeed, Is.EqualTo(maxWeaponsSpeed * 2f).Within(1f));
 
-            float SimulateUntilSpeedPlateau(float engineMultiplier)
+            float SimulateWithMultiplier(float engineMultiplier)
             {
                 var model = new ShipMovementModel();
                 model.SetStats(stats);
                 model.SetSectorBoundsExtent(new Vector3(10000f, 10000f, 10000f));
                 model.SetEnginePerformanceMultiplier(engineMultiplier);
                 model.Reset(Vector3.zero, Quaternion.identity);
-                model.SetMovementInput(new Vector3(1f, 0f, 0f), Vector3.zero, brake: false);
+                model.SetMovementInput(new Vector3(1f, 0f, 0f), Vector3.zero);
 
-                var lastSpeed = 0f;
-                for (var tick = 0; tick < 800; tick++)
+                for (var tick = 0; tick < 120; tick++)
                 {
                     model.Simulate(0.016f);
-                    lastSpeed = model.Velocity.magnitude;
                 }
 
-                return lastSpeed;
+                return model.Velocity.magnitude;
             }
         }
     }
