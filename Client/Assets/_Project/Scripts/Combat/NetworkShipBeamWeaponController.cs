@@ -5,7 +5,6 @@ namespace IronExiles.Combat
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NetworkShipTargetingController))]
-    [RequireComponent(typeof(NetworkShipReactorPowerController))]
     public sealed class NetworkShipBeamWeaponController : NetworkBehaviour
     {
         [SerializeField] BeamWeaponDefinition _beamDefinition;
@@ -16,15 +15,16 @@ namespace IronExiles.Combat
             NetworkVariableWritePermission.Server);
 
         NetworkShipTargetingController _targeting;
-        NetworkShipReactorPowerController _reactorPower;
+        IShipReactorPowerControl _reactorPower;
+        bool _localIsFiring;
 
-        public bool IsFiring => _isFiring.Value;
+        public bool IsFiring => IsSpawned ? _isFiring.Value : _localIsFiring;
         public BeamWeaponDefinition BeamDefinition => ResolveBeamDefinition();
 
         void Awake()
         {
             _targeting = GetComponent<NetworkShipTargetingController>();
-            _reactorPower = GetComponent<NetworkShipReactorPowerController>();
+            _reactorPower = (IShipReactorPowerControl)GetComponent<NetworkShipReactorPowerController>() ?? GetComponent<ShipReactorPowerController>();
         }
 
         BeamWeaponDefinition ResolveBeamDefinition()
@@ -36,6 +36,24 @@ namespace IronExiles.Combat
 
             _beamDefinition = ScriptableObject.CreateInstance<BeamWeaponDefinition>();
             return _beamDefinition;
+        }
+
+        private void SetFiringState(bool firing)
+        {
+            if (IsSpawned)
+            {
+                _isFiring.Value = firing;
+            }
+            else
+            {
+                _localIsFiring = firing;
+            }
+        }
+
+        public void SetFiringOffline(bool firing)
+        {
+            if (IsSpawned) return;
+            SetFiringState(firing);
         }
 
         [ServerRpc]
@@ -51,7 +69,11 @@ namespace IronExiles.Combat
 
         void Update()
         {
-            if (!IsServer || !_isFiring.Value)
+            if (IsSpawned && (!IsServer || !_isFiring.Value))
+            {
+                return;
+            }
+            if (!IsSpawned && !_localIsFiring)
             {
                 return;
             }
@@ -65,7 +87,7 @@ namespace IronExiles.Combat
             var lockedTarget = _targeting.GetLockedTarget();
             if (lockedTarget == null)
             {
-                _isFiring.Value = false;
+                SetFiringState(false);
                 return;
             }
 
@@ -76,7 +98,7 @@ namespace IronExiles.Combat
                     lockedTarget.transform.position,
                     fireRange))
             {
-                _isFiring.Value = false;
+                SetFiringState(false);
                 return;
             }
 

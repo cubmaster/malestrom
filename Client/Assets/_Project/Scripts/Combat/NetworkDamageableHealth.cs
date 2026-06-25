@@ -37,15 +37,19 @@ namespace IronExiles.Combat
             NetworkVariableWritePermission.Server);
 
         TargetableEntity _targetable;
+        float _localCurrentHull = BeamWeaponSettings.DefaultMaxHull;
+        float _localMaxHull = BeamWeaponSettings.DefaultMaxHull;
 
-        public float CurrentHull => _currentHull.Value;
-        public float MaxHull => _maxHull.Value;
-        public float HullPercent => DamageableHealthMath.ToHullPercent(_currentHull.Value, _maxHull.Value);
-        public bool IsDestroyed => _currentHull.Value <= 0f;
+        public float CurrentHull => IsSpawned ? _currentHull.Value : _localCurrentHull;
+        public float MaxHull => IsSpawned ? _maxHull.Value : _localMaxHull;
+        public float HullPercent => DamageableHealthMath.ToHullPercent(CurrentHull, MaxHull);
+        public bool IsDestroyed => CurrentHull <= 0f;
 
         void Awake()
         {
             _targetable = GetComponent<TargetableEntity>();
+            _localCurrentHull = BeamWeaponSettings.DefaultMaxHull;
+            _localMaxHull = BeamWeaponSettings.DefaultMaxHull;
         }
 
         public override void OnNetworkSpawn()
@@ -56,25 +60,44 @@ namespace IronExiles.Combat
 
         public void ConfigureForServer(float maxHull, float currentHull = -1f)
         {
-            if (!IsServer)
+            if (IsSpawned && !IsServer)
             {
                 return;
             }
 
             var clampedMax = Mathf.Max(1f, maxHull);
-            _maxHull.Value = clampedMax;
-            _currentHull.Value = currentHull < 0f ? clampedMax : Mathf.Clamp(currentHull, 0f, clampedMax);
+            if (IsSpawned)
+            {
+                _maxHull.Value = clampedMax;
+                _currentHull.Value = currentHull < 0f ? clampedMax : Mathf.Clamp(currentHull, 0f, clampedMax);
+            }
+            else
+            {
+                _localMaxHull = clampedMax;
+                _localCurrentHull = currentHull < 0f ? clampedMax : Mathf.Clamp(currentHull, 0f, clampedMax);
+            }
             SyncTargetableDisplay();
         }
 
         public void ApplyDamage(float amount)
         {
-            if (!IsServer || amount <= 0f || IsDestroyed)
+            if (IsSpawned && (!IsServer || IsDestroyed))
+            {
+                return;
+            }
+            if (amount <= 0f || IsDestroyed)
             {
                 return;
             }
 
-            _currentHull.Value = DamageableHealthMath.ApplyDamage(_currentHull.Value, amount, out _);
+            if (IsSpawned)
+            {
+                _currentHull.Value = DamageableHealthMath.ApplyDamage(_currentHull.Value, amount, out _);
+            }
+            else
+            {
+                _localCurrentHull = DamageableHealthMath.ApplyDamage(_localCurrentHull, amount, out _);
+            }
             SyncTargetableDisplay();
         }
 

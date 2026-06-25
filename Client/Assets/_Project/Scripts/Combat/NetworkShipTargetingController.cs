@@ -20,8 +20,9 @@ namespace IronExiles.Combat
 
         TargetableEntity _selfTargetable;
         float _losBlockedTimer;
+        ulong _localLockedTargetId;
 
-        public ulong LockedTargetNetworkObjectId => _lockedTargetId.Value;
+        public ulong LockedTargetNetworkObjectId => IsSpawned ? _lockedTargetId.Value : _localLockedTargetId;
         public float LockRangeMeters => _lockRangeMeters;
         public int MaxRadarContacts => _maxRadarContacts;
         public bool ProvidesLocalRadar => !IsSpawned || IsOwner;
@@ -31,14 +32,27 @@ namespace IronExiles.Combat
             _selfTargetable = GetComponent<TargetableEntity>();
         }
 
+        private void SetLockedTargetId(ulong value)
+        {
+            if (IsSpawned)
+            {
+                _lockedTargetId.Value = value;
+            }
+            else
+            {
+                _localLockedTargetId = value;
+            }
+        }
+
         public TargetableEntity GetLockedTarget()
         {
-            if (_lockedTargetId.Value == 0UL)
+            var targetId = LockedTargetNetworkObjectId;
+            if (targetId == 0UL)
             {
                 return null;
             }
 
-            return TargetSelectionMath.TryResolveTargetable(_lockedTargetId.Value, FindAllTargetables(), out var target)
+            return TargetSelectionMath.TryResolveTargetable(targetId, FindAllTargetables(), out var target)
                 ? target
                 : null;
         }
@@ -80,7 +94,37 @@ namespace IronExiles.Combat
                 return;
             }
 
-            var nextIndex = TargetSelectionMath.SelectNextTabIndex(candidates, _lockedTargetId.Value, direction);
+            var nextIndex = TargetSelectionMath.SelectNextTabIndex(candidates, LockedTargetNetworkObjectId, direction);
+            if (nextIndex < 0 || nextIndex >= candidates.Count)
+            {
+                return;
+            }
+
+            TrySetLock(candidates[nextIndex].NetworkObjectId);
+        }
+
+        public void CycleTargetOffline(int direction)
+        {
+            if (IsSpawned)
+            {
+                return;
+            }
+
+            var selfId = _selfTargetable != null ? _selfTargetable.GetNetworkObjectId() : 0UL;
+            var candidates = TargetSelectionMath.CollectTabCandidates(
+                transform.position,
+                transform.forward,
+                selfId,
+                FindAllTargetables(),
+                _lockRangeMeters);
+
+            if (candidates.Count == 0)
+            {
+                ClearLock();
+                return;
+            }
+
+            var nextIndex = TargetSelectionMath.SelectNextTabIndex(candidates, LockedTargetNetworkObjectId, direction);
             if (nextIndex < 0 || nextIndex >= candidates.Count)
             {
                 return;
@@ -102,7 +146,7 @@ namespace IronExiles.Combat
 
         void Update()
         {
-            if (!IsServer)
+            if (IsSpawned && !IsServer)
             {
                 return;
             }
@@ -112,13 +156,14 @@ namespace IronExiles.Combat
 
         void ValidateCurrentLock()
         {
-            if (_lockedTargetId.Value == 0UL)
+            var targetId = LockedTargetNetworkObjectId;
+            if (targetId == 0UL)
             {
                 _losBlockedTimer = 0f;
                 return;
             }
 
-            if (!TargetSelectionMath.TryResolveTargetable(_lockedTargetId.Value, FindAllTargetables(), out var target))
+            if (!TargetSelectionMath.TryResolveTargetable(targetId, FindAllTargetables(), out var target))
             {
                 ClearLock();
                 return;
@@ -146,7 +191,8 @@ namespace IronExiles.Combat
 
         bool TrySetLock(ulong targetNetworkObjectId)
         {
-            if (targetNetworkObjectId == 0UL || targetNetworkObjectId == _selfTargetable.GetNetworkObjectId())
+            var selfId = _selfTargetable != null ? _selfTargetable.GetNetworkObjectId() : 0UL;
+            if (targetNetworkObjectId == 0UL || targetNetworkObjectId == selfId)
             {
                 return false;
             }
@@ -166,14 +212,14 @@ namespace IronExiles.Combat
                 return false;
             }
 
-            _lockedTargetId.Value = targetNetworkObjectId;
+            SetLockedTargetId(targetNetworkObjectId);
             _losBlockedTimer = 0f;
             return true;
         }
 
         void ClearLock()
         {
-            _lockedTargetId.Value = 0UL;
+            SetLockedTargetId(0UL);
             _losBlockedTimer = 0f;
         }
 

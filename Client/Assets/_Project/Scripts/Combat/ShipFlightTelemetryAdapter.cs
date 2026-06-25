@@ -35,6 +35,7 @@ namespace IronExiles.Combat
         HardpointStatus GetHardpoint(int index);
         int RadarContactCount { get; }
         Vector3 GetRadarContact(int index);
+        ulong GetRadarContactNetworkObjectId(int index);
         string LockedTargetName { get; }
         float LockedTargetDistanceMeters { get; }
         float LockedTargetHullFill01 { get; }
@@ -57,6 +58,89 @@ namespace IronExiles.Combat
         float _jumpChargeTimer;
         const float JumpChargeDuration = 15f;
 
+        [System.Serializable]
+        public class WeaponSlotData
+        {
+            public string Name;
+            public HardpointType Type;
+            public int Ammo;
+            public int MaxAmmo = 50;
+            public float RechargeTimer;
+            public float MaxRecharge = 5f;
+            public bool IsBeam;
+        }
+
+        readonly WeaponSlotData[] _weaponSlots = new WeaponSlotData[]
+        {
+            new WeaponSlotData { Name = "Rail 1", Type = HardpointType.Weapon, Ammo = 50, MaxAmmo = 50, IsBeam = false },
+            new WeaponSlotData { Name = "Rail 2", Type = HardpointType.Weapon, Ammo = 50, MaxAmmo = 50, IsBeam = false },
+            new WeaponSlotData { Name = "Beam 1", Type = HardpointType.Weapon, RechargeTimer = 5f, MaxRecharge = 5f, IsBeam = true },
+            new WeaponSlotData { Name = "MSLA", Type = HardpointType.Missile, Ammo = 50, MaxAmmo = 50, IsBeam = false },
+            new WeaponSlotData { Name = "MSLB", Type = HardpointType.Missile, Ammo = 50, MaxAmmo = 50, IsBeam = false },
+        };
+
+        bool _isBeamFiring;
+        bool _isBeamActive;
+        float _beamBurstTimer;
+
+        public void EquipWeaponInSlot(int slotIndex, string name, HardpointType type, bool isBeam, int ammo = 50, float maxRecharge = 5f)
+        {
+            if (slotIndex < 0 || slotIndex >= _weaponSlots.Length) return;
+            _weaponSlots[slotIndex] = new WeaponSlotData
+            {
+                Name = name,
+                Type = type,
+                Ammo = ammo,
+                MaxAmmo = ammo,
+                RechargeTimer = maxRecharge,
+                MaxRecharge = maxRecharge,
+                IsBeam = isBeam
+            };
+        }
+
+        public void FireWeaponSlot(int slotIndex)
+        {
+            if (slotIndex < 0 || slotIndex >= _weaponSlots.Length) return;
+            var slot = _weaponSlots[slotIndex];
+            if (slot.IsBeam)
+            {
+                return;
+            }
+
+            if (slot.Ammo <= 0)
+            {
+                Debug.LogWarning($"[Weapons] {slot.Name} has no ammo remaining!");
+                return;
+            }
+
+            slot.Ammo--;
+            Debug.Log($"[Weapons] Fired {slot.Name}. Ammo remaining: {slot.Ammo}");
+
+            var lockedTarget = _targeting != null ? _targeting.GetLockedTarget() : null;
+            var targetHealth = lockedTarget != null ? lockedTarget.GetComponent<NetworkDamageableHealth>() : null;
+            var targetTransform = lockedTarget != null ? lockedTarget.transform : null;
+
+            float damage = slot.Type == HardpointType.Missile ? 50f : 20f;
+            var projType = slot.Type == HardpointType.Missile ? Projectile.ProjectileType.Missile : Projectile.ProjectileType.Rail;
+
+            // Spawn from the camera's perspective so the player sees it fly out from their screen
+            Vector3 spawnPos = transform.position + transform.forward * 2f;
+            Vector3 fallbackDir = transform.forward;
+
+            if (Camera.main != null)
+            {
+                spawnPos = Camera.main.transform.position + Camera.main.transform.forward * 1.5f;
+                fallbackDir = Camera.main.transform.forward;
+            }
+
+            Projectile.Create(projType, spawnPos, targetTransform, targetHealth, damage, fallbackDir);
+        }
+
+        public void SetBeamFiringActive(bool active)
+        {
+            _isBeamFiring = active;
+        }
+
         readonly HardpointStatus[] _hardpoints = new HardpointStatus[]
         {
             new HardpointStatus { Type = HardpointType.Weapon, Label = "RAIL 1", ChargePercent = 100f, IsActive = true },
@@ -77,6 +161,7 @@ namespace IronExiles.Combat
             _localRadar = GetComponent<LocalShipRadarSensor>();
             _reactorPower = ResolveReactorPowerControl();
             _jumpChargeTimer = JumpChargeDuration;
+            _isBeamFiring = false;
         }
 
         static IShipReactorPowerControl ResolveReactorPowerControl(Component host)
@@ -124,16 +209,84 @@ namespace IronExiles.Combat
                 _radarContacts = copy;
             }
 
-            for (var i = 0; i < _hardpoints.Length; i++)
+            // Process Beam Firing and Recharge
+            var beamSlot = _weaponSlots[2]; // Slot 2 is Beam 1
+
+            if (_isBeamFiring)
             {
-                if (_hardpoints[i].Label != "BEAM 1")
+                // Can only trigger if we are fully charged and not already active
+                if (!_isBeamActive && beamSlot.RechargeTimer >= beamSlot.MaxRecharge)
                 {
-                    continue;
+                    _isBeamActive = true;
+                    beamSlot.RechargeTimer = 0f; // Reset timer to 0 on fire!
+                    _beamBurstTimer = 1.0f; // Firing burst lasts for 1 second
+                }
+            }
+
+            // Count up recharge timer if it's less than max recharge
+            if (beamSlot.RechargeTimer < beamSlot.MaxRecharge)
+            {
+                beamSlot.RechargeTimer += Time.deltaTime;
+                if (beamSlot.RechargeTimer > beamSlot.MaxRecharge)
+                {
+                    beamSlot.RechargeTimer = beamSlot.MaxRecharge;
+                }
+            }
+
+            // Process active firing state
+            if (_isBeamActive)
+            {
+                _beamBurstTimer -= Time.deltaTime;
+                if (_beamBurstTimer <= 0f)
+                {
+                    _isBeamActive = false;
                 }
 
-                var hardpoint = _hardpoints[i];
-                hardpoint.IsFiring = _beamWeapon != null && _beamWeapon.IsFiring;
-                _hardpoints[i] = hardpoint;
+                // Turn on/off beam weapon firing states
+                if (_beamWeapon != null)
+                {
+                    if (_isBeamActive)
+                    {
+                        if (_beamWeapon.IsSpawned) _beamWeapon.SetFiringServerRpc(true);
+                        else _beamWeapon.SetFiringOffline(true);
+                    }
+                    else
+                    {
+                        if (_beamWeapon.IsSpawned) _beamWeapon.SetFiringServerRpc(false);
+                        else _beamWeapon.SetFiringOffline(false);
+                    }
+                }
+            }
+            else
+            {
+                // Ensure we don't leave the beam weapon firing if active is false
+                if (_beamWeapon != null && _beamWeapon.IsFiring)
+                {
+                    if (_beamWeapon.IsSpawned) _beamWeapon.SetFiringServerRpc(false);
+                    else _beamWeapon.SetFiringOffline(false);
+                }
+            }
+
+            // Synchronize Weapon Slots state to Hardpoints array
+            for (var i = 0; i < 5; i++)
+            {
+                var slot = _weaponSlots[i];
+                var hp = _hardpoints[i];
+                hp.Type = slot.Type;
+                
+                if (slot.IsBeam)
+                {
+                    hp.Label = $"{slot.Name.ToUpper()}: {slot.RechargeTimer:F1}s";
+                    hp.ChargePercent = (slot.RechargeTimer / slot.MaxRecharge) * 100f;
+                    hp.IsFiring = _beamWeapon != null && _beamWeapon.IsFiring;
+                }
+                else
+                {
+                    hp.Label = $"{slot.Name.ToUpper()}: {slot.Ammo}";
+                    hp.ChargePercent = ((float)slot.Ammo / slot.MaxAmmo) * 100f;
+                    hp.IsFiring = false;
+                }
+                _hardpoints[i] = hp;
             }
         }
 
@@ -185,6 +338,16 @@ namespace IronExiles.Combat
 
             var contact = _radarContacts[index];
             return new Vector3(contact.RadarPlane01.x, contact.RadarPlane01.y, contact.Distance);
+        }
+
+        public ulong GetRadarContactNetworkObjectId(int index)
+        {
+            if (index < 0 || index >= _radarContacts.Length)
+            {
+                return 0UL;
+            }
+
+            return _radarContacts[index].NetworkObjectId;
         }
 
         public string LockedTargetName

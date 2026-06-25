@@ -28,6 +28,7 @@ namespace IronExiles.UI
         public HardpointDisplayState[] Hardpoints;
         public int RadarContactCount;
         public Vector3[] RadarContacts;
+        public ulong[] RadarContactIds;
         public string LockedTargetName;
         public float LockedTargetDistanceMeters;
         public float LockedTargetHullFill01;
@@ -63,12 +64,15 @@ namespace IronExiles.UI
             var jumpReady = telemetry.JumpDriveReady;
 
             Vector3[] radarContacts = null;
+            ulong[] radarContactIds = null;
             if (telemetry.RadarContactCount > 0)
             {
                 radarContacts = new Vector3[telemetry.RadarContactCount];
+                radarContactIds = new ulong[telemetry.RadarContactCount];
                 for (var i = 0; i < telemetry.RadarContactCount; i++)
                 {
                     radarContacts[i] = telemetry.GetRadarContact(i);
+                    radarContactIds[i] = telemetry.GetRadarContactNetworkObjectId(i);
                 }
             }
 
@@ -88,6 +92,7 @@ namespace IronExiles.UI
                 Hardpoints = hardpoints,
                 RadarContactCount = telemetry.RadarContactCount,
                 RadarContacts = radarContacts,
+                RadarContactIds = radarContactIds,
                 LockedTargetName = telemetry.LockedTargetName,
                 LockedTargetDistanceMeters = telemetry.LockedTargetDistanceMeters,
                 LockedTargetHullFill01 = telemetry.LockedTargetHullFill01,

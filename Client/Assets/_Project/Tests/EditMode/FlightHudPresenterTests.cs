@@ -23,6 +23,7 @@ namespace IronExiles.Core.Tests
             public HardpointStatus GetHardpoint(int index) => default;
             public int RadarContactCount => 0;
             public Vector3 GetRadarContact(int index) => Vector3.zero;
+            public ulong GetRadarContactNetworkObjectId(int index) => 0UL;
             public string LockedTargetName => string.Empty;
             public float LockedTargetDistanceMeters => 0f;
             public float LockedTargetHullFill01 => 0f;

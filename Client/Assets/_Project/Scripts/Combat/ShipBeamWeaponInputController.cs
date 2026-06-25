@@ -17,7 +17,7 @@ namespace IronExiles.Combat
 
         void Update()
         {
-            if (_beamWeapon == null || !_beamWeapon.IsOwner)
+            if (_beamWeapon == null || (_beamWeapon.IsSpawned && !_beamWeapon.IsOwner))
             {
                 return;
             }
@@ -35,7 +35,15 @@ namespace IronExiles.Combat
             }
 
             _lastSentFiring = wantsFire;
-            _beamWeapon.SetFiringServerRpc(wantsFire);
+
+            if (_beamWeapon.IsSpawned)
+            {
+                _beamWeapon.SetFiringServerRpc(wantsFire);
+            }
+            else
+            {
+                _beamWeapon.SetFiringOffline(wantsFire);
+            }
         }
     }
 }

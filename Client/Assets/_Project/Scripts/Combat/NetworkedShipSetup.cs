@@ -66,6 +66,7 @@ namespace IronExiles.Combat
             CockpitCameraRig.AttachMainCameraToShip(transform);
 
             gameObject.AddComponent<ShipFlightTelemetryAdapter>();
+            gameObject.AddComponent<ShipWeaponsInputController>();
             LocalPlayerSystemsEvents.NotifyLocalPlayerShipReady(gameObject);
         }
 

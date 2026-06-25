@@ -263,7 +263,20 @@ namespace IronExiles.Combat
             ship.AddComponent<ShipInputController>();
             ship.AddComponent<ShipReactorPowerController>();
             ship.AddComponent<LocalShipRadarSensor>();
+
+            var targetable = ship.AddComponent<TargetableEntity>();
+            targetable.Configure("Player Ship", TargetAffiliation.Friendly, 100f);
+            targetable.AssignNetworkObjectIdForTests(1000UL);
+
+            ship.AddComponent<NetworkDamageableHealth>();
+            ship.AddComponent<NetworkShipTargetingController>();
+            ship.AddComponent<ShipTargetInputController>();
+            ship.AddComponent<NetworkShipBeamWeaponController>();
+            ship.AddComponent<ShipBeamWeaponInputController>();
+            ship.AddComponent<BeamWeaponVfx>();
+
             ship.AddComponent<ShipFlightTelemetryAdapter>();
+            ship.AddComponent<ShipWeaponsInputController>();
 
             LocalPlayerSystemsEvents.NotifyLocalPlayerShipReady(ship);
 

@@ -50,10 +50,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_Project\Tests\EditMode\ProjectLoadsTests.cs" />
+    <Compile Include="Assets\_Project\Tests\EditMode\BeamWeaponControllerLogicTests.cs" />
+    <Compile Include="Assets\_Project\Tests\EditMode\BeamWeaponMathTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\SpawnPointManagerTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\TargetSelectionTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\ShipMovementModelTests.cs" />
+    <Compile Include="Assets\_Project\Tests\EditMode\WeaponSlotSystemTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\ReactorPowerAllocationTests.cs" />
+    <Compile Include="Assets\_Project\Tests\EditMode\NetworkDamageableHealthTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\ShipMovementReplicationTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\FlightHudPresenterTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\ChaseCameraPlacementTests.cs" />

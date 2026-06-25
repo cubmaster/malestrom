@@ -16,7 +16,7 @@ namespace IronExiles.Combat
 
         void Update()
         {
-            if (_targeting == null || !_targeting.IsOwner)
+            if (_targeting == null || (_targeting.IsSpawned && !_targeting.IsOwner))
             {
                 return;
             }
@@ -29,7 +29,14 @@ namespace IronExiles.Combat
 
             if (keyboard.tabKey.wasPressedThisFrame)
             {
-                _targeting.CycleTargetServerRpc(1);
+                if (_targeting.IsSpawned)
+                {
+                    _targeting.CycleTargetServerRpc(1);
+                }
+                else
+                {
+                    _targeting.CycleTargetOffline(1);
+                }
             }
         }
     }
