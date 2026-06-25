@@ -95,6 +95,12 @@ namespace IronExiles.Combat
         public static float GetEnginePerformanceMultiplier(PowerAllocation allocation) =>
             GetEnginePerformanceMultiplier(allocation.Engines);
 
+        public static float GetWeaponPerformanceMultiplier(float weaponsFraction) =>
+            Mathf.Clamp01(weaponsFraction);
+
+        public static float GetWeaponPerformanceMultiplier(PowerAllocation allocation) =>
+            GetWeaponPerformanceMultiplier(allocation.Weapons);
+
         public static PowerAllocation AdjustChannel(PowerAllocation current, PowerChannel channel, float newChannelValue)
         {
             newChannelValue = Mathf.Clamp01(newChannelValue);

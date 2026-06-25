@@ -59,6 +59,7 @@ Either:
 - Both clients should see **two ships** in the EmptySector scene
 - Each client controls only its own ship (cockpit camera + HUD on local ship)
 - Remote ships are visible as static cubes at their spawn positions
+- **REQ-039 beam:** Tab-lock the training dummy or other ship, hold **left mouse** — beam VFX and target hull bar decrease (see `docs/beam-weapon-damage.md`)
 
 ## CLI Overrides
 

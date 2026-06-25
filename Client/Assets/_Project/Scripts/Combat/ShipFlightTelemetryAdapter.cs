@@ -48,6 +48,8 @@ namespace IronExiles.Combat
     {
         ShipMovementController _movement;
         NetworkShipTargetingController _targeting;
+        NetworkShipBeamWeaponController _beamWeapon;
+        NetworkDamageableHealth _damageableHealth;
         LocalShipRadarSensor _localRadar;
         IShipReactorPowerControl _reactorPower;
         RadarContact[] _radarContacts = System.Array.Empty<RadarContact>();
@@ -70,6 +72,8 @@ namespace IronExiles.Combat
         {
             _movement = GetComponent<ShipMovementController>();
             _targeting = GetComponent<NetworkShipTargetingController>();
+            _beamWeapon = GetComponent<NetworkShipBeamWeaponController>();
+            _damageableHealth = GetComponent<NetworkDamageableHealth>();
             _localRadar = GetComponent<LocalShipRadarSensor>();
             _reactorPower = ResolveReactorPowerControl();
             _jumpChargeTimer = JumpChargeDuration;
@@ -119,6 +123,18 @@ namespace IronExiles.Combat
 
                 _radarContacts = copy;
             }
+
+            for (var i = 0; i < _hardpoints.Length; i++)
+            {
+                if (_hardpoints[i].Label != "BEAM 1")
+                {
+                    continue;
+                }
+
+                var hardpoint = _hardpoints[i];
+                hardpoint.IsFiring = _beamWeapon != null && _beamWeapon.IsFiring;
+                _hardpoints[i] = hardpoint;
+            }
         }
 
         public float SpeedMetersPerSecond
@@ -145,7 +161,7 @@ namespace IronExiles.Combat
             }
         }
 
-        public float HullPercent => 100f;
+        public float HullPercent => _damageableHealth != null ? _damageableHealth.HullPercent : 100f;
         public float ShieldPercent => 100f;
 
         public float JumpDriveChargePercent => Mathf.Clamp01(_jumpChargeTimer / JumpChargeDuration) * 100f;

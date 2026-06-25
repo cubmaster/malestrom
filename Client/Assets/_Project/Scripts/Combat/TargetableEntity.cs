@@ -15,7 +15,14 @@ namespace IronExiles.Combat
 
         public string DisplayName => _displayName;
         public TargetAffiliation Affiliation => _affiliation;
-        public float HullPercent => _hullPercent;
+        public float HullPercent
+        {
+            get
+            {
+                var damageable = GetComponent<NetworkDamageableHealth>();
+                return damageable != null ? damageable.HullPercent : _hullPercent;
+            }
+        }
         public NetworkObject NetworkObject => _networkObject;
 
         void Awake()
@@ -28,6 +35,11 @@ namespace IronExiles.Combat
             _displayName = displayName;
             _affiliation = affiliation;
             _hullPercent = hullPercent;
+        }
+
+        public void SetHullPercent(float hullPercent)
+        {
+            _hullPercent = Mathf.Clamp(hullPercent, 0f, 100f);
         }
 
         public void AssignNetworkObjectIdForTests(ulong networkObjectId)

@@ -51,6 +51,12 @@ namespace IronExiles.Combat
             {
                 targetable.Configure($"Hostile {OwnerClientId}", TargetAffiliation.Hostile, 100f);
             }
+
+            var damageable = GetComponent<NetworkDamageableHealth>();
+            if (damageable != null && IsServer)
+            {
+                damageable.ConfigureForServer(BeamWeaponSettings.DefaultMaxHull);
+            }
         }
 
         void AttachLocalPlayerSystems()

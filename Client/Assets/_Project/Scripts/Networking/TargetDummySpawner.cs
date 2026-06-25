@@ -33,6 +33,7 @@ namespace IronExiles.Networking
             RuntimeNetworkPrefabUtility.EnsureTargetDummyPrefabHash(dummy.GetComponent<NetworkObject>());
             var targetable = dummy.AddComponent<TargetableEntity>();
             targetable.Configure("Training Dummy", TargetAffiliation.Neutral, 100f);
+            dummy.AddComponent<NetworkDamageableHealth>();
 
             return dummy;
         }
@@ -96,6 +97,12 @@ namespace IronExiles.Networking
             var instance = Instantiate(_dummyPrefab, _spawnPosition, Quaternion.identity);
             instance.SetActive(true);
             instance.GetComponent<NetworkObject>().Spawn();
+            var damageable = instance.GetComponent<NetworkDamageableHealth>();
+            if (damageable != null)
+            {
+                damageable.ConfigureForServer(BeamWeaponSettings.DefaultMaxHull);
+            }
+
             _spawned = true;
             Debug.Log($"[TargetDummySpawner] Spawned training dummy at {_spawnPosition}");
         }
