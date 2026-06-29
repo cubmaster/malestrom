@@ -28,6 +28,10 @@ namespace IronExiles.UI
         readonly Image _lockedTargetHullFill;
         readonly Image _reticle;
         readonly RectTransform _targetBracket;
+        readonly Image _shieldFrontFill;
+        readonly Image _shieldRearFill;
+        readonly Image _shieldPortFill;
+        readonly Image _shieldStarboardFill;
 
         IShipReactorPowerControl _powerControl;
         bool _suppressPowerCallbacks;
@@ -65,6 +69,17 @@ namespace IronExiles.UI
                 new Color(0.2f, 0.85f, 0.35f, 1f), "HULL");
             var shieldFill = CreateStatusBar(canvasGo.transform, "ShieldBar", new Vector2(80f, 282f), 200f, 14f,
                 new Color(0.3f, 0.6f, 1f, 1f), "SHLD");
+
+            // Directional shield bars arranged as a diamond/cross near the shield bar area
+            // Center point at (320, 282) - to the right of the main shield bar
+            var shieldFrontFill = CreateStatusBar(canvasGo.transform, "ShieldFront",
+                new Vector2(310f, 300f), 40f, 8f, Color.cyan, "F");
+            var shieldRearFill = CreateStatusBar(canvasGo.transform, "ShieldRear",
+                new Vector2(310f, 264f), 40f, 8f, Color.cyan, "R");
+            var shieldPortFill = CreateStatusBar(canvasGo.transform, "ShieldPort",
+                new Vector2(286f, 282f), 40f, 8f, Color.cyan, "P");
+            var shieldStarboardFill = CreateStatusBar(canvasGo.transform, "ShieldStbd",
+                new Vector2(334f, 282f), 40f, 8f, Color.cyan, "S");
 
             var jumpChargeFill = CreateStatusBar(canvasGo.transform, "JumpBar", new Vector2(80f, 310f), 160f, 12f,
                 new Color(0.8f, 0.4f, 1f, 1f), "");
@@ -126,7 +141,8 @@ namespace IronExiles.UI
                 jumpChargeFill, jumpStatusText, powerBars, powerLabels, powerSliders, powerPresetButtons,
                 powerTotalText, hardpointSlots,
                 radarPanel, radarCountText, radarBlips, lockedTargetNameText, lockedTargetDistanceText,
-                lockedTargetHullFill, reticle, targetBracket);
+                lockedTargetHullFill, reticle, targetBracket,
+                shieldFrontFill, shieldRearFill, shieldPortFill, shieldStarboardFill);
         }
 
         FlightHudView(Canvas canvas, Text speedText, Text headingText, Image hullFill,
@@ -135,7 +151,8 @@ namespace IronExiles.UI
             Text powerTotalText, HardpointSlotUI[] hardpointSlots,
             RectTransform radarPanel, Text radarCountText, Image[] radarBlips,
             Text lockedTargetNameText, Text lockedTargetDistanceText, Image lockedTargetHullFill,
-            Image reticle, RectTransform targetBracket)
+            Image reticle, RectTransform targetBracket,
+            Image shieldFrontFill, Image shieldRearFill, Image shieldPortFill, Image shieldStarboardFill)
         {
             _canvas = canvas;
             _speedText = speedText;
@@ -158,6 +175,10 @@ namespace IronExiles.UI
             _lockedTargetHullFill = lockedTargetHullFill;
             _reticle = reticle;
             _targetBracket = targetBracket;
+            _shieldFrontFill = shieldFrontFill;
+            _shieldRearFill = shieldRearFill;
+            _shieldPortFill = shieldPortFill;
+            _shieldStarboardFill = shieldStarboardFill;
         }
 
         public void BindPowerControl(IShipReactorPowerControl control)
@@ -254,6 +275,15 @@ namespace IronExiles.UI
             _headingText.text = state.HeadingText;
             _hullFill.fillAmount = Mathf.Clamp01(state.HullFill01);
             _shieldFill.fillAmount = Mathf.Clamp01(state.ShieldFill01);
+
+            if (state.ShieldFacings != null && state.ShieldFacings.Length >= 4)
+            {
+                _shieldFrontFill.fillAmount = Mathf.Clamp01(state.ShieldFacings[0]);
+                _shieldRearFill.fillAmount = Mathf.Clamp01(state.ShieldFacings[1]);
+                _shieldPortFill.fillAmount = Mathf.Clamp01(state.ShieldFacings[2]);
+                _shieldStarboardFill.fillAmount = Mathf.Clamp01(state.ShieldFacings[3]);
+            }
+
             _jumpChargeFill.fillAmount = Mathf.Clamp01(state.JumpChargeFill01);
             _jumpStatusText.text = state.JumpStatusText;
             _jumpStatusText.color = state.JumpReady
