@@ -49,15 +49,18 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.11f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\_Project\Scripts\Combat\DamageableHull.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\BeamWeaponSettings.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ChaseCameraRig.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\EmptySectorFlightSetup.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\DestructionVfx.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\LocalPlayerSystemsEvents.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ProceduralStarfieldController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementReplicationMath.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ReactorPowerAllocationMath.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\NetworkShipTargetingController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\CockpitCameraRig.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ShieldSettings.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\NetworkedShipSetup.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipBeamWeaponInputController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ChaseCameraPlacement.cs" />
@@ -66,6 +69,7 @@
     <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\TargetAffiliation.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\TargetSelectionMath.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\NetworkShipShieldController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ProceduralStarfieldEnvironment.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipMovementInput.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\BeamWeaponVfx.cs" />
@@ -75,9 +79,11 @@
     <Compile Include="Assets\_Project\Scripts\Combat\Projectile.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\LocalShipRadarSensor.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipWeaponsInputController.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ShieldMath.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\BeamWeaponMath.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\BeamWeaponDefinition.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipTargetInputController.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\ShieldNetworkState.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipStatsDefinition.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\SectorObjectFactory.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\BeamWeaponControllerLogic.cs" />

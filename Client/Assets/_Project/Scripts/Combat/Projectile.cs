@@ -13,6 +13,7 @@ namespace IronExiles.Combat
         private float _speed;
         private float _damage;
         private NetworkDamageableHealth _targetHealth;
+        private DamageableHull _targetHull;
         private bool _hasTarget;
 
         private GameObject _visuals;
@@ -33,6 +34,7 @@ namespace IronExiles.Combat
             _type = type;
             _targetTransform = target;
             _targetHealth = health;
+            _targetHull = target != null ? target.GetComponent<DamageableHull>() : null;
             _damage = damage;
             _direction = fallbackDir.normalized;
 
@@ -237,24 +239,35 @@ namespace IronExiles.Combat
 
         private void OnHitTarget()
         {
-            if (_targetHealth != null && !_targetHealth.IsDestroyed)
-            {
-                var hullDamage = _damage;
+            var hullDamage = _damage;
 
-                var shieldController = _targetHealth.GetComponent<NetworkShipShieldController>();
+            var shieldTarget = _targetHealth != null ? _targetHealth.gameObject
+                : _targetHull != null ? _targetHull.gameObject
+                : null;
+
+            if (shieldTarget != null)
+            {
+                var shieldController = shieldTarget.GetComponent<NetworkShipShieldController>();
                 if (shieldController != null)
                 {
                     var worldAttackDirection = _direction.normalized;
                     hullDamage = shieldController.ApplyDirectionalDamage(worldAttackDirection, _damage);
                 }
+            }
 
-                if (hullDamage > 0f)
+            if (hullDamage > 0f)
+            {
+                if (_targetHealth != null && !_targetHealth.IsDestroyed)
                 {
                     _targetHealth.ApplyDamage(hullDamage);
                 }
-
-                Debug.Log($"[Weapons] Projectile hit target for {_damage} damage (shield absorbed {_damage - hullDamage:F1})!");
+                else if (_targetHull != null && !_targetHull.IsDestroyed)
+                {
+                    _targetHull.ApplyDamage(hullDamage);
+                }
             }
+
+            Debug.Log($"[Weapons] Projectile hit for {_damage} damage (shield absorbed {_damage - hullDamage:F1})!");
 
             // Spawn explosive flash visual
             var flash = GameObject.CreatePrimitive(PrimitiveType.Sphere);

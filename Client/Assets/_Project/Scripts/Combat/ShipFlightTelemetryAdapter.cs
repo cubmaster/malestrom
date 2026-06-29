@@ -123,7 +123,7 @@ namespace IronExiles.Combat
             var targetHealth = lockedTarget != null ? lockedTarget.GetComponent<NetworkDamageableHealth>() : null;
             var targetTransform = lockedTarget != null ? lockedTarget.transform : null;
 
-            float damage = slot.Type == HardpointType.Missile ? 50f : 20f;
+            float damage = slot.Type == HardpointType.Missile ? 250f : 100f;
             var projType = slot.Type == HardpointType.Missile ? Projectile.ProjectileType.Missile : Projectile.ProjectileType.Rail;
 
             // Spawn from the camera's perspective so the player sees it fly out from their screen

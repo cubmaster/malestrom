@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Assets\_Project\Tests\EditMode\ProjectLoadsTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\BeamWeaponControllerLogicTests.cs" />
+    <Compile Include="Assets\_Project\Tests\EditMode\DestructionRespawnTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\BeamWeaponMathTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\SpawnPointManagerTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\TargetSelectionTests.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="Assets\_Project\Tests\EditMode\NetworkDamageableHealthTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\ShipMovementReplicationTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\FlightHudPresenterTests.cs" />
+    <Compile Include="Assets\_Project\Tests\EditMode\ShieldMathTests.cs" />
     <Compile Include="Assets\_Project\Tests\EditMode\ChaseCameraPlacementTests.cs" />
   </ItemGroup>
   <ItemGroup>

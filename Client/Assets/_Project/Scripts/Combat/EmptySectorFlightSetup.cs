@@ -40,6 +40,10 @@ namespace IronExiles.Combat
             var targetable = dummy.AddComponent<TargetableEntity>();
             targetable.Configure("Training Dummy", TargetAffiliation.Neutral, 100f);
             targetable.AssignNetworkObjectIdForTests(9001UL);
+
+            var health = dummy.AddComponent<NetworkDamageableHealth>();
+            health.ConfigureForServer(100f); // Default 100 max hull
+            dummy.AddComponent<DestructionVfx>();
         }
 
         GameObject CreateShip()

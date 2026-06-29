@@ -144,6 +144,16 @@ namespace IronExiles.Combat
             TrySetLock(targetNetworkObjectId);
         }
 
+        public void RequestLockOffline(ulong targetNetworkObjectId)
+        {
+            if (IsSpawned)
+            {
+                return;
+            }
+
+            TrySetLock(targetNetworkObjectId);
+        }
+
         void Update()
         {
             if (IsSpawned && !IsServer)

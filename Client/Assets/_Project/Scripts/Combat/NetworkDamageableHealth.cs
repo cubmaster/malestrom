@@ -120,9 +120,21 @@ namespace IronExiles.Combat
             }
             else
             {
-                _localCurrentHull = DamageableHealthMath.ApplyDamage(_localCurrentHull, amount, out _);
+                _localCurrentHull = DamageableHealthMath.ApplyDamage(_localCurrentHull, amount, out var destroyed);
+                if (destroyed && !_hasTriggeredDestruction)
+                {
+                    _hasTriggeredDestruction = true;
+                    Destroyed?.Invoke(0UL);
+                    StartCoroutine(DestroyOfflineAfterDelay());
+                }
             }
             SyncTargetableDisplay();
+        }
+
+        IEnumerator DestroyOfflineAfterDelay()
+        {
+            yield return new WaitForSeconds(DespawnDelay);
+            Destroy(gameObject);
         }
 
         IEnumerator DespawnAfterDelay()

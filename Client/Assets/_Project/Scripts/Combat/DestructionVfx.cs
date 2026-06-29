@@ -41,6 +41,15 @@ namespace IronExiles.Combat
             }
         }
 
+        void Update()
+        {
+            if (!_hasPlayedExplosion && _health != null && _health.IsDestroyed)
+            {
+                _hasPlayedExplosion = true;
+                SpawnExplosion();
+            }
+        }
+
         void OnHullChanged(float previousValue, float newValue)
         {
             if (newValue <= 0f && previousValue > 0f && !_hasPlayedExplosion)

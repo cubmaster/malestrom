@@ -84,24 +84,6 @@ namespace IronExiles.Combat
         void ApplyServerTickDamage(float deltaTimeSeconds)
         {
             var definition = ResolveBeamDefinition();
-            var lockedTarget = _targeting.GetLockedTarget();
-            if (lockedTarget == null)
-            {
-                SetFiringState(false);
-                return;
-            }
-
-            var fireRange = BeamWeaponMath.ResolveFireRangeMeters(definition, _targeting.LockRangeMeters);
-            if (!BeamWeaponMath.CanFireAtTarget(
-                    _targeting.LockedTargetNetworkObjectId,
-                    transform.position,
-                    lockedTarget.transform.position,
-                    fireRange))
-            {
-                SetFiringState(false);
-                return;
-            }
-
             var weaponsFraction = _reactorPower != null ? _reactorPower.Current.Weapons : 1f;
             var effectiveDps = BeamWeaponMath.ComputeEffectiveDps(definition, weaponsFraction);
             var damage = BeamWeaponMath.ComputeTickDamage(effectiveDps, deltaTimeSeconds);
@@ -110,21 +92,74 @@ namespace IronExiles.Combat
                 return;
             }
 
-            var targetTransform = lockedTarget.transform;
+            var fireRange = BeamWeaponMath.ResolveFireRangeMeters(definition, _targeting.LockRangeMeters);
+
+            var lockedTarget = _targeting.GetLockedTarget();
+            if (lockedTarget != null)
+            {
+                if (!BeamWeaponMath.CanFireAtTarget(
+                        _targeting.LockedTargetNetworkObjectId,
+                        transform.position,
+                        lockedTarget.transform.position,
+                        fireRange))
+                {
+                    SetFiringState(false);
+                    return;
+                }
+
+                ApplyDamageToTarget(lockedTarget, damage);
+                return;
+            }
+
+            var hit = RaycastForTarget(fireRange);
+            if (hit != null)
+            {
+                ApplyDamageToTarget(hit, damage);
+            }
+        }
+
+        void ApplyDamageToTarget(TargetableEntity target, float damage)
+        {
             var hullDamage = damage;
 
-            var shieldController = lockedTarget.GetComponent<NetworkShipShieldController>();
+            var shieldController = target.GetComponent<NetworkShipShieldController>();
             if (shieldController != null)
             {
-                var worldAttackDirection = (transform.position - targetTransform.position).normalized;
+                var worldAttackDirection = (transform.position - target.transform.position).normalized;
                 hullDamage = shieldController.ApplyDirectionalDamage(worldAttackDirection, damage);
             }
 
-            if (hullDamage > 0f)
+            if (hullDamage <= 0f)
             {
-                var damageable = lockedTarget.GetComponent<NetworkDamageableHealth>();
-                damageable?.ApplyDamage(hullDamage);
+                return;
             }
+
+            var damageable = target.GetComponent<NetworkDamageableHealth>();
+            if (damageable != null)
+            {
+                damageable.ApplyDamage(hullDamage);
+                return;
+            }
+
+            var hull = target.GetComponent<DamageableHull>();
+            if (hull != null)
+            {
+                hull.ApplyDamage(hullDamage);
+            }
+            else
+            {
+                Debug.LogWarning($"[BeamWeapon] Target '{target.DisplayName}' has no damage receiver (no NetworkDamageableHealth or DamageableHull).");
+            }
+        }
+
+        TargetableEntity RaycastForTarget(float range)
+        {
+            if (!Physics.Raycast(transform.position, transform.forward, out var hit, range))
+            {
+                return null;
+            }
+
+            return hit.collider.GetComponent<TargetableEntity>();
         }
     }
 }

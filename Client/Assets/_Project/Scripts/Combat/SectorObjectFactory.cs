@@ -4,8 +4,11 @@ namespace IronExiles.Combat
 {
     public static class SectorObjectFactory
     {
+        static ulong _nextObjectId = 2000;
+
         public static void SpawnAll()
         {
+            _nextObjectId = 2000;
             var parent = new GameObject("SectorObjects");
 
             SpawnAsteroidField(parent.transform);
@@ -52,6 +55,11 @@ namespace IronExiles.Combat
                     float grey = (float)(rng.NextDouble() * 0.3 + 0.2);
                     renderer.material.color = new Color(grey, grey * 0.9f, grey * 0.8f);
                 }
+
+                var targetable = asteroid.AddComponent<TargetableEntity>();
+                targetable.Configure("Asteroid", TargetAffiliation.Neutral, 100f);
+                targetable.AssignNetworkObjectIdForTests(_nextObjectId++);
+                asteroid.AddComponent<DamageableHull>().Configure(100f);
             }
         }
 
@@ -93,6 +101,11 @@ namespace IronExiles.Combat
             tower.transform.localPosition = new Vector3(0f, 18f, 0f);
             tower.transform.localScale = new Vector3(5f, 10f, 5f);
             tower.GetComponent<Renderer>().material.color = new Color(0.7f, 0.3f, 0.3f);
+
+            var stationTargetable = hub.AddComponent<TargetableEntity>();
+            stationTargetable.Configure("Space Station", TargetAffiliation.Neutral, 500f);
+            stationTargetable.AssignNetworkObjectIdForTests(_nextObjectId++);
+            hub.AddComponent<DamageableHull>().Configure(500f);
         }
 
         static void SpawnDebrisRing(Transform parent)
@@ -132,6 +145,11 @@ namespace IronExiles.Combat
                 {
                     renderer.material.color = new Color(0.35f, 0.3f, 0.25f);
                 }
+
+                var targetable = debris.AddComponent<TargetableEntity>();
+                targetable.Configure("Debris", TargetAffiliation.Neutral, 50f);
+                targetable.AssignNetworkObjectIdForTests(_nextObjectId++);
+                debris.AddComponent<DamageableHull>().Configure(50f);
             }
         }
 
@@ -167,6 +185,11 @@ namespace IronExiles.Combat
                 renderer.material.color = beaconColors[i];
                 renderer.material.SetColor("_EmissionColor", beaconColors[i] * 2f);
                 renderer.material.EnableKeyword("_EMISSION");
+
+                var targetable = beacon.AddComponent<TargetableEntity>();
+                targetable.Configure("Nav Beacon", TargetAffiliation.Neutral, 25f);
+                targetable.AssignNetworkObjectIdForTests(_nextObjectId++);
+                beacon.AddComponent<DamageableHull>().Configure(25f);
             }
         }
 
@@ -203,6 +226,11 @@ namespace IronExiles.Combat
                 {
                     renderer.material.color = new Color(0.25f + i * 0.05f, 0.2f + i * 0.03f, 0.15f + i * 0.02f);
                 }
+
+                var targetable = asteroid.AddComponent<TargetableEntity>();
+                targetable.Configure("Large Asteroid", TargetAffiliation.Neutral, 300f);
+                targetable.AssignNetworkObjectIdForTests(_nextObjectId++);
+                asteroid.AddComponent<DamageableHull>().Configure(300f);
             }
         }
 
@@ -229,6 +257,11 @@ namespace IronExiles.Combat
 
                 var renderer = container.GetComponent<Renderer>();
                 renderer.material.color = new Color(0.8f, 0.6f, 0.1f);
+
+                var targetable = container.AddComponent<TargetableEntity>();
+                targetable.Configure("Cargo Container", TargetAffiliation.Neutral, 75f);
+                targetable.AssignNetworkObjectIdForTests(_nextObjectId++);
+                container.AddComponent<DamageableHull>().Configure(75f);
             }
         }
     }
