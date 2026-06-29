@@ -1,7 +1,7 @@
 ---
 id: TASK-044
 title: "Shield math, settings, and NetworkShipShieldController"
-status: draft
+status: complete
 parent: REQ-040
 created: 2026-06-28
 updated: 2026-06-28
@@ -22,13 +22,13 @@ Create the core directional shield system: a static `ShieldMath` utility, a `Shi
 
 ## Acceptance Criteria
 
-- [ ] `ShieldMath.DetermineFacing()` correctly maps attack vectors to Front/Rear/Port/Starboard using dot products against local forward/right
-- [ ] `ShieldMath.ComputeAbsorption()` returns (absorbed, overflow) correctly when shield > damage, shield < damage, and shield == 0
-- [ ] `ShieldMath.ComputeRegenPerTick()` scales by power fraction (0 power = 0.5x base, full power = 2x base)
-- [ ] `NetworkShipShieldController.ApplyDirectionalDamage()` reduces correct facing, returns overflow to caller
-- [ ] Shield regen only applies to facings not damaged within `RegenCooldownSeconds`
-- [ ] `ShieldNetworkState` serializes/deserializes all 4 fields correctly
-- [ ] All ShieldMath tests pass in Edit Mode
+- [x] `ShieldMath.DetermineFacing()` correctly maps attack vectors to Front/Rear/Port/Starboard using dot products against local forward/right
+- [x] `ShieldMath.ComputeAbsorption()` returns (absorbed, overflow) correctly when shield > damage, shield < damage, and shield == 0
+- [x] `ShieldMath.ComputeRegenPerTick()` scales by power fraction (0 power = 0.5x base, full power = 2x base)
+- [x] `NetworkShipShieldController.ApplyDirectionalDamage()` reduces correct facing, returns overflow to caller
+- [x] Shield regen only applies to facings not damaged within `RegenCooldownSeconds`
+- [x] `ShieldNetworkState` serializes/deserializes all 4 fields correctly
+- [x] All ShieldMath tests pass in Edit Mode
 
 ## Technical Notes
 

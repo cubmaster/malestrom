@@ -29,6 +29,9 @@ namespace IronExiles.Core.Tests
             public float LockedTargetHullFill01 => 0f;
             public ulong LockedTargetNetworkObjectId => 0UL;
             public bool IsActive { get; set; } = true;
+            public int ShieldFacingCount { get; set; } = 4;
+            public float[] ShieldFacingPercents { get; set; } = new float[] { 100f, 100f, 100f, 100f };
+            public float GetShieldFacingPercent(int facingIndex) => ShieldFacingPercents[facingIndex];
         }
 
         [Test]
@@ -90,6 +93,76 @@ namespace IronExiles.Core.Tests
 
             Assert.IsTrue(state.JumpReady);
             Assert.AreEqual("JUMP RDY", state.JumpStatusText);
+        }
+
+        [Test]
+        public void Build_ShieldFacingsAtFull_AllOne()
+        {
+            var telemetry = new StubTelemetry
+            {
+                SpeedMetersPerSecond = 10f,
+                ShieldFacingPercents = new float[] { 100f, 100f, 100f, 100f },
+            };
+
+            var state = FlightHudPresenter.Build(telemetry);
+
+            Assert.IsNotNull(state.ShieldFacings);
+            Assert.AreEqual(4, state.ShieldFacings.Length);
+            Assert.AreEqual(1f, state.ShieldFacings[0], 0.001f);
+            Assert.AreEqual(1f, state.ShieldFacings[1], 0.001f);
+            Assert.AreEqual(1f, state.ShieldFacings[2], 0.001f);
+            Assert.AreEqual(1f, state.ShieldFacings[3], 0.001f);
+        }
+
+        [Test]
+        public void Build_ShieldFacingsAtZero_AllZero()
+        {
+            var telemetry = new StubTelemetry
+            {
+                SpeedMetersPerSecond = 10f,
+                ShieldFacingPercents = new float[] { 0f, 0f, 0f, 0f },
+            };
+
+            var state = FlightHudPresenter.Build(telemetry);
+
+            Assert.IsNotNull(state.ShieldFacings);
+            Assert.AreEqual(0f, state.ShieldFacings[0], 0.001f);
+            Assert.AreEqual(0f, state.ShieldFacings[1], 0.001f);
+            Assert.AreEqual(0f, state.ShieldFacings[2], 0.001f);
+            Assert.AreEqual(0f, state.ShieldFacings[3], 0.001f);
+        }
+
+        [Test]
+        public void Build_ShieldFacingsMixed_CorrectValues()
+        {
+            var telemetry = new StubTelemetry
+            {
+                SpeedMetersPerSecond = 10f,
+                ShieldFacingPercents = new float[] { 50f, 100f, 100f, 100f },
+            };
+
+            var state = FlightHudPresenter.Build(telemetry);
+
+            Assert.IsNotNull(state.ShieldFacings);
+            Assert.AreEqual(0.5f, state.ShieldFacings[0], 0.001f);
+            Assert.AreEqual(1f, state.ShieldFacings[1], 0.001f);
+            Assert.AreEqual(1f, state.ShieldFacings[2], 0.001f);
+            Assert.AreEqual(1f, state.ShieldFacings[3], 0.001f);
+        }
+
+        [Test]
+        public void Build_ShieldPercentAggregate_ComputesAverage()
+        {
+            // ShieldPercent of 75 means overall 75% shields
+            var telemetry = new StubTelemetry
+            {
+                SpeedMetersPerSecond = 10f,
+                ShieldPercent = 75f,
+            };
+
+            var state = FlightHudPresenter.Build(telemetry);
+
+            Assert.AreEqual(0.75f, state.ShieldFill01, 0.001f);
         }
     }
 }

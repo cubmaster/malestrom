@@ -63,6 +63,7 @@ namespace IronExiles.Combat
             movement.SetSectorBoundsExtent(_sectorBoundsExtent);
             ship.AddComponent<ShipInputController>();
             ship.AddComponent<ShipReactorPowerController>();
+            ship.AddComponent<NetworkShipShieldController>();
             ship.AddComponent<LocalShipRadarSensor>();
 
             var targetable = ship.AddComponent<TargetableEntity>();

@@ -110,8 +110,21 @@ namespace IronExiles.Combat
                 return;
             }
 
-            var damageable = lockedTarget.GetComponent<NetworkDamageableHealth>();
-            damageable?.ApplyDamage(damage);
+            var targetTransform = lockedTarget.transform;
+            var hullDamage = damage;
+
+            var shieldController = lockedTarget.GetComponent<NetworkShipShieldController>();
+            if (shieldController != null)
+            {
+                var worldAttackDirection = (transform.position - targetTransform.position).normalized;
+                hullDamage = shieldController.ApplyDirectionalDamage(worldAttackDirection, damage);
+            }
+
+            if (hullDamage > 0f)
+            {
+                var damageable = lockedTarget.GetComponent<NetworkDamageableHealth>();
+                damageable?.ApplyDamage(hullDamage);
+            }
         }
     }
 }

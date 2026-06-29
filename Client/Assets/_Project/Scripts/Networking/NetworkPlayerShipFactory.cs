@@ -38,6 +38,7 @@ namespace IronExiles.Networking
             ship.AddComponent<ShipInputController>();
             ship.AddComponent<NetworkShipMovementController>();
             ship.AddComponent<NetworkShipReactorPowerController>();
+            ship.AddComponent<NetworkShipShieldController>();
             var targetable = ship.AddComponent<TargetableEntity>();
             targetable.Configure("Player Ship", TargetAffiliation.Hostile, 100f);
             ship.AddComponent<NetworkDamageableHealth>();
@@ -46,6 +47,7 @@ namespace IronExiles.Networking
             ship.AddComponent<NetworkShipBeamWeaponController>();
             ship.AddComponent<ShipBeamWeaponInputController>();
             ship.AddComponent<BeamWeaponVfx>();
+            ship.AddComponent<DestructionVfx>();
             ship.AddComponent<NetworkedShipSetup>();
 
             return ship;

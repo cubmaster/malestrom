@@ -18,6 +18,7 @@ namespace IronExiles.UI
         public string HeadingText;
         public float HullFill01;
         public float ShieldFill01;
+        public float[] ShieldFacings;
         public float JumpChargeFill01;
         public bool JumpReady;
         public string JumpStatusText;
@@ -76,12 +77,17 @@ namespace IronExiles.UI
                 }
             }
 
+            var facings = new float[telemetry.ShieldFacingCount];
+            for (int i = 0; i < facings.Length; i++)
+                facings[i] = telemetry.GetShieldFacingPercent(i) / 100f;
+
             return new FlightHudDisplayState
             {
                 SpeedText = $"{telemetry.SpeedMetersPerSecond:F0} m/s",
                 HeadingText = $"HDG {telemetry.HeadingDegrees:F0}°",
                 HullFill01 = telemetry.HullPercent / 100f,
                 ShieldFill01 = telemetry.ShieldPercent / 100f,
+                ShieldFacings = facings,
                 JumpChargeFill01 = jumpCharge / 100f,
                 JumpReady = jumpReady,
                 JumpStatusText = jumpReady ? "JUMP RDY" : $"JUMP {jumpCharge:F0}%",

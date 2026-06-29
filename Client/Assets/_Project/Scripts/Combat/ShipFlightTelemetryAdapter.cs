@@ -41,6 +41,8 @@ namespace IronExiles.Combat
         float LockedTargetHullFill01 { get; }
         ulong LockedTargetNetworkObjectId { get; }
         bool IsActive { get; }
+        int ShieldFacingCount { get; }
+        float GetShieldFacingPercent(int facingIndex);
     }
 
     [DisallowMultipleComponent]
@@ -51,6 +53,7 @@ namespace IronExiles.Combat
         NetworkShipTargetingController _targeting;
         NetworkShipBeamWeaponController _beamWeapon;
         NetworkDamageableHealth _damageableHealth;
+        NetworkShipShieldController _shieldController;
         LocalShipRadarSensor _localRadar;
         IShipReactorPowerControl _reactorPower;
         RadarContact[] _radarContacts = System.Array.Empty<RadarContact>();
@@ -158,6 +161,7 @@ namespace IronExiles.Combat
             _targeting = GetComponent<NetworkShipTargetingController>();
             _beamWeapon = GetComponent<NetworkShipBeamWeaponController>();
             _damageableHealth = GetComponent<NetworkDamageableHealth>();
+            _shieldController = GetComponent<NetworkShipShieldController>();
             _localRadar = GetComponent<LocalShipRadarSensor>();
             _reactorPower = ResolveReactorPowerControl();
             _jumpChargeTimer = JumpChargeDuration;
@@ -315,7 +319,29 @@ namespace IronExiles.Combat
         }
 
         public float HullPercent => _damageableHealth != null ? _damageableHealth.HullPercent : 100f;
-        public float ShieldPercent => 100f;
+
+        public float ShieldPercent
+        {
+            get
+            {
+                if (_shieldController == null || _shieldController.MaxShieldPerFacing <= 0f)
+                    return 100f;
+                var state = _shieldController.Current;
+                var total = state.Front + state.Rear + state.Port + state.Starboard;
+                var max = _shieldController.MaxShieldPerFacing * 4f;
+                return (total / max) * 100f;
+            }
+        }
+
+        public int ShieldFacingCount => 4;
+
+        public float GetShieldFacingPercent(int facingIndex)
+        {
+            if (_shieldController == null)
+                return 100f;
+            var facing = (ShieldFacing)facingIndex;
+            return _shieldController.GetFacingPercent(facing);
+        }
 
         public float JumpDriveChargePercent => Mathf.Clamp01(_jumpChargeTimer / JumpChargeDuration) * 100f;
         public bool JumpDriveReady => _jumpChargeTimer >= JumpChargeDuration;

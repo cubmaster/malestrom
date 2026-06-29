@@ -1,7 +1,7 @@
 ---
 id: TASK-047
 title: "HUD directional shield display and telemetry wiring"
-status: draft
+status: complete
 parent: REQ-040
 created: 2026-06-28
 updated: 2026-06-28
