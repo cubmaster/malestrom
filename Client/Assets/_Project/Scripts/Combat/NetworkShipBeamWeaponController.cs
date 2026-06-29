@@ -56,6 +56,20 @@ namespace IronExiles.Combat
             SetFiringState(firing);
         }
 
+        /// <summary>
+        /// Server-side firing control for server-owned objects (e.g., NPCs).
+        /// Only callable on the server when this object has no player owner.
+        /// </summary>
+        public void SetFiringServer(bool firing)
+        {
+            if (!IsSpawned || !IsServer)
+            {
+                return;
+            }
+
+            _isFiring.Value = firing;
+        }
+
         [ServerRpc]
         public void SetFiringServerRpc(bool firing, ServerRpcParams rpcParams = default)
         {
