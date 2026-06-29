@@ -154,6 +154,20 @@ namespace IronExiles.Combat
             TrySetLock(targetNetworkObjectId);
         }
 
+        /// <summary>
+        /// Server-side lock for server-owned objects (e.g., NPCs).
+        /// Bypasses ownership check since server controls the NPC.
+        /// </summary>
+        public void RequestLockServer(ulong targetNetworkObjectId)
+        {
+            if (!IsSpawned || !IsServer)
+            {
+                return;
+            }
+
+            TrySetLock(targetNetworkObjectId);
+        }
+
         void Update()
         {
             if (IsSpawned && !IsServer)

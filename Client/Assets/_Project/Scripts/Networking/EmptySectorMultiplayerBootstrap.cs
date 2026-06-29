@@ -1,4 +1,5 @@
 using IronExiles.Combat;
+using IronExiles.Combat.AI;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
@@ -89,6 +90,12 @@ namespace IronExiles.Networking
             TargetDummyFactory.RegisterPrefab(dummyPrefab, networkManager);
             var dummySpawner = networkRoot.AddComponent<TargetDummySpawner>();
             dummySpawner.Configure(dummyPrefab, new Vector3(40f, 0f, 40f));
+
+            // NPC combat ships (REQ-041)
+            var npcPrefab = NPCShipFactory.CreatePrefab();
+            NPCShipFactory.RegisterPrefab(npcPrefab, networkManager);
+            var npcSpawner = networkRoot.AddComponent<NPCSpawner>();
+            npcSpawner.Configure(npcPrefab, NPCSettings.DefaultSpawnCount, new Vector3(0f, 0f, 150f));
 
             Object.DontDestroyOnLoad(networkRoot);
             Object.DontDestroyOnLoad(spawnRoot);

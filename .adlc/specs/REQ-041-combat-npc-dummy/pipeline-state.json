@@ -1,0 +1,26 @@
+{
+  "reqId": "REQ-041",
+  "title": "Combat NPC Dummy & Minimal AI",
+  "currentPhase": 4,
+  "status": "in-progress",
+  "repos": [
+    {
+      "id": "malestrom",
+      "path": "C:/Users/wmcclellan001/code/test/Malestrom",
+      "worktree": "C:/Users/wmcclellan001/code/test/Malestrom/.worktrees/REQ-041",
+      "branch": "feat/REQ-041-combat-npc-dummy",
+      "touched": true,
+      "merged": false
+    }
+  ],
+  "phases": {
+    "0": { "status": "complete", "completedAt": "2026-06-29T00:00:00Z" },
+    "1": { "status": "complete", "completedAt": "2026-06-29T00:01:00Z" },
+    "2": { "status": "complete", "completedAt": "2026-06-29T00:02:00Z" },
+    "3": { "status": "complete", "completedAt": "2026-06-29T00:03:00Z" },
+    "4": { "status": "complete", "completedAt": "2026-06-29T00:04:00Z" },
+    "5": { "status": "complete", "completedAt": "2026-06-29T00:05:00Z" }
+  },
+  "blockers": [],
+  "notes": []
+}

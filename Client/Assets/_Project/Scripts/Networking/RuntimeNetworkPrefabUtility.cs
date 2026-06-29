@@ -8,6 +8,7 @@ namespace IronExiles.Networking
     {
         const string PlayerShipPrefabId = "IronExiles.NetworkPlayerShip.v1";
         const string TargetDummyPrefabId = "IronExiles.NetworkTargetDummy.v1";
+        const string NPCShipPrefabId = "IronExiles.NetworkNPCShip.v1";
 
         static readonly FieldInfo GlobalObjectIdHashField = typeof(NetworkObject).GetField(
             "GlobalObjectIdHash",
@@ -21,6 +22,11 @@ namespace IronExiles.Networking
         public static void EnsureTargetDummyPrefabHash(NetworkObject networkObject)
         {
             EnsureRuntimePrefabHash(networkObject, TargetDummyPrefabId);
+        }
+
+        public static void EnsureNPCShipPrefabHash(NetworkObject networkObject)
+        {
+            EnsureRuntimePrefabHash(networkObject, NPCShipPrefabId);
         }
 
         public static void RegisterPrefab(GameObject prefab, NetworkManager networkManager)
