@@ -239,8 +239,21 @@ namespace IronExiles.Combat
         {
             if (_targetHealth != null && !_targetHealth.IsDestroyed)
             {
-                _targetHealth.ApplyDamage(_damage);
-                Debug.Log($"[Weapons] Projectile hit target for {_damage} damage!");
+                var hullDamage = _damage;
+
+                var shieldController = _targetHealth.GetComponent<NetworkShipShieldController>();
+                if (shieldController != null)
+                {
+                    var worldAttackDirection = _direction.normalized;
+                    hullDamage = shieldController.ApplyDirectionalDamage(worldAttackDirection, _damage);
+                }
+
+                if (hullDamage > 0f)
+                {
+                    _targetHealth.ApplyDamage(hullDamage);
+                }
+
+                Debug.Log($"[Weapons] Projectile hit target for {_damage} damage (shield absorbed {_damage - hullDamage:F1})!");
             }
 
             // Spawn explosive flash visual

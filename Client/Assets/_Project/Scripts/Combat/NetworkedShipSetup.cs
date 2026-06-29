@@ -57,6 +57,12 @@ namespace IronExiles.Combat
             {
                 damageable.ConfigureForServer(BeamWeaponSettings.DefaultMaxHull);
             }
+
+            var shieldController = GetComponent<NetworkShipShieldController>();
+            if (shieldController != null && IsServer)
+            {
+                shieldController.ConfigureForServer(ShieldSettings.DefaultMaxShieldPerFacing);
+            }
         }
 
         void AttachLocalPlayerSystems()

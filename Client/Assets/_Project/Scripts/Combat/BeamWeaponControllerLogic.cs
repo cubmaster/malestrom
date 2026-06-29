@@ -39,6 +39,52 @@ namespace IronExiles.Combat
             return true;
         }
 
+        public static bool TryApplyTickDamageWithShields(
+            bool isFiring,
+            ulong lockedTargetNetworkObjectId,
+            Vector3 origin,
+            Vector3 targetPosition,
+            float fireRangeMeters,
+            float baseDps,
+            float weaponsFraction,
+            float deltaTimeSeconds,
+            ref float shieldFacingHp,
+            ref float targetCurrentHull,
+            out float damageApplied,
+            out float shieldAbsorbed)
+        {
+            damageApplied = 0f;
+            shieldAbsorbed = 0f;
+
+            if (!isFiring)
+            {
+                return false;
+            }
+
+            if (!BeamWeaponMath.CanFireAtTarget(lockedTargetNetworkObjectId, origin, targetPosition, fireRangeMeters))
+            {
+                return false;
+            }
+
+            var effectiveDps = BeamWeaponMath.ComputeEffectiveDps(baseDps, weaponsFraction);
+            damageApplied = BeamWeaponMath.ComputeTickDamage(effectiveDps, deltaTimeSeconds);
+            if (damageApplied <= 0f)
+            {
+                return false;
+            }
+
+            var (absorbed, overflow) = ShieldMath.ComputeAbsorption(shieldFacingHp, damageApplied);
+            shieldAbsorbed = absorbed;
+            shieldFacingHp -= absorbed;
+
+            if (overflow > 0f)
+            {
+                targetCurrentHull = DamageableHealthMath.ApplyDamage(targetCurrentHull, overflow, out _);
+            }
+
+            return true;
+        }
+
         public static float SimulateSustainedFire(
             float baseDps,
             float weaponsFraction,
