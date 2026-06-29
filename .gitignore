@@ -43,3 +43,8 @@ Client/.vs/
 *.log
 Client/compile-check.log
 unity-compile-verify*.log
+
+# Auth Service (Docker / Node)
+services/auth-service/node_modules/
+.env
+docker-compose.override.yml

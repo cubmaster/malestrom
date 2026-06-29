@@ -1,0 +1,102 @@
+/* Iron Exiles Login Screen Styles */
+
+.panel {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(10, 10, 20, 0.95);
+}
+
+.title {
+    font-size: 48px;
+    color: #E0E0E0;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+    letter-spacing: 4px;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #888888;
+    margin-bottom: 40px;
+}
+
+.form-container {
+    width: 350px;
+    padding: 24px;
+    background-color: rgba(30, 30, 50, 0.8);
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: rgba(100, 100, 200, 0.3);
+}
+
+TextField {
+    margin-bottom: 16px;
+}
+
+TextField > .unity-text-field__input {
+    background-color: rgba(20, 20, 40, 0.9);
+    border-color: rgba(80, 80, 160, 0.5);
+    border-radius: 4px;
+    color: #E0E0E0;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+TextField > Label {
+    color: #AAAAAA;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.button-row {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.primary-button {
+    background-color: #1565C0;
+    color: #FFFFFF;
+    border-radius: 4px;
+    padding: 10px 24px;
+    font-size: 14px;
+    -unity-font-style: bold;
+    border-width: 0;
+}
+
+.primary-button:hover {
+    background-color: #1976D2;
+}
+
+.primary-button:active {
+    background-color: #0D47A1;
+}
+
+.secondary-button {
+    background-color: transparent;
+    color: #90CAF9;
+    border-radius: 4px;
+    padding: 10px 24px;
+    font-size: 14px;
+    border-width: 1px;
+    border-color: #1565C0;
+}
+
+.secondary-button:hover {
+    background-color: rgba(21, 101, 192, 0.1);
+}
+
+.connect-button {
+    margin-top: 24px;
+    padding: 14px 48px;
+    font-size: 18px;
+}
+
+.status-label {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #FFFFFF;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
