@@ -36,15 +36,10 @@ namespace IronExiles.Networking
             }
 
 #if UNITY_EDITOR
-            if (!Application.isBatchMode && !_autoConnectInEditor)
+            if (!Application.isBatchMode)
             {
-                Debug.Log("[NetworkSessionManager] Editor play: auto-connect disabled. Start the dedicated server, then use Connect To Server on NetworkSessionManager (or enable Auto Connect In Editor on EmptySectorMultiplayerBootstrap).");
+                StartHost();
                 return;
-            }
-
-            if (LocalMultiplayerDevSettings.ShouldAutoConnectInEditor())
-            {
-                _clientConnectTimeoutSeconds = Mathf.Max(_clientConnectTimeoutSeconds, 30f);
             }
 #endif
 
@@ -80,6 +75,19 @@ namespace IronExiles.Networking
             nm.StartServer();
             Debug.Log($"[NetworkSessionManager] Server started on port {port} (max {_maxConnections} players)");
         }
+
+        public void StartHost()
+        {
+            var port = NetworkCommandLineArgs.GetServerPort();
+            var nm = NetworkManager.Singleton;
+            NetworkManagerConfigurator.EnsureInitialized(nm, nm.GetComponent<UnityTransport>());
+            ConfigureTransport("127.0.0.1", port);
+
+            nm.ConnectionApprovalCallback = ApproveConnection;
+            nm.StartHost();
+            Debug.Log($"[NetworkSessionManager] Host started on port {port} (server+client in editor)");
+        }
+
 
         public void ConfigureEditorAutoConnect(bool autoConnectInEditor)
         {

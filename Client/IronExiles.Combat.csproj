@@ -79,6 +79,7 @@
     <Compile Include="Assets\_Project\Scripts\Combat\BeamWeaponDefinition.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipTargetInputController.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\ShipStatsDefinition.cs" />
+    <Compile Include="Assets\_Project\Scripts\Combat\SectorObjectFactory.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\BeamWeaponControllerLogic.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\NetworkDamageableHealth.cs" />
     <Compile Include="Assets\_Project\Scripts\Combat\TargetableEntity.cs" />

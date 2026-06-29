@@ -22,12 +22,15 @@ namespace IronExiles.Networking
                 return;
             }
 
+            var envValue = System.Environment.GetEnvironmentVariable("IRON_EXILES_AUTO_CONNECT");
+            Debug.Log($"[EmptySectorMultiplayerBootstrap] IRON_EXILES_AUTO_CONNECT env = '{envValue}', ShouldAutoConnect = {LocalMultiplayerDevSettings.ShouldAutoConnectInEditor()}, _autoConnectInEditor = {_autoConnectInEditor}");
+
             if (LocalMultiplayerDevSettings.ShouldAutoConnectInEditor())
             {
                 _autoConnectInEditor = true;
                 Debug.Log("[EmptySectorMultiplayerBootstrap] Auto-connect enabled (local multiplayer dev).");
             }
-            else
+            else if (!_autoConnectInEditor)
             {
                 Debug.Log("[EmptySectorMultiplayerBootstrap] Auto-connect disabled; using offline flight setup.");
             }
@@ -62,6 +65,8 @@ namespace IronExiles.Networking
 
         void EnsureNetworkStack()
         {
+            SectorObjectFactory.SpawnAll();
+
             var networkRoot = new GameObject("NetworkSession");
             var networkManager = networkRoot.AddComponent<NetworkManager>();
             var transport = networkRoot.AddComponent<UnityTransport>();

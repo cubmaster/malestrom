@@ -102,9 +102,14 @@ if (-not $SkipServer) {
 if (-not $SkipUnity) {
     $env:IRON_EXILES_AUTO_CONNECT = '1'
 
+    # Create flag file so an already-running Unity editor can detect multiplayer mode
+    $flagPath = Join-Path $PSScriptRoot '../.iron-exiles-auto-connect'
+    Set-Content -Path $flagPath -Value '1' -NoNewline
+
     Write-Host ''
     Write-Host 'Opening Unity Editor...'
-    Write-Host '  Press Play — the client auto-connects to the local server and spawns your ship.'
+    Write-Host '  Press Play — the editor starts as host (server+client) for local multiplayer.'
+    Write-Host '  Flag file created: .iron-exiles-auto-connect (delete to return to single-player mode).'
     Write-Host ''
 
     & (Join-Path $PSScriptRoot 'Launch-UnityEditor.ps1') -ScenePath $ScenePath -UseHub:$UseHub

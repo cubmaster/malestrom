@@ -1,13 +1,13 @@
 ---
 id: REQ-040
 title: "Directional Shields, Hull HP & Destruction"
-status: draft
+status: complete
 deployable: true
 created: 2026-06-11
-updated: 2026-06-11
+updated: 2026-06-28
 component: "game/combat/DefenseSystem"
 domain: "combat"
-stack: ["unreal", "cpp"]
+stack: ["unity", "csharp"]
 concerns: ["performance", "testability", "reliability"]
 tags: ["shields", "hull", "damage-model", "tier-c"]
 ---

@@ -11,6 +11,8 @@ namespace IronExiles.Combat
         {
             base.OnNetworkSpawn();
 
+            Debug.Log($"[NetworkedShipSetup] OnNetworkSpawn — IsOwner={IsOwner}, IsClient={IsClient}, IsServer={IsServer}, OwnerClientId={OwnerClientId}, LocalClientId={NetworkManager.Singleton?.LocalClientId}");
+
             var inputController = GetComponent<ShipInputController>();
             if (inputController != null)
             {
@@ -27,10 +29,12 @@ namespace IronExiles.Combat
 
             if (IsOwner)
             {
+                Debug.Log("[NetworkedShipSetup] Attaching local player systems (owner).");
                 AttachLocalPlayerSystems();
             }
             else
             {
+                Debug.Log("[NetworkedShipSetup] Configuring as remote ship (not owner).");
                 ConfigureRemoteShipVisual();
             }
         }
@@ -61,12 +65,40 @@ namespace IronExiles.Combat
 
         void AttachLocalPlayerSystems()
         {
+            if (!gameObject.activeInHierarchy)
+            {
+                gameObject.SetActive(true);
+            }
+
             gameObject.tag = "Player";
-            CockpitCameraRig.HideLocalHull(gameObject);
+
+            var renderer = GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.enabled = false;
+            }
+
+            var visuals = transform.Find("Visuals");
+            if (visuals != null)
+            {
+                visuals.gameObject.SetActive(false);
+            }
+
             CockpitCameraRig.AttachMainCameraToShip(transform);
 
-            gameObject.AddComponent<ShipFlightTelemetryAdapter>();
-            gameObject.AddComponent<ShipWeaponsInputController>();
+            if (GetComponent<ShipFlightTelemetryAdapter>() == null)
+            {
+                gameObject.AddComponent<ShipFlightTelemetryAdapter>();
+            }
+
+            if (GetComponent<ShipWeaponsInputController>() == null)
+            {
+                gameObject.AddComponent<ShipWeaponsInputController>();
+            }
+
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
             LocalPlayerSystemsEvents.NotifyLocalPlayerShipReady(gameObject);
         }
 
@@ -77,6 +109,12 @@ namespace IronExiles.Combat
             {
                 renderer.enabled = true;
                 renderer.material.color = new Color(0.6f, 0.6f, 0.7f, 1f);
+            }
+
+            var visuals = transform.Find("Visuals");
+            if (visuals != null)
+            {
+                visuals.gameObject.SetActive(true);
             }
         }
     }

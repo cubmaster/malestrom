@@ -1,0 +1,12 @@
+{
+    "asset": "7f35e555848a7d44fa8aa8f6a6a87eb9",
+    "fileName": "019f056e-ca6a-7d48-b7e6-c8bcea8c6903_Preview.jpg",
+    "prompt": "craggy dark grey space rock, asteroid mineral surface, highly detailed, craggy texture, realistic, seamless tileable",
+    "negativePrompt": "",
+    "model": "realistic-textures-3-0",
+    "modelName": "Realistic Textures 3.0",
+    "customSeed": 201377634,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation"
+}
