@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -26,6 +28,8 @@ namespace IronExiles.Combat
     [DisallowMultipleComponent]
     public sealed class NetworkDamageableHealth : NetworkBehaviour
     {
+        const float DespawnDelay = 0.5f;
+
         readonly NetworkVariable<float> _currentHull = new(
             BeamWeaponSettings.DefaultMaxHull,
             NetworkVariableReadPermission.Everyone,
@@ -39,6 +43,18 @@ namespace IronExiles.Combat
         TargetableEntity _targetable;
         float _localCurrentHull = BeamWeaponSettings.DefaultMaxHull;
         float _localMaxHull = BeamWeaponSettings.DefaultMaxHull;
+        bool _hasTriggeredDestruction;
+
+        /// <summary>
+        /// Fired on the server when hull transitions from >0 to <=0.
+        /// Parameter is the NetworkObjectId of the destroyed object.
+        /// </summary>
+        public event Action<ulong> Destroyed;
+
+        /// <summary>
+        /// Provides access to hull value changes for client-side VFX.
+        /// </summary>
+        public NetworkVariable<float> CurrentHullNetVar => _currentHull;
 
         public float CurrentHull => IsSpawned ? _currentHull.Value : _localCurrentHull;
         public float MaxHull => IsSpawned ? _maxHull.Value : _localMaxHull;
@@ -55,6 +71,7 @@ namespace IronExiles.Combat
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            _hasTriggeredDestruction = false;
             SyncTargetableDisplay();
         }
 
@@ -92,13 +109,30 @@ namespace IronExiles.Combat
 
             if (IsSpawned)
             {
-                _currentHull.Value = DamageableHealthMath.ApplyDamage(_currentHull.Value, amount, out _);
+                _currentHull.Value = DamageableHealthMath.ApplyDamage(_currentHull.Value, amount, out var destroyed);
+
+                if (destroyed && !_hasTriggeredDestruction)
+                {
+                    _hasTriggeredDestruction = true;
+                    Destroyed?.Invoke(NetworkObject.NetworkObjectId);
+                    StartCoroutine(DespawnAfterDelay());
+                }
             }
             else
             {
                 _localCurrentHull = DamageableHealthMath.ApplyDamage(_localCurrentHull, amount, out _);
             }
             SyncTargetableDisplay();
+        }
+
+        IEnumerator DespawnAfterDelay()
+        {
+            yield return new WaitForSeconds(DespawnDelay);
+
+            if (IsSpawned && IsServer && NetworkObject != null)
+            {
+                NetworkObject.Despawn(true);
+            }
         }
 
         void SyncTargetableDisplay()

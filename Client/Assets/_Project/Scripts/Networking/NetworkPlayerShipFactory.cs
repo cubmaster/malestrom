@@ -43,6 +43,7 @@ namespace IronExiles.Networking
             ship.AddComponent<NetworkShipBeamWeaponController>();
             ship.AddComponent<ShipBeamWeaponInputController>();
             ship.AddComponent<BeamWeaponVfx>();
+            ship.AddComponent<DestructionVfx>();
             ship.AddComponent<NetworkedShipSetup>();
 
             return ship;
