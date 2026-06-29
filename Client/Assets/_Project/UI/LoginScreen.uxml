@@ -1,0 +1,28 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Style src="LoginScreen.uss" />
+
+    <!-- Login Panel -->
+    <ui:VisualElement name="login-panel" class="panel">
+        <ui:Label text="IRON EXILES" class="title" />
+        <ui:Label text="Authentication" class="subtitle" />
+
+        <ui:VisualElement class="form-container">
+            <ui:TextField name="email-field" label="Email" />
+            <ui:TextField name="password-field" label="Password" password="true" />
+
+            <ui:VisualElement class="button-row">
+                <ui:Button name="login-button" text="Login" class="primary-button" />
+                <ui:Button name="register-button" text="Register" class="secondary-button" />
+            </ui:VisualElement>
+
+            <ui:Label name="status-label" text="" class="status-label" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+
+    <!-- Connected Panel (shown after successful login) -->
+    <ui:VisualElement name="connected-panel" class="panel" style="display: none;">
+        <ui:Label text="IRON EXILES" class="title" />
+        <ui:Label text="Authenticated" class="subtitle" style="color: #4CAF50;" />
+        <ui:Button name="connect-button" text="Connect to Server" class="primary-button connect-button" />
+    </ui:VisualElement>
+</ui:UXML>

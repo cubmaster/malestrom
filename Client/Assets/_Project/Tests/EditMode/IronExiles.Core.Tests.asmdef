@@ -3,6 +3,7 @@
     "rootNamespace": "IronExiles.Core.Tests",
     "references": [
         "IronExiles.Core",
+        "IronExiles.Auth",
         "IronExiles.Combat",
         "IronExiles.Networking",
         "IronExiles.UI",
