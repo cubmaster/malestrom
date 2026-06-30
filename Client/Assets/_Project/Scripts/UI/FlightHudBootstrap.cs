@@ -102,6 +102,20 @@ namespace IronExiles.UI
             }
 
             hud.Bind(telemetry);
+
+            var indicator = gameObject.GetComponent<DamageDirectionIndicator>();
+            if (indicator == null)
+            {
+                indicator = gameObject.AddComponent<DamageDirectionIndicator>();
+                var canvas = hud.GetComponentInChildren<Canvas>();
+                if (canvas == null)
+                {
+                    canvas = Object.FindFirstObjectByType<Canvas>();
+                }
+                indicator.Initialize(canvas, player.transform);
+                LocalPlayerSystemsEvents.LocalPlayerHit += indicator.ShowHit;
+            }
+
             _bound = true;
             Debug.Log($"[FlightHudBootstrap] Bound flight HUD to local player ship '{player.name}'.");
         }

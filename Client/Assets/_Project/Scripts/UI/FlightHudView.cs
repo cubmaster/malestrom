@@ -310,10 +310,10 @@ namespace IronExiles.UI
             }
 
             _radarCountText.text = state.RadarContactCount > 0
-                ? $"{state.RadarContactCount} CONTACT{(state.RadarContactCount > 1 ? "S" : "")}"
-                : "NO CONTACTS";
+                ? $"{state.RadarContactCount} | {state.RadarRangeMeters:F0}m"
+                : $"NO CONTACTS | {state.RadarRangeMeters:F0}m";
 
-            ApplyRadarBlips(state.RadarContacts, state.RadarContactIds, state.RadarContactCount, state.LockedTargetNetworkObjectId);
+            ApplyRadarBlips(state.RadarContacts, state.RadarContactIds, state.RadarContactCount, state.LockedTargetNetworkObjectId, state.RadarContactHostile);
             ApplyLockedTargetPanel(state);
         }
 
@@ -359,7 +359,7 @@ namespace IronExiles.UI
             }
         }
 
-        void ApplyRadarBlips(Vector3[] contacts, ulong[] ids, int count, ulong lockedId)
+        void ApplyRadarBlips(Vector3[] contacts, ulong[] ids, int count, ulong lockedId, bool[] hostile = null)
         {
             var flash = (Time.time % 0.4f) < 0.2f;
 
@@ -375,17 +375,24 @@ namespace IronExiles.UI
                 var contact = contacts[i];
                 var contactId = ids != null && i < ids.Length ? ids[i] : 0UL;
                 var isLocked = lockedId != 0UL && contactId == lockedId;
+                var isHostile = hostile != null && i < hostile.Length && hostile[i];
 
                 if (isLocked)
                 {
                     blip.enabled = flash;
-                    blip.color = new Color(1f, 0.15f, 0.15f, 0.95f); // Red flash
-                    blip.rectTransform.sizeDelta = new Vector2(10f, 10f); // Larger
+                    blip.color = new Color(1f, 0.15f, 0.15f, 0.95f);
+                    blip.rectTransform.sizeDelta = new Vector2(10f, 10f);
+                }
+                else if (isHostile)
+                {
+                    blip.enabled = flash || (Time.time % 1f) < 0.7f;
+                    blip.color = new Color(1f, 0.1f, 0.1f, 0.9f);
+                    blip.rectTransform.sizeDelta = new Vector2(8f, 8f);
                 }
                 else
                 {
                     blip.enabled = true;
-                    blip.color = new Color(1f, 0.45f, 0.25f, 0.95f); // Standard
+                    blip.color = new Color(1f, 0.45f, 0.25f, 0.95f);
                     blip.rectTransform.sizeDelta = new Vector2(6f, 6f);
                 }
 

@@ -1,10 +1,10 @@
 ---
 id: REQ-041
 title: "Combat NPC Dummy & Minimal AI"
-status: draft
+status: complete
 deployable: true
 created: 2026-06-11
-updated: 2026-06-11
+updated: 2026-06-29
 component: "game/ai/NPCAIModule"
 domain: "combat"
 stack: ["unreal", "cpp"]

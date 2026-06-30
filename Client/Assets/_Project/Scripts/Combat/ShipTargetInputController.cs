@@ -27,6 +27,16 @@ namespace IronExiles.Combat
                 return;
             }
 
+            if (keyboard.commaKey.wasPressedThisFrame)
+            {
+                _targeting.AdjustRadarRange(-500f);
+            }
+
+            if (keyboard.periodKey.wasPressedThisFrame)
+            {
+                _targeting.AdjustRadarRange(500f);
+            }
+
             if (keyboard.tabKey.wasPressedThisFrame || keyboard.tKey.wasPressedThisFrame)
             {
                 LockTargetUnderCrosshair();
@@ -43,9 +53,12 @@ namespace IronExiles.Combat
 
             var ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             TargetableEntity bestTarget = null;
-            float bestCosAngle = -1f; // We want largest cosine (smallest angle)
-            float maxAngleDegrees = 15f; // Lock-on cone of 15 degrees from crosshair
+            float bestCosAngle = -1f;
+            float maxAngleDegrees = 30f;
             float minCosAngle = Mathf.Cos(maxAngleDegrees * Mathf.Deg2Rad);
+
+            TargetableEntity nearestTarget = null;
+            float nearestDist = float.MaxValue;
 
             var selfId = GetComponent<TargetableEntity>()?.GetNetworkObjectId() ?? 0UL;
 
@@ -54,12 +67,19 @@ namespace IronExiles.Combat
                 if (entity == null) continue;
                 var entityId = entity.GetNetworkObjectId();
                 if (entityId == 0UL || entityId == selfId) continue;
+                if (!TargetSelectionMath.IsTabSelectable(entity.Affiliation)) continue;
 
-                // Check distance
                 var distance = Vector3.Distance(transform.position, entity.transform.position);
                 if (distance > _targeting.LockRangeMeters) continue;
 
-                // Check direction
+                // Track nearest as fallback
+                if (distance < nearestDist)
+                {
+                    nearestDist = distance;
+                    nearestTarget = entity;
+                }
+
+                // Check if in crosshair cone
                 var toTarget = (entity.transform.position - ray.origin).normalized;
                 var cosAngle = Vector3.Dot(ray.direction, toTarget);
 
@@ -70,9 +90,11 @@ namespace IronExiles.Combat
                 }
             }
 
-            if (bestTarget != null)
+            // Use crosshair target if found, otherwise nearest in range
+            var finalTarget = bestTarget ?? nearestTarget;
+            if (finalTarget != null)
             {
-                var targetId = bestTarget.GetNetworkObjectId();
+                var targetId = finalTarget.GetNetworkObjectId();
                 if (_targeting.IsSpawned)
                 {
                     _targeting.RequestLockServerRpc(targetId);
@@ -81,7 +103,6 @@ namespace IronExiles.Combat
                 {
                     _targeting.RequestLockOffline(targetId);
                 }
-                Debug.Log($"[Targeting] Locked onto {bestTarget.DisplayName} in crosshair.");
             }
         }
     }

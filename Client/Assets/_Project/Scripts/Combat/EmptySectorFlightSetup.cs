@@ -1,3 +1,4 @@
+using IronExiles.Combat.AI;
 using UnityEngine;
 
 namespace IronExiles.Combat
@@ -15,6 +16,7 @@ namespace IronExiles.Combat
             ProceduralStarfieldEnvironment.Apply();
             SpawnSectorObjects();
             SpawnTrainingDummy();
+            SpawnNPC(new Vector3(60f, 0f, 60f));
             var ship = CreateShip();
             AttachCockpitCamera(ship.transform);
         }
@@ -44,6 +46,36 @@ namespace IronExiles.Combat
             var health = dummy.AddComponent<NetworkDamageableHealth>();
             health.ConfigureForServer(100f); // Default 100 max hull
             dummy.AddComponent<DestructionVfx>();
+        }
+
+        void SpawnNPC(Vector3 position)
+        {
+            var npc = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            npc.name = "KethariDrone";
+            npc.transform.SetPositionAndRotation(position, Quaternion.identity);
+            npc.transform.localScale = new Vector3(2f, 0.5f, 1.5f);
+
+            var renderer = npc.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = new Color(0.7f, 0.15f, 0.1f, 1f);
+            }
+
+            var targetable = npc.AddComponent<TargetableEntity>();
+            targetable.Configure("Kethari Drone", TargetAffiliation.Hostile, 100f);
+            targetable.AssignNetworkObjectIdForTests(8000UL);
+
+            npc.AddComponent<DamageableHull>().Configure(NPCSettings.MaxHull);
+            npc.AddComponent<NetworkShipShieldController>();
+            npc.AddComponent<NetworkShipTargetingController>();
+            npc.AddComponent<NetworkShipBeamWeaponController>();
+            npc.AddComponent<ShipMovementController>();
+
+            var brain = npc.AddComponent<NPCBrain>();
+            brain.Initialize(position, true);
+
+            var controller = npc.AddComponent<NPCShipController>();
+            controller.Initialize(true);
         }
 
         GameObject CreateShip()

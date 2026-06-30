@@ -24,6 +24,8 @@ namespace IronExiles.Core.Tests
             public int RadarContactCount => 0;
             public Vector3 GetRadarContact(int index) => Vector3.zero;
             public ulong GetRadarContactNetworkObjectId(int index) => 0UL;
+            public bool GetRadarContactHostile(int index) => false;
+            public float RadarRangeMeters => 2500f;
             public string LockedTargetName => string.Empty;
             public float LockedTargetDistanceMeters => 0f;
             public float LockedTargetHullFill01 => 0f;

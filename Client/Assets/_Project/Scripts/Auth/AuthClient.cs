@@ -95,8 +95,8 @@ namespace IronExiles.Auth
             return new AuthResult<T>
             {
                 Success = false,
-                ErrorMessage = errorResponse?.message ?? "Unknown error",
-                ErrorCode = errorResponse?.error ?? "unknown",
+                ErrorMessage = string.IsNullOrEmpty(errorResponse.message) ? "Unknown error" : errorResponse.message,
+                ErrorCode = string.IsNullOrEmpty(errorResponse.error) ? "unknown" : errorResponse.error,
                 StatusCode = statusCode,
             };
         }

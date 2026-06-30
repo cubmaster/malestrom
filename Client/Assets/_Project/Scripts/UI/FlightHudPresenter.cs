@@ -30,6 +30,8 @@ namespace IronExiles.UI
         public int RadarContactCount;
         public Vector3[] RadarContacts;
         public ulong[] RadarContactIds;
+        public bool[] RadarContactHostile;
+        public float RadarRangeMeters;
         public string LockedTargetName;
         public float LockedTargetDistanceMeters;
         public float LockedTargetHullFill01;
@@ -66,14 +68,17 @@ namespace IronExiles.UI
 
             Vector3[] radarContacts = null;
             ulong[] radarContactIds = null;
+            bool[] radarContactHostile = null;
             if (telemetry.RadarContactCount > 0)
             {
                 radarContacts = new Vector3[telemetry.RadarContactCount];
                 radarContactIds = new ulong[telemetry.RadarContactCount];
+                radarContactHostile = new bool[telemetry.RadarContactCount];
                 for (var i = 0; i < telemetry.RadarContactCount; i++)
                 {
                     radarContacts[i] = telemetry.GetRadarContact(i);
                     radarContactIds[i] = telemetry.GetRadarContactNetworkObjectId(i);
+                    radarContactHostile[i] = telemetry.GetRadarContactHostile(i);
                 }
             }
 
@@ -99,6 +104,8 @@ namespace IronExiles.UI
                 RadarContactCount = telemetry.RadarContactCount,
                 RadarContacts = radarContacts,
                 RadarContactIds = radarContactIds,
+                RadarContactHostile = radarContactHostile,
+                RadarRangeMeters = telemetry.RadarRangeMeters,
                 LockedTargetName = telemetry.LockedTargetName,
                 LockedTargetDistanceMeters = telemetry.LockedTargetDistanceMeters,
                 LockedTargetHullFill01 = telemetry.LockedTargetHullFill01,

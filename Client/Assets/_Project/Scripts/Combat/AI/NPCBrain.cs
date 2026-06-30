@@ -172,7 +172,7 @@ namespace IronExiles.Combat.AI
             Transform nearest = null;
             var nearestDist = float.MaxValue;
 
-            foreach (var targetable in Object.FindObjectsByType<TargetableEntity>(FindObjectsSortMode.None))
+            foreach (var targetable in UnityEngine.Object.FindObjectsByType<TargetableEntity>(FindObjectsSortMode.None))
             {
                 if (targetable.Affiliation != TargetAffiliation.Friendly)
                 {

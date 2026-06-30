@@ -73,6 +73,12 @@ namespace IronExiles.Combat
 
             _lastDamageTime[(int)facing] = Time.time;
 
+            if (CompareTag("Player"))
+            {
+                var attackerPos = transform.position + worldAttackDirection * 100f;
+                LocalPlayerSystemsEvents.NotifyLocalPlayerHit(attackerPos);
+            }
+
             return overflow;
         }
 

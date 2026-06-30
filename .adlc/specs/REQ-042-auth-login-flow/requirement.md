@@ -1,10 +1,10 @@
 ---
 id: REQ-042
 title: "Auth Service & Login Flow (Local Stack)"
-status: draft
+status: complete
 deployable: true
 created: 2026-06-11
-updated: 2026-06-11
+updated: 2026-06-29
 component: "backend/AuthService"
 domain: "auth"
 stack: ["postgresql", "redis", "docker", "unreal"]

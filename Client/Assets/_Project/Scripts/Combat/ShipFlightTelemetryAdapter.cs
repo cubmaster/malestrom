@@ -36,6 +36,8 @@ namespace IronExiles.Combat
         int RadarContactCount { get; }
         Vector3 GetRadarContact(int index);
         ulong GetRadarContactNetworkObjectId(int index);
+        bool GetRadarContactHostile(int index);
+        float RadarRangeMeters { get; }
         string LockedTargetName { get; }
         float LockedTargetDistanceMeters { get; }
         float LockedTargetHullFill01 { get; }
@@ -375,6 +377,18 @@ namespace IronExiles.Combat
 
             return _radarContacts[index].NetworkObjectId;
         }
+
+        public bool GetRadarContactHostile(int index)
+        {
+            if (index < 0 || index >= _radarContacts.Length)
+            {
+                return false;
+            }
+
+            return _radarContacts[index].Affiliation == TargetAffiliation.Hostile;
+        }
+
+        public float RadarRangeMeters => _targeting != null ? _targeting.LockRangeMeters : 2500f;
 
         public string LockedTargetName
         {

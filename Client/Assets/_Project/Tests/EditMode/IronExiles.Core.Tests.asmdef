@@ -7,6 +7,7 @@
         "IronExiles.Combat",
         "IronExiles.Networking",
         "IronExiles.UI",
+        "Unity.Netcode.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

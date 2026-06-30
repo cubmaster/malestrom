@@ -42,25 +42,39 @@ namespace IronExiles.Combat
 
             if (IsDestroyed)
             {
+                DetachCamera();
                 SpawnExplosion();
                 Destroy(gameObject);
             }
         }
+
+        void DetachCamera()
+        {
+            var cam = Camera.main;
+            if (cam != null && cam.transform.IsChildOf(transform))
+            {
+                cam.transform.SetParent(null);
+            }
+        }
+
         void SpawnExplosion()
         {
             var explosion = new GameObject("Explosion");
             explosion.transform.position = transform.position;
 
             var ps = explosion.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
             var main = ps.main;
             main.duration = 1.5f;
+            main.playOnAwake = false;
+            main.loop = false;
             main.startLifetime = 1.2f;
             main.startSpeed = 8f;
             main.startSize = 2f;
             main.startColor = new ParticleSystem.MinMaxGradient(
                 new Color(1f, 0.6f, 0.1f, 1f),
                 new Color(1f, 0.2f, 0.05f, 1f));
-            main.loop = false;
             main.stopAction = ParticleSystemStopAction.Destroy;
 
             var emission = ps.emission;
@@ -74,6 +88,8 @@ namespace IronExiles.Combat
             var sizeOverLifetime = ps.sizeOverLifetime;
             sizeOverLifetime.enabled = true;
             sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, 1f, 1f, 0f));
+
+            ps.Play();
         }
     }
 }

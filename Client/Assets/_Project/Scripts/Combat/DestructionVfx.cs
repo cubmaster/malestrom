@@ -65,15 +65,16 @@ namespace IronExiles.Combat
             explosionGo.transform.position = transform.position;
 
             var ps = explosionGo.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
             var main = ps.main;
             main.duration = ParticleLifetime;
             main.loop = false;
+            main.playOnAwake = false;
             main.startLifetime = ParticleLifetime;
             main.startSize = new ParticleSystem.MinMaxCurve(StartSizeMin, StartSizeMax);
             main.startSpeed = 5f;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.playOnAwake = true;
             main.stopAction = ParticleSystemStopAction.Destroy;
 
             // Color gradient: orange -> red -> transparent

@@ -133,17 +133,28 @@ namespace IronExiles.Combat
 
         IEnumerator DestroyOfflineAfterDelay()
         {
+            DetachCameraIfParented();
             yield return new WaitForSeconds(DespawnDelay);
             Destroy(gameObject);
         }
 
         IEnumerator DespawnAfterDelay()
         {
+            DetachCameraIfParented();
             yield return new WaitForSeconds(DespawnDelay);
 
             if (IsSpawned && IsServer && NetworkObject != null)
             {
                 NetworkObject.Despawn(true);
+            }
+        }
+
+        void DetachCameraIfParented()
+        {
+            var cam = Camera.main;
+            if (cam != null && cam.transform.IsChildOf(transform))
+            {
+                cam.transform.SetParent(null);
             }
         }
 

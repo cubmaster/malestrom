@@ -53,6 +53,11 @@ namespace IronExiles.UI
                 return;
             }
 
+            if (_telemetry == null || (_telemetry is UnityEngine.Object obj && obj == null))
+            {
+                return;
+            }
+
             _view.Apply(FlightHudPresenter.Build(_telemetry));
         }
 

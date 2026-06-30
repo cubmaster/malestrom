@@ -27,6 +27,11 @@ namespace IronExiles.Combat
         public int MaxRadarContacts => _maxRadarContacts;
         public bool ProvidesLocalRadar => !IsSpawned || IsOwner;
 
+        public void AdjustRadarRange(float delta)
+        {
+            _lockRangeMeters = Mathf.Clamp(_lockRangeMeters + delta, 500f, 10000f);
+        }
+
         void Awake()
         {
             _selfTargetable = GetComponent<TargetableEntity>();
